@@ -66,33 +66,33 @@ export function allocateThirdPlaces(qualifiedGroups) {
 }
 
 // Clears the winner chain of knockout matches if a dependent match changes
-export function clearDownstreamMatches(matchId, knockoutMatchesMap) {
-  const updatedMatches = { ...knockoutMatchesMap };
+export function clearDownstreamMatches(matchId, knockoutMatchesArr) {
+  let updated = [...knockoutMatchesArr];
   const queue = [matchId];
 
   while (queue.length > 0) {
     const currentId = queue.shift();
-    const currentMatch = updatedMatches[currentId];
-    if (!currentMatch || !currentMatch.nextMatchId) continue;
+    const currentIdx = updated.findIndex(m => m.id === currentId);
+    if (currentIdx === -1) continue;
+    const currentMatch = updated[currentIdx];
+    if (!currentMatch.nextMatchId) continue;
 
-    const nextId = currentMatch.nextMatchId;
-    const nextMatch = updatedMatches[nextId];
-
-    if (nextMatch) {
+    const nextIdx = updated.findIndex(m => m.id === currentMatch.nextMatchId);
+    if (nextIdx !== -1) {
       const side = currentMatch.nextSide; // 'home' or 'away'
-      
-      updatedMatches[nextId] = {
-        ...nextMatch,
+
+      updated[nextIdx] = {
+        ...updated[nextIdx],
         [side]: '',
         [`${side}Score`]: null,
         winner: ''
       };
-      
-      queue.push(nextId);
+
+      queue.push(currentMatch.nextMatchId);
     }
   }
 
-  return updatedMatches;
+  return updated;
 }
 
 // Simulate group rankings based on team ratings with some random variance (noise)

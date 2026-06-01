@@ -255,52 +255,6 @@ function App() {
     setKnockoutMatches(updatedKO);
   }, [groupTeams, selectedThirdsArray]);
 
-  // Handle score input in knockout stage
-  const handleKnockoutScoreChange = (matchId, side, val) => {
-    const score = val === '' ? null : Math.max(0, parseInt(val, 10));
-    let updated = knockoutMatches.map(m => {
-      if (m.id === matchId) {
-        const nextM = { ...m, [`${side}Score`]: score };
-        
-        // Auto-calculate winner if both scores are present and not equal
-        const hScore = side === 'home' ? score : m.homeScore;
-        const aScore = side === 'away' ? score : m.awayScore;
-        
-        let winTeam = '';
-        let penWinner = m.penaltyWinner;
-
-        if (hScore !== null && aScore !== null) {
-          if (hScore > aScore) {
-            winTeam = m.home;
-            penWinner = null;
-          } else if (hScore < aScore) {
-            winTeam = m.away;
-            penWinner = null;
-          } else {
-            // Draw: keep existing penWinner if valid
-            if (penWinner === 'home') winTeam = m.home;
-            else if (penWinner === 'away') winTeam = m.away;
-          }
-        }
-
-        return {
-          ...nextM,
-          winner: winTeam,
-          penaltyWinner: penWinner
-        };
-      }
-      return m;
-    });
-
-    // Propagate winner to next match
-    const targetMatch = updated.find(x => x.id === matchId);
-    if (targetMatch) {
-      updated = propagateWinner(targetMatch, updated);
-    }
-
-    setKnockoutMatches(updated);
-  };
-
   // Select knockout winner directly (clicking team card or setting penalty winner)
   const handleSelectWinner = (matchId, side, isPenalty = false) => {
     let updated = knockoutMatches.map(m => {
