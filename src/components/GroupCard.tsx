@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { GripVertical } from 'lucide-react';
 import type { Team } from '../types';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface GroupCardProps {
   groupLetter: string;
@@ -11,6 +12,7 @@ interface GroupCardProps {
 }
 
 export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSimulateGroup }: GroupCardProps) {
+  const { t } = useLanguage();
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   // Track the drag-over position ("before" or "after" the target index) for accurate insertion
@@ -82,9 +84,9 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
   return (
     <div className="group-card">
       <div className="group-header">
-        <h3 className="group-title">Group {groupLetter}</h3>
+        <h3 className="group-title">{t('groupLetter', { letter: groupLetter })}</h3>
         <button className="group-sim-btn" onClick={() => onSimulateGroup(groupLetter)}>
-          Simulate
+          {t('btnSimulate')}
         </button>
       </div>
 
@@ -155,7 +157,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                 
                 <span className="team-flag" style={{ fontSize: '18px' }}>{team.flag}</span>
                 <span style={{ fontWeight: 600, fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {team.name} <span className="team-code" style={{ fontSize: '10px', marginLeft: '4px' }}>{team.code}</span>
+                  {t(team.id)} <span className="team-code" style={{ fontSize: '10px', marginLeft: '4px' }}>{team.code}</span>
                 </span>
               </div>
 
@@ -175,7 +177,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                     e.stopPropagation();
                     onMoveTeam(groupLetter, idx, 'up');
                   }}
-                  title="Move Up"
+                  title={t('btnMoveUp')}
                 >
                   ▲
                 </button>
@@ -193,7 +195,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                     e.stopPropagation();
                     onMoveTeam(groupLetter, idx, 'down');
                   }}
-                  title="Move Down"
+                  title={t('btnMoveDown')}
                 >
                   ▼
                 </button>
@@ -207,3 +209,4 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
 }
 
 export default GroupCard;
+

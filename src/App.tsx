@@ -14,6 +14,7 @@ import ThirdPlaceStandings from './components/ThirdPlaceStandings';
 import KnockoutBracket from './components/KnockoutBracket';
 import RecapModal from './components/RecapModal';
 import type { Team, KnockoutMatch, GroupTeamsMap } from './types';
+import { useLanguage } from './hooks/useLanguage';
 
 // Initialize Group Teams
 const getInitialGroupTeams = (): GroupTeamsMap => {
@@ -38,6 +39,7 @@ const getInitialKnockoutMatches = (): KnockoutMatch[] => {
 };
 
 function App() {
+  const { language, setLanguage, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>('groups');
   const [groupTeams, setGroupTeams] = useLocalStorage<GroupTeamsMap>('wc2026_group_teams_v2', getInitialGroupTeams());
   const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage<string[]>('wc2026_selected_thirds_v2', []);
@@ -411,9 +413,23 @@ function App() {
   return (
     <div style={{ paddingBottom: '60px' }}>
       <header className="app-header">
+        <div className="lang-switcher">
+          <button 
+            className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+            onClick={() => setLanguage('en')}
+          >
+            🇺🇸 EN
+          </button>
+          <button 
+            className={`lang-btn ${language === 'pt-BR' ? 'active' : ''}`}
+            onClick={() => setLanguage('pt-BR')}
+          >
+            🇧🇷 PT-BR
+          </button>
+        </div>
         <div className="app-title-container">
-          <h1>FIFA World Cup 2026 Predictor & Simulator</h1>
-          <p>Follow our interactive guide to predict every game of the expanded 48-team tournament</p>
+          <h1>{t('appTitle')}</h1>
+          <p>{t('appSubTitle')}</p>
         </div>
       </header>
 
@@ -423,21 +439,21 @@ function App() {
           className={`tab-btn ${activeTab === 'groups' ? 'active' : ''}`}
           onClick={() => setActiveTab('groups')}
         >
-          Group Rankings
+          {t('tabGroups')}
         </button>
         <button 
           className={`tab-btn ${activeTab === 'third-place' ? 'active' : ''}`}
           onClick={() => setActiveTab('third-place')}
         >
-          Third-Place Selection
+          {t('tabThirdPlace')}
         </button>
         <button 
           className={`tab-btn ${activeTab === 'knockout' ? 'active' : ''} ${!allGroupsCompleted ? 'disabled' : ''}`}
           onClick={() => allGroupsCompleted && setActiveTab('knockout')}
-          title={!allGroupsCompleted ? 'Select exactly 8 third-place teams to unlock the bracket' : ''}
+          title={!allGroupsCompleted ? t('tabKnockoutTooltip') : ''}
           style={{ opacity: !allGroupsCompleted ? 0.5 : 1, cursor: !allGroupsCompleted ? 'not-allowed' : 'pointer' }}
         >
-          Knockout Bracket
+          {t('tabKnockout')}
         </button>
       </nav>
 
@@ -447,29 +463,29 @@ function App() {
           {activeTab === 'groups' && (
             <>
               <button className="btn btn-primary" onClick={handleSimulateAllGroups}>
-                Simulate All Groups
+                {t('btnSimulateAllGroups')}
               </button>
               <button className="btn" onClick={handleReset}>
-                Reset Rankings
+                {t('btnResetRankings')}
               </button>
             </>
           )}
           {activeTab === 'third-place' && (
             <button className="btn" onClick={handleReset}>
-              Reset Selections
+              {t('btnResetSelections')}
             </button>
           )}
           {activeTab === 'knockout' && (
             <>
               <button className="btn btn-secondary" onClick={handleSimulateAllKnockouts}>
-                Simulate Knockouts
+                {t('btnSimulateKnockouts')}
               </button>
               <button className="btn" onClick={handleReset}>
-                Reset Bracket
+                {t('btnResetBracket')}
               </button>
               {champion && (
                 <button className="btn btn-primary" style={{ background: 'var(--accent-gold)', borderColor: 'var(--accent-gold)', color: '#fff' }} onClick={() => setShowRecap(true)}>
-                  Path to Glory
+                  {t('btnPathToGlory')}
                 </button>
               )}
             </>
@@ -479,11 +495,11 @@ function App() {
         <div className="group-status-info" style={{ fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
           {allGroupsCompleted ? (
             <span style={{ color: 'var(--accent-green)', fontWeight: 'bold' }}>
-              ✓ 8 Third-Place Teams Chosen! Knockout bracket unlocked.
+              {t('thirdsChosenSuccess')}
             </span>
           ) : (
             <span>
-              ℹ Please select exactly 8 third-place teams to unlock the knockout bracket (Currently: {selectedThirds.size} / 8).
+              {t('thirdsChosenInfo', { selected: selectedThirds.size })}
             </span>
           )}
         </div>
@@ -538,3 +554,4 @@ function App() {
 }
 
 export default App;
+

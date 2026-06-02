@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Team } from '../types';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface ThirdPlaceStandingsProps {
   thirdPlaceTeams: (Team & { group: string })[];
@@ -9,14 +10,14 @@ interface ThirdPlaceStandingsProps {
 }
 
 export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleSelect, onSimulateThirds }: ThirdPlaceStandingsProps) {
+  const { t } = useLanguage();
   const selectedCount = selectedThirds.size;
 
   return (
     <div className="third-place-container">
-      <h2 className="section-title">Select the 8 Best Third-Place Teams</h2>
+      <h2 className="section-title">{t('selectBestThirdsTitle')}</h2>
       <p className="section-desc">
-        Since the World Cup 2026 format features 12 groups, only 8 of the 12 third-placed teams qualify for the Round of 32. 
-        Select the <strong>8 teams</strong> you want to advance by clicking on their cards.
+        {t('selectBestThirdsDesc')}
       </p>
 
       {/* Progress / Status Header */}
@@ -34,16 +35,16 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
         <div style={{ fontFamily: 'var(--serif)', fontSize: '15px', fontWeight: 'bold' }}>
           {selectedCount === 8 ? (
             <span style={{ color: 'var(--accent-green)' }}>
-              ✓ Exactly 8 teams selected! The knockout bracket is unlocked.
+              {t('thirdsSelectedSuccessBanner')}
             </span>
           ) : (
             <span style={{ color: 'var(--accent-red)' }}>
-              Please select exactly 8 teams to advance (Currently selected: {selectedCount} / 8)
+              {t('thirdsSelectedInfoBanner', { selected: selectedCount })}
             </span>
           )}
         </div>
         <button className="btn btn-secondary" onClick={onSimulateThirds}>
-          Auto-Select Top 8
+          {t('btnAutoSelectTop8')}
         </button>
       </div>
 
@@ -81,14 +82,14 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
                 </span>
                 <span className="team-flag" style={{ fontSize: '24px' }}>{team.flag}</span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '13px' }}>{team.name}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Rating: {team.rating}</div>
+                  <div style={{ fontWeight: 700, fontSize: '13px' }}>{t(team.id)}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('ratingLabel')}: {team.rating}</div>
                 </div>
               </div>
 
               <div>
                 <span className={`status-badge ${isSelected ? 'qualified' : 'eliminated'}`} style={{ cursor: 'pointer' }}>
-                  {isSelected ? 'Qualified' : 'Select'}
+                  {isSelected ? t('qualifiedLabel') : t('selectLabel')}
                 </span>
               </div>
             </div>
@@ -100,3 +101,4 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
 }
 
 export default ThirdPlaceStandings;
+

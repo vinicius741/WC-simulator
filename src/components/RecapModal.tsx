@@ -1,6 +1,7 @@
 import React from 'react';
 import { TEAMS } from '../data/teams';
 import type { KnockoutMatch, Team } from '../types';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface RecapItem {
   id: string;
@@ -21,6 +22,8 @@ interface RecapModalProps {
 }
 
 export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }: RecapModalProps) {
+  const { t, language } = useLanguage();
+
   // Map of teamId to team object for easy lookup
   const teamMap = React.useMemo<Record<string, Team>>(() => {
     const map: Record<string, Team> = {};
@@ -39,15 +42,15 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
     const grp = champion.group;
     const grpTeams = groupTeams[grp] || [];
     const idx = grpTeams.findIndex(t => t.id === championId);
-    const posText = idx === 0 ? '1st Place' : idx === 1 ? '2nd Place' : idx === 2 ? '3rd Place' : '4th Place';
+    const posText = idx === 0 ? t('pos1st') : idx === 1 ? t('pos2nd') : idx === 2 ? t('pos3rd') : t('pos4th');
 
     list.push({
       id: 'group_recap',
-      stage: `Group ${grp}`,
+      stage: t('groupLetter', { letter: grp }),
       opponentFlag: '🏁',
       opponentCode: 'GRP',
-      opponentName: `Finished ${posText} in Group ${grp}`,
-      scoreText: 'QUALIFIED',
+      opponentName: t('recapGroupFinished', { pos: posText, grp: grp }),
+      scoreText: t('recapQualified'),
       isWin: true,
       isDraw: false
     });
@@ -72,23 +75,23 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
         if (myScore !== null && oppScore !== null) {
           scoreStr = `${myScore} - ${oppScore}`;
           if (myScore === oppScore && match.penaltyWinner) {
-            scoreStr += ` (${match.penaltyWinner === (isHome ? 'home' : 'away') ? 'Win' : 'Loss'} PK)`;
+            scoreStr += ` (${match.penaltyWinner === (isHome ? 'home' : 'away') ? t('recapWinPK') : t('recapLossPK')})`;
           }
         } else {
           // No score entered — just show result
           const viaPenalty = match.penaltyWinner === (isHome ? 'home' : 'away');
-          scoreStr = viaPenalty ? 'Won (PK)' : 'Won';
+          scoreStr = viaPenalty ? t('recapWonPK') : t('recapWon');
         }
 
         list.push({
           id: match.id,
-          stage: stageKey === 'R32' ? 'Round of 32' :
-                 stageKey === 'R16' ? 'Round of 16' :
-                 stageKey === 'QF' ? 'Quarter-final' :
-                 stageKey === 'SF' ? 'Semi-final' : 'Final',
+          stage: stageKey === 'R32' ? t('recapR32') :
+                 stageKey === 'R16' ? t('recapR16') :
+                 stageKey === 'QF' ? t('recapQF') :
+                 stageKey === 'SF' ? t('recapSF') : t('recapFinal'),
           opponentFlag: opponent?.flag || '🏴',
           opponentCode: opponent?.code || 'TBD',
-          opponentName: opponent?.name || 'TBD',
+          opponentName: opponent ? t(opponent.id) : t('placeholderTBD'),
           scoreText: scoreStr,
           isWin: isWin,
           isDraw: false
@@ -97,20 +100,20 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
     });
 
     return list;
-  }, [championId, groupTeams, knockoutMatches, teamMap]);
+  }, [championId, groupTeams, knockoutMatches, teamMap, language]);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <button className="modal-close-btn" onClick={onClose}>×</button>
-          <h2>🏆 World Champion! 🏆</h2>
+          <h2>🏆 {t('recapModalTitle')} 🏆</h2>
           <div style={{ marginTop: '15px' }}>
             <span className="champion-flag" style={{ fontSize: '64px', display: 'block', margin: '8px 0' }}>
               {champion.flag}
             </span>
             <div className="champion-name" style={{ fontSize: '24px', color: 'var(--accent-red)' }}>
-              {champion.name}
+              {t(champion.id)}
             </div>
             <div className="champion-code" style={{ fontSize: '12px', letterSpacing: '2px', color: '#1a1a1a', opacity: 0.6 }}>
               {champion.code}
@@ -120,7 +123,7 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
 
         <div className="modal-body">
           <h4 style={{ fontFamily: 'var(--serif)', fontSize: '16px', color: '#1a1a1a', textTransform: 'uppercase', marginBottom: '12px', borderBottom: '1px dashed var(--border-color)', paddingBottom: '4px' }}>
-            Path to Glory
+            {t('recapPathToGlory')}
           </h4>
 
           <div className="path-recap-list">
@@ -146,3 +149,4 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
 }
 
 export default RecapModal;
+
