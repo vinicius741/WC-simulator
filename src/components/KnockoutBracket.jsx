@@ -31,98 +31,237 @@ export function KnockoutBracket({
 
   const getPlaceholderText = (placeholderCode) => {
     if (placeholderCode === '3rd') return 'Best 3rd Place';
+    if (!placeholderCode) return 'TBD';
     const num = placeholderCode.charAt(0);
     const grp = placeholderCode.substring(1);
     const prefix = num === '1' ? 'Winner' : 'Runner-up';
     return `${prefix} Grp ${grp}`;
   };
 
-  // Group matches by stage
-  const stages = {
-    R32: { label: 'Round of 32', matches: [] },
-    R16: { label: 'Round of 16', matches: [] },
-    QF: { label: 'Quarter-finals', matches: [] },
-    SF: { label: 'Semi-finals', matches: [] },
-    FINALS: { label: 'Finals', matches: [] } // Final & 3rd Place
-  };
+  // Build a map of matchId -> match, and resolve the bracket structure
+  const matchMap = React.useMemo(() => {
+    const m = {};
+    knockoutMatches.forEach(x => { m[x.id] = x; });
+    return m;
+  }, [knockoutMatches]);
 
-  knockoutMatches.forEach(m => {
-    if (m.stage === 'R32') stages.R32.matches.push(m);
-    else if (m.stage === 'R16') stages.R16.matches.push(m);
-    else if (m.stage === 'QF') stages.QF.matches.push(m);
-    else if (m.stage === 'SF') stages.SF.matches.push(m);
-    else if (m.stage === 'FINAL' || m.stage === '3RD') stages.FINALS.matches.push(m);
-  });
+  // Group matches by stage, preserving the order from the schema
+  const stages = React.useMemo(() => {
+    const s = {
+      R32: { key: 'R32', label: 'Round of 32', subtitle: '16 matches · Match 73–88', matches: [] },
+      R16: { key: 'R16', label: 'Round of 16', subtitle: '8 matches · Match 89–96', matches: [] },
+      QF:  { key: 'QF',  label: 'Quarter-finals', subtitle: '4 matches · Match 97–100', matches: [] },
+      SF:  { key: 'SF',  label: 'Semi-finals', subtitle: '2 matches · Match 101–102', matches: [] },
+      F:   { key: 'F',   label: 'Finals', subtitle: '3rd Place + Final', matches: [] }
+    };
+    knockoutMatches.forEach(m => {
+      if (m.stage === 'R32') s.R32.matches.push(m);
+      else if (m.stage === 'R16') s.R16.matches.push(m);
+      else if (m.stage === 'QF') s.QF.matches.push(m);
+      else if (m.stage === 'SF') s.SF.matches.push(m);
+      else if (m.stage === 'FINAL' || m.stage === '3RD') s.F.matches.push(m);
+    });
+    return s;
+  }, [knockoutMatches]);
 
   const handlePenaltyToggle = (matchId, side, e) => {
     e.stopPropagation();
     onSelectWinner(matchId, side, true);
   };
 
-  const renderMatchCard = (match) => {
-    const isHomeWinner = match.winner === match.home && match.winner !== '';
-    const isAwayWinner = match.winner === match.away && match.winner !== '';
-
+  const renderTeamRow = (match, side) => {
+    const teamId = side === 'home' ? match.home : match.away;
+    const isWinner = match.winner === teamId && teamId !== '';
+    const score = side === 'home' ? match.homeScore : match.awayScore;
+    const showScore = score !== null && score !== undefined && match.winner !== '';
     return (
-      <div className="ko-match-card" key={match.id}>
-        <div className="ko-match-header">
-          <span>{match.label}</span>
-          <span style={{ textTransform: 'uppercase', color: 'var(--accent-cyan)' }}>{match.stage}</span>
-        </div>
-        <div className="ko-match-teams">
-          {/* Home Team */}
-          <div 
-            className={`ko-team-row ${!match.home ? 'placeholder' : ''} ${isHomeWinner ? 'winner' : ''}`}
-            onClick={() => match.home && onSelectWinner(match.id, 'home')}
-          >
-            {renderTeamName(match.home, getPlaceholderText(match.home || '1A'))}
-            {match.home && isHomeWinner && (
-              <button
-                className={`penalty-btn ${match.penaltyWinner === 'home' ? 'active' : ''}`}
-                onClick={(e) => handlePenaltyToggle(match.id, 'home', e)}
-                title="Toggle Penalty Win"
-              >
-                PK
-              </button>
-            )}
-          </div>
-
-          {/* Away Team */}
-          <div 
-            className={`ko-team-row ${!match.away ? 'placeholder' : ''} ${isAwayWinner ? 'winner' : ''}`}
-            onClick={() => match.away && onSelectWinner(match.id, 'away')}
-          >
-            {renderTeamName(match.away, getPlaceholderText(match.away || '2B'))}
-            {match.away && isAwayWinner && (
-              <button
-                className={`penalty-btn ${match.penaltyWinner === 'away' ? 'active' : ''}`}
-                onClick={(e) => handlePenaltyToggle(match.id, 'away', e)}
-                title="Toggle Penalty Win"
-              >
-                PK
-              </button>
-            )}
-          </div>
+      <div
+        className={`ko-team-row ${!teamId ? 'placeholder' : ''} ${isWinner ? 'winner' : ''}`}
+        onClick={() => teamId && onSelectWinner(match.id, side)}
+      >
+        {renderTeamName(teamId, getPlaceholderText(teamId || (side === 'home' ? match.home || '1A' : match.away || '2B')))}
+        <div className="ko-team-meta">
+          {showScore && <span className="ko-team-score">{score}</span>}
+          {teamId && isWinner && (
+            <button
+              className={`penalty-btn ${match.penaltyWinner === side ? 'active' : ''}`}
+              onClick={(e) => handlePenaltyToggle(match.id, side, e)}
+              title="Toggle Penalty Win"
+            >
+              PK
+            </button>
+          )}
         </div>
       </div>
     );
   };
 
-  const renderColumn = (stageKey, title) => {
-    const stage = stages[stageKey];
-    const isFilteredOut = activeStageFilter !== 'ALL' && activeStageFilter !== stageKey;
+  const renderMatchCard = (match) => {
+    return (
+      <div className="ko-match-card" data-match-id={match.id} key={match.id}>
+        <div className="ko-match-header">
+          <span className="ko-match-label">{match.label}</span>
+          <span className="ko-match-stage-tag">{stageShortLabel(match.stage)}</span>
+        </div>
+        <div className="ko-match-teams">
+          {renderTeamRow(match, 'home')}
+          {renderTeamRow(match, 'away')}
+        </div>
+      </div>
+    );
+  };
 
-    if (isFilteredOut) return null;
+  const stageShortLabel = (stage) => {
+    if (stage === 'R32') return 'R32';
+    if (stage === 'R16') return 'R16';
+    if (stage === 'QF') return 'QF';
+    if (stage === 'SF') return 'SF';
+    if (stage === 'FINAL') return 'Final';
+    if (stage === '3RD') return '3rd';
+    return stage;
+  };
+
+  // Compute vertical positions for every match by averaging the positions
+  // of its two feeder matches from the previous round. This handles crossed
+  // brackets (e.g. World Cup 2026) where feeder matches are not adjacent.
+  const MATCH_HEIGHT = 96;
+  const MATCH_GAP = 12;
+  const SLOT = MATCH_HEIGHT + MATCH_GAP; // 108px
+
+  const matchTops = React.useMemo(() => {
+    const tops = {};
+    // R32: sequential list
+    stages.R32.matches.forEach((m, i) => {
+      tops[m.id] = i * SLOT;
+    });
+    // R16: center between its two R32 feeders
+    stages.R16.matches.forEach(m => {
+      const feeders = knockoutMatches.filter(f => f.nextMatchId === m.id);
+      if (feeders.length === 2) {
+        tops[m.id] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+      } else {
+        const idx = stages.R16.matches.findIndex(x => x.id === m.id);
+        tops[m.id] = idx * 2 * SLOT + SLOT / 2;
+      }
+    });
+    // QF: center between its two R16 feeders
+    stages.QF.matches.forEach(m => {
+      const feeders = knockoutMatches.filter(f => f.nextMatchId === m.id);
+      if (feeders.length === 2) {
+        tops[m.id] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+      }
+    });
+    // SF: center between its two QF feeders
+    stages.SF.matches.forEach(m => {
+      const feeders = knockoutMatches.filter(f => f.nextMatchId === m.id);
+      if (feeders.length === 2) {
+        tops[m.id] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+      }
+    });
+    // Final: center between its two SF feeders
+    const finalMatch = stages.F.matches.find(m => m.id === 'FINAL');
+    if (finalMatch) {
+      const feeders = knockoutMatches.filter(f => f.nextMatchId === 'FINAL');
+      if (feeders.length === 2) {
+        tops['FINAL'] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+      }
+    }
+    // 3rd place: shown directly below the Final
+    if (tops['FINAL'] !== undefined) {
+      tops['PLAYOFF_3RD'] = tops['FINAL'] + SLOT + 16;
+    }
+    return tops;
+  }, [knockoutMatches, stages, SLOT]);
+
+  const renderConnectors = (stageKey) => {
+    if (activeStageFilter !== 'ALL') return null;
+    if (stageKey === 'R32') return null;
+
+    const stage = stages[stageKey];
+    return stage.matches.map((target) => {
+      if (target.id === 'PLAYOFF_3RD') return null;
+
+      const feeders = knockoutMatches.filter((f) => f.nextMatchId === target.id);
+      if (feeders.length !== 2) return null;
+
+      const t0 = matchTops[feeders[0].id];
+      const t1 = matchTops[feeders[1].id];
+      const targetTop = matchTops[target.id];
+      if (t0 === undefined || t1 === undefined || targetTop === undefined) return null;
+
+      const upperTop = Math.min(t0, t1);
+      const lowerTop = Math.max(t0, t1);
+      const upperCenter = upperTop + MATCH_HEIGHT / 2;
+      const lowerCenter = lowerTop + MATCH_HEIGHT / 2;
+      const targetCenter = targetTop + MATCH_HEIGHT / 2;
+
+      return (
+        <React.Fragment key={`conn-${target.id}`}>
+          <div
+            className="bracket-connector-vertical"
+            style={{ top: `${upperCenter}px`, height: `${lowerCenter - upperCenter}px` }}
+          />
+          <div
+            className="bracket-connector-stub"
+            style={{ top: `${targetCenter - 0.5}px`, left: '-18px', width: '18px' }}
+          />
+        </React.Fragment>
+      );
+    });
+  };
+
+  const renderColumn = (stageKey) => {
+    const stage = stages[stageKey];
+    if (activeStageFilter !== 'ALL' && activeStageFilter !== stageKey) return null;
 
     return (
-      <div className="bracket-column" key={stageKey}>
-        <h4 className="column-header">{title}</h4>
-        {stage.matches.map(m => renderMatchCard(m))}
+      <div className="bracket-column" key={stageKey} data-stage={stageKey}>
+        <div className="bracket-column-header">
+          <div className="bracket-column-title">{stage.label}</div>
+          <div className="bracket-column-subtitle">{stage.subtitle}</div>
+        </div>
+        <div className="bracket-column-body">
+          {renderConnectors(stageKey)}
+          {stage.matches.map((m) => {
+            // 3rd-place card is rendered separately, below the Final
+            if (m.id === 'PLAYOFF_3RD') return null;
+            const top = matchTops[m.id];
+            if (top === undefined) return null;
+            return (
+              <div
+                className="bracket-cell"
+                key={m.id}
+                style={{ top: `${top}px` }}
+              >
+                {renderMatchCard(m)}
+              </div>
+            );
+          })}
+          {stageKey === 'F' && (() => {
+            const tpm = knockoutMatches.find(m => m.id === 'PLAYOFF_3RD');
+            if (!tpm) return null;
+            const top = matchTops['PLAYOFF_3RD'];
+            if (top === undefined) return null;
+            return (
+              <div
+                className="bracket-cell"
+                key={tpm.id}
+                style={{ top: `${top}px` }}
+              >
+                {renderMatchCard(tpm)}
+              </div>
+            );
+          })()}
+        </div>
       </div>
     );
   };
 
   const champTeam = champion ? teamMap[champion] : null;
+
+  // The 3rd-place match is shown as a small extra card under the Final
+  const thirdPlaceMatch = knockoutMatches.find(m => m.id === 'PLAYOFF_3RD');
+  const finalMatch = knockoutMatches.find(m => m.id === 'FINAL');
 
   return (
     <div>
@@ -131,44 +270,45 @@ export function KnockoutBracket({
         <span>
           Click on a team to select them as the winner and advance them to the next round.
           Toggle the <strong>"PK"</strong> badge on the winner if the match went to penalties.
+          Each match is positioned exactly between its two feeder matches so the round it belongs to is always obvious.
         </span>
       </div>
 
-      {/* Mobile Stage Selector */}
+      {/* Mobile / focused stage selector */}
       <div className="bracket-stage-tabs">
-        <button 
+        <button
           className={`stage-tab-btn ${activeStageFilter === 'ALL' ? 'active' : ''}`}
           onClick={() => setActiveStageFilter('ALL')}
         >
           All Stages
         </button>
-        <button 
+        <button
           className={`stage-tab-btn ${activeStageFilter === 'R32' ? 'active' : ''}`}
           onClick={() => setActiveStageFilter('R32')}
         >
           Round of 32
         </button>
-        <button 
+        <button
           className={`stage-tab-btn ${activeStageFilter === 'R16' ? 'active' : ''}`}
           onClick={() => setActiveStageFilter('R16')}
         >
           Round of 16
         </button>
-        <button 
+        <button
           className={`stage-tab-btn ${activeStageFilter === 'QF' ? 'active' : ''}`}
           onClick={() => setActiveStageFilter('QF')}
         >
           Quarter-finals
         </button>
-        <button 
+        <button
           className={`stage-tab-btn ${activeStageFilter === 'SF' ? 'active' : ''}`}
           onClick={() => setActiveStageFilter('SF')}
         >
           Semi-finals
         </button>
-        <button 
-          className={`stage-tab-btn ${activeStageFilter === 'FINALS' ? 'active' : ''}`}
-          onClick={() => setActiveStageFilter('FINALS')}
+        <button
+          className={`stage-tab-btn ${activeStageFilter === 'F' ? 'active' : ''}`}
+          onClick={() => setActiveStageFilter('F')}
         >
           Finals
         </button>
@@ -176,29 +316,36 @@ export function KnockoutBracket({
 
       <div className="bracket-wrapper">
         <div className="bracket-grid">
-          {renderColumn('R32', 'Round of 32')}
-          {renderColumn('R16', 'Round of 16')}
-          {renderColumn('QF', 'Quarter-finals')}
-          {renderColumn('SF', 'Semi-finals')}
-          {renderColumn('FINALS', 'Finals')}
+          {renderColumn('R32')}
+          {renderColumn('R16')}
+          {renderColumn('QF')}
+          {renderColumn('SF')}
+          {renderColumn('F')}
 
-          {/* Winner Display Column */}
-          {(activeStageFilter === 'ALL' || activeStageFilter === 'FINALS') && (
-            <div className="final-winner-column">
-              <h4 className="column-header">Champion</h4>
-              {champTeam ? (
-                <div className="champion-display-card">
-                  <h3>🏆 World Champion 🏆</h3>
-                  <span className="champion-flag">{champTeam.flag}</span>
-                  <div className="champion-name">{champTeam.name}</div>
-                  <div className="champion-code">{champTeam.code}</div>
+          {/* Champion column */}
+          {(activeStageFilter === 'ALL' || activeStageFilter === 'F') && (
+            <div className="bracket-column bracket-column-champion" data-stage="CHAMP">
+              <div className="bracket-column-header">
+                <div className="bracket-column-title">Champion</div>
+                <div className="bracket-column-subtitle">Crowned from the Final</div>
+              </div>
+              <div className="bracket-column-body" style={{ '--row-count': 1 }}>
+                <div className="bracket-cell" style={{ '--row': 0 }}>
+                  {champTeam ? (
+                    <div className="champion-display-card">
+                      <h3>🏆 World Champion 🏆</h3>
+                      <span className="champion-flag">{champTeam.flag}</span>
+                      <div className="champion-name">{champTeam.name}</div>
+                      <div className="champion-code">{champTeam.code}</div>
+                    </div>
+                  ) : (
+                    <div className="champion-empty">
+                      <span>🏆</span>
+                      <span>Predict the champion!</span>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="champion-empty">
-                  <span>🏆</span>
-                  <span>Predict the champion!</span>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>
