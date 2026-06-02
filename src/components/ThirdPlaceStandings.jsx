@@ -35,7 +35,7 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
           )}
         </div>
         <button className="btn btn-secondary" onClick={onSimulateThirds}>
-          ⚡ Auto-Select Top 8
+          Auto-Select Top 8
         </button>
       </div>
 

@@ -421,13 +421,13 @@ function App() {
           className={`tab-btn ${activeTab === 'groups' ? 'active' : ''}`}
           onClick={() => setActiveTab('groups')}
         >
-          ⚽ Group Rankings
+          Group Rankings
         </button>
         <button 
           className={`tab-btn ${activeTab === 'third-place' ? 'active' : ''}`}
           onClick={() => setActiveTab('third-place')}
         >
-          📊 Third-Place Selection
+          Third-Place Selection
         </button>
         <button 
           className={`tab-btn ${activeTab === 'knockout' ? 'active' : ''} ${!allGroupsCompleted ? 'disabled' : ''}`}
@@ -435,7 +435,7 @@ function App() {
           title={!allGroupsCompleted ? 'Select exactly 8 third-place teams to unlock the bracket' : ''}
           style={{ opacity: !allGroupsCompleted ? 0.5 : 1, cursor: !allGroupsCompleted ? 'not-allowed' : 'pointer' }}
         >
-          🏆 Knockout Bracket
+          Knockout Bracket
         </button>
       </nav>
 
@@ -445,29 +445,29 @@ function App() {
           {activeTab === 'groups' && (
             <>
               <button className="btn btn-primary" onClick={handleSimulateAllGroups}>
-                ⚡ Simulate All Groups
+                Simulate All Groups
               </button>
               <button className="btn" onClick={handleReset}>
-                🔄 Reset Rankings
+                Reset Rankings
               </button>
             </>
           )}
           {activeTab === 'third-place' && (
             <button className="btn" onClick={handleReset}>
-              🔄 Reset Selections
+              Reset Selections
             </button>
           )}
           {activeTab === 'knockout' && (
             <>
               <button className="btn btn-secondary" onClick={handleSimulateAllKnockouts}>
-                ⚡ Simulate Knockouts
+                Simulate Knockouts
               </button>
               <button className="btn" onClick={handleReset}>
-                🔄 Reset Bracket
+                Reset Bracket
               </button>
               {champion && (
                 <button className="btn btn-primary" style={{ background: 'var(--accent-gold)', borderColor: 'var(--accent-gold)', color: '#fff' }} onClick={() => setShowRecap(true)}>
-                  🏅 Path to Glory
+                  Path to Glory
                 </button>
               )}
             </>
