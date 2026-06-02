@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { TEAMS } from '../data/teams';
+import type { Team, KnockoutMatch } from '../types';
 
-const R32_VISUAL_ORDER = [
+const R32_VISUAL_ORDER: string[] = [
   'R32_1',  // Match 73
   'R32_3',  // Match 75
   'R32_2',  // Match 74
@@ -20,22 +21,43 @@ const R32_VISUAL_ORDER = [
   'R32_15'  // Match 87
 ];
 
+interface StageData {
+  key: string;
+  label: string;
+  subtitle: string;
+  matches: KnockoutMatch[];
+}
+
+type StagesMap = {
+  R32: StageData;
+  R16: StageData;
+  QF: StageData;
+  SF: StageData;
+  F: StageData;
+};
+
+interface KnockoutBracketProps {
+  knockoutMatches: KnockoutMatch[];
+  onSelectWinner: (matchId: string, side: 'home' | 'away', isPenalty?: boolean) => void;
+  champion: string;
+}
+
 export function KnockoutBracket({
   knockoutMatches,
   onSelectWinner,
   champion
-}) {
-  const [activeStageFilter, setActiveStageFilter] = useState('ALL');
+}: KnockoutBracketProps) {
+  const [activeStageFilter, setActiveStageFilter] = useState<string>('ALL');
 
   // Map of teamId to team object for easy lookup
-  const teamMap = React.useMemo(() => {
-    const map = {};
+  const teamMap = React.useMemo<Record<string, Team>>(() => {
+    const map: Record<string, Team> = {};
     TEAMS.forEach(t => { map[t.id] = t; });
     return map;
   }, []);
 
   // Helper to render team name/flag or placeholder
-  const renderTeamName = (teamId, placeholderText) => {
+  const renderTeamName = (teamId: string | undefined, placeholderText: string) => {
     if (!teamId) {
       return <span className="ko-team-placeholder">{placeholderText}</span>;
     }
@@ -48,7 +70,7 @@ export function KnockoutBracket({
     );
   };
 
-  const getPlaceholderText = (match, side) => {
+  const getPlaceholderText = (match: KnockoutMatch, side: 'home' | 'away'): string => {
     // 3rd place match has explicit losers
     if (match.id === 'PLAYOFF_3RD') {
       return side === 'home' ? 'Loser Match 101' : 'Loser Match 102';
@@ -70,16 +92,9 @@ export function KnockoutBracket({
     return `${prefix} Grp ${grp}`;
   };
 
-  // Build a map of matchId -> match, and resolve the bracket structure
-  const matchMap = React.useMemo(() => {
-    const m = {};
-    knockoutMatches.forEach(x => { m[x.id] = x; });
-    return m;
-  }, [knockoutMatches]);
-
   // Group matches by stage, preserving the order from the schema
-  const stages = React.useMemo(() => {
-    const s = {
+  const stages = React.useMemo<StagesMap>(() => {
+    const s: StagesMap = {
       R32: { key: 'R32', label: 'Round of 32', subtitle: '16 matches · Match 73–88', matches: [] },
       R16: { key: 'R16', label: 'Round of 16', subtitle: '8 matches · Match 89–96', matches: [] },
       QF:  { key: 'QF',  label: 'Quarter-finals', subtitle: '4 matches · Match 97–100', matches: [] },
@@ -98,12 +113,12 @@ export function KnockoutBracket({
     return s;
   }, [knockoutMatches]);
 
-  const handlePenaltyToggle = (matchId, side, e) => {
+  const handlePenaltyToggle = (matchId: string, side: 'home' | 'away', e: React.MouseEvent) => {
     e.stopPropagation();
     onSelectWinner(matchId, side, true);
   };
 
-  const renderTeamRow = (match, side) => {
+  const renderTeamRow = (match: KnockoutMatch, side: 'home' | 'away') => {
     const teamId = side === 'home' ? match.home : match.away;
     const isWinner = match.winner === teamId && teamId !== '';
     const score = side === 'home' ? match.homeScore : match.awayScore;
@@ -113,7 +128,7 @@ export function KnockoutBracket({
         className={`ko-team-row ${!teamId ? 'placeholder' : ''} ${isWinner ? 'winner' : ''}`}
         onClick={() => teamId && onSelectWinner(match.id, side)}
       >
-        {renderTeamName(teamId, getPlaceholderText(match, side))}
+        {renderTeamName(teamId || undefined, getPlaceholderText(match, side))}
         <div className="ko-team-meta">
           {showScore && <span className="ko-team-score">{score}</span>}
           {teamId && isWinner && (
@@ -130,7 +145,17 @@ export function KnockoutBracket({
     );
   };
 
-  const renderMatchCard = (match) => {
+  const stageShortLabel = (stage: string): string => {
+    if (stage === 'R32') return 'R32';
+    if (stage === 'R16') return 'R16';
+    if (stage === 'QF') return 'QF';
+    if (stage === 'SF') return 'SF';
+    if (stage === 'FINAL') return 'Final';
+    if (stage === '3RD') return '3rd';
+    return stage;
+  };
+
+  const renderMatchCard = (match: KnockoutMatch) => {
     return (
       <div className="ko-match-card" data-match-id={match.id} key={match.id}>
         <div className="ko-match-header">
@@ -145,25 +170,14 @@ export function KnockoutBracket({
     );
   };
 
-  const stageShortLabel = (stage) => {
-    if (stage === 'R32') return 'R32';
-    if (stage === 'R16') return 'R16';
-    if (stage === 'QF') return 'QF';
-    if (stage === 'SF') return 'SF';
-    if (stage === 'FINAL') return 'Final';
-    if (stage === '3RD') return '3rd';
-    return stage;
-  };
-
   // Compute vertical positions for every match by averaging the positions
-  // of its two feeder matches from the previous round. This handles crossed
-  // brackets (e.g. World Cup 2026) where feeder matches are not adjacent.
+  // of its two feeder matches from the previous round.
   const MATCH_HEIGHT = 96;
   const MATCH_GAP = 12;
   const SLOT = MATCH_HEIGHT + MATCH_GAP; // 108px
 
-  const matchTops = React.useMemo(() => {
-    const tops = {};
+  const matchTops = React.useMemo<Record<string, number>>(() => {
+    const tops: Record<string, number> = {};
     // R32: sequential list
     stages.R32.matches.forEach((m, i) => {
       tops[m.id] = i * SLOT;
@@ -172,7 +186,7 @@ export function KnockoutBracket({
     stages.R16.matches.forEach(m => {
       const feeders = knockoutMatches.filter(f => f.nextMatchId === m.id);
       if (feeders.length === 2) {
-        tops[m.id] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+        tops[m.id] = ((tops[feeders[0]!.id] ?? 0) + (tops[feeders[1]!.id] ?? 0)) / 2;
       } else {
         const idx = stages.R16.matches.findIndex(x => x.id === m.id);
         tops[m.id] = idx * 2 * SLOT + SLOT / 2;
@@ -182,14 +196,14 @@ export function KnockoutBracket({
     stages.QF.matches.forEach(m => {
       const feeders = knockoutMatches.filter(f => f.nextMatchId === m.id);
       if (feeders.length === 2) {
-        tops[m.id] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+        tops[m.id] = ((tops[feeders[0]!.id] ?? 0) + (tops[feeders[1]!.id] ?? 0)) / 2;
       }
     });
     // SF: center between its two QF feeders
     stages.SF.matches.forEach(m => {
       const feeders = knockoutMatches.filter(f => f.nextMatchId === m.id);
       if (feeders.length === 2) {
-        tops[m.id] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+        tops[m.id] = ((tops[feeders[0]!.id] ?? 0) + (tops[feeders[1]!.id] ?? 0)) / 2;
       }
     });
     // Final: center between its two SF feeders
@@ -197,7 +211,7 @@ export function KnockoutBracket({
     if (finalMatch) {
       const feeders = knockoutMatches.filter(f => f.nextMatchId === 'FINAL');
       if (feeders.length === 2) {
-        tops['FINAL'] = (tops[feeders[0].id] + tops[feeders[1].id]) / 2;
+        tops['FINAL'] = ((tops[feeders[0]!.id] ?? 0) + (tops[feeders[1]!.id] ?? 0)) / 2;
       }
     }
     // 3rd place: shown directly below the Final
@@ -207,19 +221,19 @@ export function KnockoutBracket({
     return tops;
   }, [knockoutMatches, stages, SLOT]);
 
-  const renderConnectors = (stageKey) => {
+  const renderConnectors = (stageKey: string) => {
     if (activeStageFilter !== 'ALL') return null;
     if (stageKey === 'R32') return null;
 
-    const stage = stages[stageKey];
+    const stage = stages[stageKey as keyof StagesMap];
     return stage.matches.map((target) => {
       if (target.id === 'PLAYOFF_3RD') return null;
 
       const feeders = knockoutMatches.filter((f) => f.nextMatchId === target.id);
       if (feeders.length !== 2) return null;
 
-      const t0 = matchTops[feeders[0].id];
-      const t1 = matchTops[feeders[1].id];
+      const t0 = matchTops[feeders[0]!.id];
+      const t1 = matchTops[feeders[1]!.id];
       const targetTop = matchTops[target.id];
       if (t0 === undefined || t1 === undefined || targetTop === undefined) return null;
 
@@ -244,8 +258,8 @@ export function KnockoutBracket({
     });
   };
 
-  const renderColumn = (stageKey) => {
-    const stage = stages[stageKey];
+  const renderColumn = (stageKey: string) => {
+    const stage = stages[stageKey as keyof StagesMap];
     if (activeStageFilter !== 'ALL' && activeStageFilter !== stageKey) return null;
 
     return (
@@ -292,10 +306,6 @@ export function KnockoutBracket({
   };
 
   const champTeam = champion ? teamMap[champion] : null;
-
-  // The 3rd-place match is shown as a small extra card under the Final
-  const thirdPlaceMatch = knockoutMatches.find(m => m.id === 'PLAYOFF_3RD');
-  const finalMatch = knockoutMatches.find(m => m.id === 'FINAL');
 
   return (
     <div>

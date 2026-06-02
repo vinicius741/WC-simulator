@@ -1,10 +1,29 @@
 import React from 'react';
 import { TEAMS } from '../data/teams';
+import type { KnockoutMatch, Team } from '../types';
 
-export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }) {
+interface RecapItem {
+  id: string;
+  stage: string;
+  opponentFlag: string;
+  opponentCode: string;
+  opponentName: string;
+  scoreText: string;
+  isWin: boolean;
+  isDraw: boolean;
+}
+
+interface RecapModalProps {
+  championId: string;
+  groupTeams: Record<string, Team[]>;
+  knockoutMatches: KnockoutMatch[];
+  onClose: () => void;
+}
+
+export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }: RecapModalProps) {
   // Map of teamId to team object for easy lookup
-  const teamMap = React.useMemo(() => {
-    const map = {};
+  const teamMap = React.useMemo<Record<string, Team>>(() => {
+    const map: Record<string, Team> = {};
     TEAMS.forEach(t => { map[t.id] = t; });
     return map;
   }, []);
@@ -13,8 +32,8 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose })
   if (!champion) return null;
 
   // Gather champion's matches
-  const recap = React.useMemo(() => {
-    const list = [];
+  const recap = React.useMemo<RecapItem[]>(() => {
+    const list: RecapItem[] = [];
 
     // 1. Group stage recap (since there are no match scores)
     const grp = champion.group;
@@ -34,8 +53,7 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose })
     });
 
     // 2. Knockout stage matches
-    // R32, R16, QF, SF, FINAL
-    const stagesOrdered = ['R32', 'R16', 'QF', 'SF', 'FINAL'];
+    const stagesOrdered = ['R32', 'R16', 'QF', 'SF', 'FINAL'] as const;
     stagesOrdered.forEach(stageKey => {
       const match = knockoutMatches.find(m => 
         m.stage === stageKey && (m.home === championId || m.away === championId)
@@ -49,7 +67,7 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose })
         const oppScore = isHome ? match.awayScore : match.homeScore;
 
         let scoreStr = '';
-        let isWin = match.winner === championId;
+        const isWin = match.winner === championId;
 
         if (myScore !== null && oppScore !== null) {
           scoreStr = `${myScore} - ${oppScore}`;

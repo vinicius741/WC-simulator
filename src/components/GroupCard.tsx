@@ -1,15 +1,24 @@
 import React, { useState, useRef } from 'react';
 import { GripVertical } from 'lucide-react';
+import type { Team } from '../types';
 
-export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSimulateGroup }) {
-  const [draggedIdx, setDraggedIdx] = useState(null);
-  const [dragOverIdx, setDragOverIdx] = useState(null);
+interface GroupCardProps {
+  groupLetter: string;
+  teams: Team[];
+  onReorderTeams: (groupLetter: string, startIndex: number, endIndex: number) => void;
+  onMoveTeam: (groupLetter: string, index: number, direction: 'up' | 'down') => void;
+  onSimulateGroup: (groupLetter: string) => void;
+}
+
+export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSimulateGroup }: GroupCardProps) {
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   // Track the drag-over position ("before" or "after" the target index) for accurate insertion
-  const [dropPosition, setDropPosition] = useState(null);
+  const [dropPosition, setDropPosition] = useState<'before' | 'after' | null>(null);
   // Use a ref counter to avoid clearing dragOverIdx when hovering child elements
   const dragOverCounter = useRef(0);
 
-  const handleDragStart = (e, index) => {
+  const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIdx(index);
     e.dataTransfer.effectAllowed = 'move';
     // Required for Firefox support
@@ -20,7 +29,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
     });
   };
 
-  const handleDragOver = (e, index) => {
+  const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
 
@@ -35,13 +44,13 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
     }
   };
 
-  const handleDragEnter = (e, index) => {
+  const handleDragEnter = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     dragOverCounter.current++;
     setDragOverIdx(index);
   };
 
-  const handleDragLeave = (e) => {
+  const handleDragLeave = () => {
     dragOverCounter.current--;
     // Only clear if we've left the row entirely (counter reaches 0)
     if (dragOverCounter.current <= 0) {
@@ -51,23 +60,12 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
     }
   };
 
-  const handleDrop = (e, index) => {
+  const handleDrop = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     dragOverCounter.current = 0;
 
     if (draggedIdx !== null && draggedIdx !== index) {
-      // Calculate the final insertion index based on drop position
-      let targetIndex = index;
-      if (dropPosition === 'after' && draggedIdx < index) {
-        targetIndex = index;
-      } else if (dropPosition === 'before' && draggedIdx > index) {
-        targetIndex = index;
-      } else if (dropPosition === 'after' && draggedIdx > index) {
-        targetIndex = index;
-      } else if (dropPosition === 'before' && draggedIdx < index) {
-        targetIndex = index;
-      }
-      onReorderTeams(groupLetter, draggedIdx, targetIndex);
+      onReorderTeams(groupLetter, draggedIdx, index);
     }
     setDraggedIdx(null);
     setDragOverIdx(null);
@@ -101,7 +99,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
           let borderStyle = isTop2 ? '3px solid var(--accent-green)' : is3rd ? '3px solid var(--accent-navy)' : '3px solid var(--border-color)';
 
           // Determine drop indicator line (top or bottom border)
-          let dropIndicatorStyle = 'none';
+          let dropIndicatorStyle: 'top' | 'bottom' | 'none' = 'none';
           if (isDraggedOver && !isBeingDragged) {
             dropIndicatorStyle = dropPosition === 'before' ? 'top' : 'bottom';
           }

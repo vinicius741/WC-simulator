@@ -1,4 +1,6 @@
-export const TEAMS = [
+import type { Team } from '../types';
+
+export const TEAMS: Team[] = [
   // Group A
   { id: 'mex', name: 'Mexico', code: 'MEX', flag: '🇲🇽', group: 'A', rating: 81 },
   { id: 'rsa', name: 'South Africa', code: 'RSA', flag: '🇿🇦', group: 'A', rating: 75 },
@@ -26,7 +28,7 @@ export const TEAMS = [
   // Group E
   { id: 'ger', name: 'Germany', code: 'GER', flag: '🇩🇪', group: 'E', rating: 89 },
   { id: 'cuw', name: 'Curaçao', code: 'CUW', flag: '🇨🇼', group: 'E', rating: 71 },
-  { id: 'civ', name: 'Côte d\'Ivoire', code: 'CIV', flag: '🇨🇮', group: 'E', rating: 82 },
+  { id: 'civ', name: "Côte d'Ivoire", code: 'CIV', flag: '🇨🇮', group: 'E', rating: 82 },
   { id: 'ecu', name: 'Ecuador', code: 'ECU', flag: '🇪🇨', group: 'E', rating: 82 },
 
   // Group F

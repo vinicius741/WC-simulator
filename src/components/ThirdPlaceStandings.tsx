@@ -1,6 +1,14 @@
 import React from 'react';
+import type { Team } from '../types';
 
-export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleSelect, onSimulateThirds }) {
+interface ThirdPlaceStandingsProps {
+  thirdPlaceTeams: (Team & { group: string })[];
+  selectedThirds: Set<string>;
+  onToggleSelect: (teamId: string) => void;
+  onSimulateThirds: () => void;
+}
+
+export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleSelect, onSimulateThirds }: ThirdPlaceStandingsProps) {
   const selectedCount = selectedThirds.size;
 
   return (

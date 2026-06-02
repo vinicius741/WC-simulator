@@ -1,7 +1,9 @@
-export const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+import type { ThirdPlaceAllocationSlot, KnockoutMatchSchema } from '../types';
+
+export const GROUPS: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
 
 // Mapping of which Round of 32 slot faces a third-place team
-export const THIRD_PLACE_ALLOCATION_SLOTS = [
+export const THIRD_PLACE_ALLOCATION_SLOTS: ThirdPlaceAllocationSlot[] = [
   { winner: 'A', allowed: ['C', 'E', 'F', 'H', 'I'], matchId: 'R32_7', teamSide: 'away' },
   { winner: 'B', allowed: ['E', 'F', 'G', 'I', 'J'], matchId: 'R32_13', teamSide: 'away' },
   { winner: 'D', allowed: ['B', 'E', 'F', 'I', 'J'], matchId: 'R32_9', teamSide: 'away' },
@@ -13,7 +15,7 @@ export const THIRD_PLACE_ALLOCATION_SLOTS = [
 ];
 
 // Bracket match schema from Round of 32 onwards
-export const KNOCKOUT_MATCH_SCHEMA = [
+export const KNOCKOUT_MATCH_SCHEMA: KnockoutMatchSchema[] = [
   // Round of 32 (Matches R32_1 to R32_16)
   { id: 'R32_1', stage: 'R32', label: 'Match 73', home: '2A', away: '2B', nextMatchId: 'R16_1', nextSide: 'home' },
   { id: 'R32_2', stage: 'R32', label: 'Match 74', home: '1E', away: '3rd', nextMatchId: 'R16_2', nextSide: 'home' },

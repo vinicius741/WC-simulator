@@ -13,10 +13,11 @@ import GroupCard from './components/GroupCard';
 import ThirdPlaceStandings from './components/ThirdPlaceStandings';
 import KnockoutBracket from './components/KnockoutBracket';
 import RecapModal from './components/RecapModal';
+import type { Team, KnockoutMatch, GroupTeamsMap } from './types';
 
 // Initialize Group Teams
-const getInitialGroupTeams = () => {
-  const obj = {};
+const getInitialGroupTeams = (): GroupTeamsMap => {
+  const obj: GroupTeamsMap = {};
   GROUPS.forEach(g => {
     obj[g] = TEAMS.filter(t => t.group === g);
   });
@@ -24,7 +25,7 @@ const getInitialGroupTeams = () => {
 };
 
 // Initialize Knockout matches
-const getInitialKnockoutMatches = () => {
+const getInitialKnockoutMatches = (): KnockoutMatch[] => {
   return KNOCKOUT_MATCH_SCHEMA.map(m => ({
     ...m,
     home: m.home || '',
@@ -37,16 +38,16 @@ const getInitialKnockoutMatches = () => {
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState('groups');
-  const [groupTeams, setGroupTeams] = useLocalStorage('wc2026_group_teams_v2', getInitialGroupTeams());
-  const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage('wc2026_selected_thirds_v2', []);
-  const [knockoutMatches, setKnockoutMatches] = useLocalStorage('wc2026_knockout_matches_v2', getInitialKnockoutMatches());
-  const [champion, setChampion] = useLocalStorage('wc2026_champion_v2', '');
-  const [showRecap, setShowRecap] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('groups');
+  const [groupTeams, setGroupTeams] = useLocalStorage<GroupTeamsMap>('wc2026_group_teams_v2', getInitialGroupTeams());
+  const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage<string[]>('wc2026_selected_thirds_v2', []);
+  const [knockoutMatches, setKnockoutMatches] = useLocalStorage<KnockoutMatch[]>('wc2026_knockout_matches_v2', getInitialKnockoutMatches());
+  const [champion, setChampion] = useLocalStorage<string>('wc2026_champion_v2', '');
+  const [showRecap, setShowRecap] = useState<boolean>(false);
 
   // Map of teamId to team object for easy lookup
-  const teamMap = useMemo(() => {
-    const map = {};
+  const teamMap = useMemo<Record<string, Team>>(() => {
+    const map: Record<string, Team> = {};
     TEAMS.forEach(t => { map[t.id] = t; });
     return map;
   }, []);
@@ -58,8 +59,9 @@ function App() {
   const thirdPlaceTeams = useMemo(() => {
     return GROUPS.map(g => {
       const teams = groupTeams[g] || [];
+      const thirdTeam = teams[2];
       return {
-        ...(teams[2] || {}),
+        ...(thirdTeam || { id: '', name: '', code: '', flag: '', group: g, rating: 0 }),
         group: g
       };
     });
@@ -69,10 +71,10 @@ function App() {
   const allGroupsCompleted = selectedThirds.size === 8;
 
   // Drag and drop reordering of team position in a group
-  const handleReorderTeams = (groupLetter, startIndex, endIndex) => {
+  const handleReorderTeams = (groupLetter: string, startIndex: number, endIndex: number) => {
     setGroupTeams(prev => {
       const list = [...(prev[groupLetter] || [])];
-      const [removed] = list.splice(startIndex, 1);
+      const [removed] = list.splice(startIndex, 1) as [Team];
       list.splice(endIndex, 0, removed);
       return {
         ...prev,
@@ -82,14 +84,14 @@ function App() {
   };
 
   // Reorder team position in a group using arrow keys/buttons (swap index with index - 1 or index + 1)
-  const handleMoveTeam = (groupLetter, index, direction) => {
+  const handleMoveTeam = (groupLetter: string, index: number, direction: 'up' | 'down') => {
     setGroupTeams(prev => {
       const list = [...(prev[groupLetter] || [])];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       
       if (targetIndex >= 0 && targetIndex < 4) {
-        const temp = list[index];
-        list[index] = list[targetIndex];
+        const temp = list[index]!;
+        list[index] = list[targetIndex]!;
         list[targetIndex] = temp;
       }
       return {
@@ -100,10 +102,10 @@ function App() {
   };
 
   // Simulate a single group ranking
-  const handleSimulateGroup = (groupLetter) => {
+  const handleSimulateGroup = (groupLetter: string) => {
     setGroupTeams(prev => {
       const current = prev[groupLetter] || [];
-      const ranked = simulateGroupRanking(current);
+      const ranked = simulateGroupRanking(current as Team[]);
       return {
         ...prev,
         [groupLetter]: ranked
@@ -114,9 +116,9 @@ function App() {
   // Simulate all group rankings
   const handleSimulateAllGroups = () => {
     setGroupTeams(prev => {
-      const next = {};
+      const next: GroupTeamsMap = {};
       GROUPS.forEach(g => {
-        next[g] = simulateGroupRanking(prev[g]);
+        next[g] = simulateGroupRanking(prev[g] || []);
       });
       return next;
     });
@@ -128,7 +130,7 @@ function App() {
   };
 
   // Toggle selection of a third place team
-  const handleToggleSelectThird = (teamId) => {
+  const handleToggleSelectThird = (teamId: string) => {
     setSelectedThirdsArray(prev => {
       const set = new Set(prev);
       if (set.has(teamId)) {
@@ -146,7 +148,7 @@ function App() {
   const handleSimulateThirds = () => {
     // Rank the 12 third placed teams by rating
     const sorted = [...thirdPlaceTeams].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    const top8Ids = sorted.slice(0, 8).map(t => t.id);
+    const top8Ids = sorted.slice(0, 8).map(t => t.id).filter((id): id is string => !!id);
     setSelectedThirdsArray(top8Ids);
   };
 
@@ -168,19 +170,19 @@ function App() {
     }
 
     // 1. Gather qualified third-place groups
-    const qualifiedThirdGroups = thirdPlaceTeams.filter(t => selectedThirds.has(t.id)).map(t => t.group).sort();
+    const qualifiedThirdGroups = thirdPlaceTeams.filter(t => t.id && selectedThirds.has(t.id)).map(t => t.group).sort();
 
     // 2. Solve third place allocation using backtracking matching
     const allocation = allocateThirdPlaces(qualifiedThirdGroups);
 
     // 3. Map teams to R32 matches
-    let updatedKO = knockoutMatches.map(m => {
+    let updatedKO: KnockoutMatch[] = knockoutMatches.map(m => {
       if (m.stage !== 'R32') return m;
 
       // Find schema placeholders
       const schemaMatch = KNOCKOUT_MATCH_SCHEMA.find(x => x.id === m.id);
-      const origHome = schemaMatch.home;
-      const origAway = schemaMatch.away;
+      const origHome = schemaMatch!.home;
+      const origAway = schemaMatch!.away;
 
       let newHome = '';
       let newAway = '';
@@ -189,7 +191,7 @@ function App() {
       if (origHome === '3rd') {
         const slotDef = THIRD_PLACE_ALLOCATION_SLOTS.find(s => s.matchId === m.id && s.teamSide === 'home');
         if (slotDef) {
-          const allocatedGroup = allocation[slotDef.winner];
+          const allocatedGroup = allocation[slotDef.winner]!;
           newHome = groupTeams[allocatedGroup]?.[2]?.id || '';
         }
       } else if (origHome) {
@@ -203,7 +205,7 @@ function App() {
       if (origAway === '3rd') {
         const slotDef = THIRD_PLACE_ALLOCATION_SLOTS.find(s => s.matchId === m.id && s.teamSide === 'away');
         if (slotDef) {
-          const allocatedGroup = allocation[slotDef.winner];
+          const allocatedGroup = allocation[slotDef.winner]!;
           newAway = groupTeams[allocatedGroup]?.[2]?.id || '';
         }
       } else if (origAway) {
@@ -239,7 +241,7 @@ function App() {
     // Clean downstream matches of changed R32 matches
     knockoutMatches.forEach((m, idx) => {
       if (m.stage === 'R32') {
-        const newM = updatedKO[idx];
+        const newM = updatedKO[idx]!;
         if (newM.winner === '' && m.winner !== '') {
           updatedKO = clearDownstreamMatches(m.id, updatedKO);
         }
@@ -256,14 +258,14 @@ function App() {
   }, [groupTeams, selectedThirdsArray]);
 
   // Select knockout winner directly (clicking team card or setting penalty winner)
-  const handleSelectWinner = (matchId, side, isPenalty = false) => {
-    let updated = knockoutMatches.map(m => {
+  const handleSelectWinner = (matchId: string, side: 'home' | 'away', isPenalty: boolean = false) => {
+    let updated: KnockoutMatch[] = knockoutMatches.map(m => {
       if (m.id === matchId) {
         const winTeam = side === 'home' ? m.home : m.away;
 
         // If clicking same winner again and toggling PK
         const currentPenalty = m.penaltyWinner;
-        let newPenalty = isPenalty ? side : null;
+        let newPenalty: 'home' | 'away' | null = isPenalty ? side : null;
 
         // If PK is already set to this side and user clicks PK again, toggle it off
         if (isPenalty && currentPenalty === side) {
@@ -289,7 +291,7 @@ function App() {
   };
 
   // Propagates winner to the next match slot or sets champion
-  const propagateWinner = (match, matchesList) => {
+  const propagateWinner = (match: KnockoutMatch, matchesList: KnockoutMatch[]): KnockoutMatch[] => {
     let updated = [...matchesList];
     const hasWinner = match.winner !== '';
 
@@ -311,8 +313,8 @@ function App() {
     if (match.nextMatchId) {
       const nextIdx = updated.findIndex(x => x.id === match.nextMatchId);
       if (nextIdx !== -1) {
-        const nextM = updated[nextIdx];
-        const side = match.nextSide;
+        const nextM = updated[nextIdx]!;
+        const side = match.nextSide as 'home' | 'away';
         const prevWinner = nextM[side];
         const newWinner = match.winner;
 
@@ -332,8 +334,8 @@ function App() {
     if (match.stage === 'SF') {
       const playoffIdx = updated.findIndex(x => x.id === 'PLAYOFF_3RD');
       if (playoffIdx !== -1) {
-        const playoffM = updated[playoffIdx];
-        const side = match.nextSide;
+        const playoffM = updated[playoffIdx]!;
+        const side = match.nextSide as 'home' | 'away';
         const loser = match.winner === match.home ? match.away : match.home;
 
         if (playoffM[side] !== loser) {
@@ -367,7 +369,7 @@ function App() {
             const res = simulateMatch(homeRating, awayRating);
             
             let winTeam = '';
-            let penWin = null;
+            let penWin: 'home' | 'away' | null = null;
 
             if (res.homeScore > res.awayScore) {
               winTeam = m.home;
@@ -379,7 +381,7 @@ function App() {
               winTeam = penWin === 'home' ? m.home : m.away;
             }
 
-            const updatedMatch = {
+            const updatedMatch: KnockoutMatch = {
               ...m,
               homeScore: res.homeScore,
               awayScore: res.awayScore,
