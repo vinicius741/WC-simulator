@@ -1,6 +1,25 @@
 import React, { useState } from 'react';
 import { TEAMS } from '../data/teams';
 
+const R32_VISUAL_ORDER = [
+  'R32_1',  // Match 73
+  'R32_3',  // Match 75
+  'R32_2',  // Match 74
+  'R32_5',  // Match 77
+  'R32_4',  // Match 76
+  'R32_6',  // Match 78
+  'R32_7',  // Match 79
+  'R32_8',  // Match 80
+  'R32_11', // Match 83
+  'R32_12', // Match 84
+  'R32_9',  // Match 81
+  'R32_10', // Match 82
+  'R32_14', // Match 86
+  'R32_16', // Match 88
+  'R32_13', // Match 85
+  'R32_15'  // Match 87
+];
+
 export function KnockoutBracket({
   knockoutMatches,
   onSelectWinner,
@@ -29,11 +48,24 @@ export function KnockoutBracket({
     );
   };
 
-  const getPlaceholderText = (placeholderCode) => {
-    if (placeholderCode === '3rd') return 'Best 3rd Place';
-    if (!placeholderCode) return 'TBD';
-    const num = placeholderCode.charAt(0);
-    const grp = placeholderCode.substring(1);
+  const getPlaceholderText = (match, side) => {
+    // 3rd place match has explicit losers
+    if (match.id === 'PLAYOFF_3RD') {
+      return side === 'home' ? 'Loser Match 101' : 'Loser Match 102';
+    }
+
+    // Find if there is a feeder match that propagates to this slot
+    const feeder = knockoutMatches.find(f => f.nextMatchId === match.id && f.nextSide === side);
+    if (feeder) {
+      return `Winner ${feeder.label}`;
+    }
+
+    // Fallback for R32 group qualifiers
+    const code = side === 'home' ? match.home : match.away;
+    if (code === '3rd') return 'Best 3rd Place';
+    if (!code) return 'TBD';
+    const num = code.charAt(0);
+    const grp = code.substring(1);
     const prefix = num === '1' ? 'Winner' : 'Runner-up';
     return `${prefix} Grp ${grp}`;
   };
@@ -61,6 +93,8 @@ export function KnockoutBracket({
       else if (m.stage === 'SF') s.SF.matches.push(m);
       else if (m.stage === 'FINAL' || m.stage === '3RD') s.F.matches.push(m);
     });
+    // Sort R32 visually so feeders of R16 matches are adjacent
+    s.R32.matches.sort((a, b) => R32_VISUAL_ORDER.indexOf(a.id) - R32_VISUAL_ORDER.indexOf(b.id));
     return s;
   }, [knockoutMatches]);
 
@@ -79,7 +113,7 @@ export function KnockoutBracket({
         className={`ko-team-row ${!teamId ? 'placeholder' : ''} ${isWinner ? 'winner' : ''}`}
         onClick={() => teamId && onSelectWinner(match.id, side)}
       >
-        {renderTeamName(teamId, getPlaceholderText(teamId || (side === 'home' ? match.home || '1A' : match.away || '2B')))}
+        {renderTeamName(teamId, getPlaceholderText(match, side))}
         <div className="ko-team-meta">
           {showScore && <span className="ko-team-score">{score}</span>}
           {teamId && isWinner && (
@@ -329,8 +363,11 @@ export function KnockoutBracket({
                 <div className="bracket-column-title">Champion</div>
                 <div className="bracket-column-subtitle">Crowned from the Final</div>
               </div>
-              <div className="bracket-column-body" style={{ '--row-count': 1 }}>
-                <div className="bracket-cell" style={{ '--row': 0 }}>
+              <div className="bracket-column-body">
+                <div 
+                  className="bracket-cell" 
+                  style={{ top: `${matchTops['FINAL'] !== undefined ? matchTops['FINAL'] - 42 : 0}px` }}
+                >
                   {champTeam ? (
                     <div className="champion-display-card">
                       <h3>🏆 World Champion 🏆</h3>
