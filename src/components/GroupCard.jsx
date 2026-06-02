@@ -1,40 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { GripVertical } from 'lucide-react';
 
 export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSimulateGroup }) {
   const [draggedIdx, setDraggedIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
+  // Track the drag-over position ("before" or "after" the target index) for accurate insertion
+  const [dropPosition, setDropPosition] = useState(null);
+  // Use a ref counter to avoid clearing dragOverIdx when hovering child elements
+  const dragOverCounter = useRef(0);
 
   const handleDragStart = (e, index) => {
     setDraggedIdx(index);
     e.dataTransfer.effectAllowed = 'move';
     // Required for Firefox support
-    e.dataTransfer.setData('text/plain', index);
+    e.dataTransfer.setData('text/plain', String(index));
+    // Use a slight delay to let the drag image render before applying opacity
+    requestAnimationFrame(() => {
+      setDraggedIdx(index);
+    });
   };
 
   const handleDragOver = (e, index) => {
     e.preventDefault();
-    if (dragOverIdx !== index) {
+    e.dataTransfer.dropEffect = 'move';
+
+    // Determine whether the cursor is in the top or bottom half of the row
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const position = e.clientY < midY ? 'before' : 'after';
+
+    if (dragOverIdx !== index || dropPosition !== position) {
       setDragOverIdx(index);
+      setDropPosition(position);
     }
   };
 
-  const handleDragLeave = () => {
-    setDragOverIdx(null);
+  const handleDragEnter = (e, index) => {
+    e.preventDefault();
+    dragOverCounter.current++;
+    setDragOverIdx(index);
+  };
+
+  const handleDragLeave = (e) => {
+    dragOverCounter.current--;
+    // Only clear if we've left the row entirely (counter reaches 0)
+    if (dragOverCounter.current <= 0) {
+      dragOverCounter.current = 0;
+      setDragOverIdx(null);
+      setDropPosition(null);
+    }
   };
 
   const handleDrop = (e, index) => {
     e.preventDefault();
+    dragOverCounter.current = 0;
+
     if (draggedIdx !== null && draggedIdx !== index) {
-      onReorderTeams(groupLetter, draggedIdx, index);
+      // Calculate the final insertion index based on drop position
+      let targetIndex = index;
+      if (dropPosition === 'after' && draggedIdx < index) {
+        targetIndex = index;
+      } else if (dropPosition === 'before' && draggedIdx > index) {
+        targetIndex = index;
+      } else if (dropPosition === 'after' && draggedIdx > index) {
+        targetIndex = index;
+      } else if (dropPosition === 'before' && draggedIdx < index) {
+        targetIndex = index;
+      }
+      onReorderTeams(groupLetter, draggedIdx, targetIndex);
     }
     setDraggedIdx(null);
     setDragOverIdx(null);
+    setDropPosition(null);
   };
 
   const handleDragEnd = () => {
+    dragOverCounter.current = 0;
     setDraggedIdx(null);
     setDragOverIdx(null);
+    setDropPosition(null);
   };
 
   return (
@@ -55,8 +99,11 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
 
           // Determine border styling during drag operations
           let borderStyle = isTop2 ? '3px solid var(--accent-green)' : is3rd ? '3px solid var(--accent-navy)' : '3px solid var(--border-color)';
+
+          // Determine drop indicator line (top or bottom border)
+          let dropIndicatorStyle = 'none';
           if (isDraggedOver && !isBeingDragged) {
-            borderStyle = '3px dashed var(--accent-red)';
+            dropIndicatorStyle = dropPosition === 'before' ? 'top' : 'bottom';
           }
 
           return (
@@ -64,6 +111,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
               key={team.id} 
               draggable
               onDragStart={(e) => handleDragStart(e, idx)}
+              onDragEnter={(e) => handleDragEnter(e, idx)}
               onDragOver={(e) => handleDragOver(e, idx)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, idx)}
@@ -75,10 +123,14 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                 alignItems: 'center',
                 background: isBeingDragged ? 'rgba(0,0,0,0.05)' : isTop2 ? 'rgba(46, 125, 50, 0.03)' : is3rd ? 'rgba(13, 30, 54, 0.03)' : 'transparent',
                 borderLeft: borderStyle,
+                borderTop: dropIndicatorStyle === 'top' ? '3px solid var(--accent-red)' : 'none',
+                borderBottom: dropIndicatorStyle === 'bottom' ? '3px solid var(--accent-red)' : 'none',
                 padding: '10px 12px',
                 cursor: isBeingDragged ? 'grabbing' : 'grab',
                 opacity: isBeingDragged ? 0.4 : 1,
-                transition: 'background 0.15s ease, border 0.15s ease'
+                transition: 'background 0.15s ease, border 0.15s ease',
+                position: 'relative',
+                userSelect: 'none'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '65%' }}>
@@ -88,7 +140,8 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                   style={{ 
                     color: 'var(--text-muted)', 
                     cursor: 'grab', 
-                    flexShrink: 0 
+                    flexShrink: 0,
+                    pointerEvents: 'none'
                   }} 
                 />
 
@@ -117,7 +170,8 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                     fontSize: '10px', 
                     visibility: idx === 0 ? 'hidden' : 'visible',
                     borderColor: 'var(--border-color)',
-                    color: 'var(--text-primary)'
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer'
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -134,7 +188,8 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                     fontSize: '10px', 
                     visibility: idx === 3 ? 'hidden' : 'visible',
                     borderColor: 'var(--border-color)',
-                    color: 'var(--text-primary)'
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer'
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
