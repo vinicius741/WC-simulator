@@ -38,6 +38,25 @@ const getInitialKnockoutMatches = (): KnockoutMatch[] => {
   }));
 };
 
+const getThirdPlaceTeamsFromGroups = (groups: GroupTeamsMap): (Team & { group: string })[] => {
+  return GROUPS.map(g => {
+    const teams = groups[g] || [];
+    const thirdTeam = teams[2];
+    return {
+      ...(thirdTeam || { id: '', name: '', code: '', flag: '', group: g, rating: 0 }),
+      group: g
+    };
+  });
+};
+
+const getTopRatedThirdPlaceIds = (groups: GroupTeamsMap): string[] => {
+  return getThirdPlaceTeamsFromGroups(groups)
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, 8)
+    .map(t => t.id)
+    .filter((id): id is string => !!id);
+};
+
 function App() {
   const { language, setLanguage, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>('groups');
@@ -59,25 +78,36 @@ function App() {
 
   // Derived list of the 12 third-placed teams (index 2 in each group)
   const thirdPlaceTeams = useMemo(() => {
-    return GROUPS.map(g => {
-      const teams = groupTeams[g] || [];
-      const thirdTeam = teams[2];
-      return {
-        ...(thirdTeam || { id: '', name: '', code: '', flag: '', group: g, rating: 0 }),
-        group: g
-      };
-    });
+    return getThirdPlaceTeamsFromGroups(groupTeams);
   }, [groupTeams]);
 
-  // Check if exactly 8 third-place teams are selected
-  const allGroupsCompleted = selectedThirds.size === 8;
+  const currentThirdIds = useMemo(() => {
+    return new Set(thirdPlaceTeams.map(t => t.id).filter((id): id is string => !!id));
+  }, [thirdPlaceTeams]);
+
+  const selectedCurrentThirds = useMemo(() => {
+    return new Set(selectedThirdsArray.filter(id => currentThirdIds.has(id)));
+  }, [selectedThirdsArray, currentThirdIds]);
+
+  // Check if exactly 8 current third-place teams are selected
+  const allGroupsCompleted = selectedCurrentThirds.size === 8;
+
+  useEffect(() => {
+    setSelectedThirdsArray(prev => {
+      const next = prev.filter(id => currentThirdIds.has(id));
+      const unchanged = next.length === prev.length && next.every((id, index) => id === prev[index]);
+      return unchanged ? prev : next;
+    });
+  }, [currentThirdIds, setSelectedThirdsArray]);
 
   // Drag and drop reordering of team position in a group
-  const handleReorderTeams = (groupLetter: string, startIndex: number, endIndex: number) => {
+  const handleReorderTeams = (groupLetter: string, startIndex: number, endIndex: number, position: 'before' | 'after') => {
     setGroupTeams(prev => {
       const list = [...(prev[groupLetter] || [])];
       const [removed] = list.splice(startIndex, 1) as [Team];
-      list.splice(endIndex, 0, removed);
+      const adjustedEndIndex = startIndex < endIndex ? endIndex - 1 : endIndex;
+      const insertIndex = position === 'after' ? adjustedEndIndex + 1 : adjustedEndIndex;
+      list.splice(insertIndex, 0, removed);
       return {
         ...prev,
         [groupLetter]: list
@@ -117,24 +147,20 @@ function App() {
 
   // Simulate all group rankings
   const handleSimulateAllGroups = () => {
-    setGroupTeams(prev => {
-      const next: GroupTeamsMap = {};
-      GROUPS.forEach(g => {
-        next[g] = simulateGroupRanking(prev[g] || []);
-      });
-      return next;
+    const next: GroupTeamsMap = {};
+    GROUPS.forEach(g => {
+      next[g] = simulateGroupRanking(groupTeams[g] || []);
     });
-
-    // Auto-select the top 8 third-place teams based on rating to save clicks
-    setTimeout(() => {
-      handleSimulateThirds();
-    }, 50);
+    setGroupTeams(next);
+    setSelectedThirdsArray(getTopRatedThirdPlaceIds(next));
   };
 
   // Toggle selection of a third place team
   const handleToggleSelectThird = (teamId: string) => {
+    if (!currentThirdIds.has(teamId)) return;
+
     setSelectedThirdsArray(prev => {
-      const set = new Set(prev);
+      const set = new Set(prev.filter(id => currentThirdIds.has(id)));
       if (set.has(teamId)) {
         set.delete(teamId);
       } else {
@@ -148,15 +174,12 @@ function App() {
 
   // Auto-simulate third place selection (takes top 8 rated third-placed teams)
   const handleSimulateThirds = () => {
-    // Rank the 12 third placed teams by rating
-    const sorted = [...thirdPlaceTeams].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    const top8Ids = sorted.slice(0, 8).map(t => t.id).filter((id): id is string => !!id);
-    setSelectedThirdsArray(top8Ids);
+    setSelectedThirdsArray(getTopRatedThirdPlaceIds(groupTeams));
   };
 
   // Update R32 slots dynamically when group stage results or 3rd place selections change
   useEffect(() => {
-    if (selectedThirds.size !== 8) {
+    if (selectedCurrentThirds.size !== 8) {
       // Clear knockout bracket if 3rd place selection is incomplete
       setKnockoutMatches(prev => prev.map(m => ({
         ...m,
@@ -172,7 +195,7 @@ function App() {
     }
 
     // 1. Gather qualified third-place groups
-    const qualifiedThirdGroups = thirdPlaceTeams.filter(t => t.id && selectedThirds.has(t.id)).map(t => t.group).sort();
+    const qualifiedThirdGroups = thirdPlaceTeams.filter(t => t.id && selectedCurrentThirds.has(t.id)).map(t => t.group).sort();
 
     // 2. Solve third place allocation using backtracking matching
     const allocation = allocateThirdPlaces(qualifiedThirdGroups);
@@ -525,7 +548,7 @@ function App() {
         {activeTab === 'third-place' && (
           <ThirdPlaceStandings 
             thirdPlaceTeams={thirdPlaceTeams} 
-            selectedThirds={selectedThirds}
+            selectedThirds={selectedCurrentThirds}
             onToggleSelect={handleToggleSelectThird}
             onSimulateThirds={handleSimulateThirds}
           />
@@ -554,4 +577,3 @@ function App() {
 }
 
 export default App;
-

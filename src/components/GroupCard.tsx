@@ -6,7 +6,7 @@ import { useLanguage } from '../hooks/useLanguage';
 interface GroupCardProps {
   groupLetter: string;
   teams: Team[];
-  onReorderTeams: (groupLetter: string, startIndex: number, endIndex: number) => void;
+  onReorderTeams: (groupLetter: string, startIndex: number, endIndex: number, position: 'before' | 'after') => void;
   onMoveTeam: (groupLetter: string, index: number, direction: 'up' | 'down') => void;
   onSimulateGroup: (groupLetter: string) => void;
 }
@@ -67,7 +67,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
     dragOverCounter.current = 0;
 
     if (draggedIdx !== null && draggedIdx !== index) {
-      onReorderTeams(groupLetter, draggedIdx, index);
+      onReorderTeams(groupLetter, draggedIdx, index, dropPosition || 'before');
     }
     setDraggedIdx(null);
     setDragOverIdx(null);
@@ -209,4 +209,3 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
 }
 
 export default GroupCard;
-
