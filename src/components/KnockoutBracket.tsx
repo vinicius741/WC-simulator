@@ -74,7 +74,7 @@ export function KnockoutBracket({
       return <span className="ko-team-placeholder">{placeholderText}</span>;
     }
     const team = teamMap[teamId];
-    const displayTeamName = team ? t(team.id) : team?.name;
+    const displayTeamName = team ? t(team.id) : teamId;
     return (
       <div className="ko-team-info">
         <span className="team-flag">{team?.flag}</span>
