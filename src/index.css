@@ -967,6 +967,28 @@ body {
     display: block;
     overflow-x: auto;
   }
+
+  /* Leaderboard fills the full page width on phones/tablets. Its 4 narrow
+     columns fit without scrolling, so keep it a real table — `display: block`
+     (above) would otherwise shrink the anonymous inner table to content width
+     and strand it on the left of the page with empty space on the right. */
+  .pred-leaderboard-table {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+  }
+  .pred-leaderboard-table th:nth-child(1),
+  .pred-leaderboard-table td:nth-child(1) { width: 12%; } /* rank */
+  .pred-leaderboard-table th:nth-child(3),
+  .pred-leaderboard-table td:nth-child(3) { width: 18%; } /* points */
+  .pred-leaderboard-table th:nth-child(4),
+  .pred-leaderboard-table td:nth-child(4) { width: 18%; } /* games played */
+  /* name (col 2) takes the remaining ~52%; fixed layout lets ellipsis work */
+  .pred-leaderboard-table .pred-player-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .lang-switcher {
@@ -2074,16 +2096,6 @@ body {
   }
   .pred-reveal-table td:nth-child(2) { width: 26%; }
   .pred-reveal-table td:nth-child(3) { width: 24%; }
-  .pred-leaderboard-table {
-    -webkit-overflow-scrolling: touch;
-  }
-  .pred-leaderboard-table::-webkit-scrollbar { height: 0; background: transparent; }
-  .pred-leaderboard-table .pred-player-name {
-    max-width: 46vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
   .pred-leaderboard-table th,
   .pred-leaderboard-table td { padding: 8px 6px; }
 }
