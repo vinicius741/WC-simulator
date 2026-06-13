@@ -385,8 +385,9 @@ export function KnockoutBracket({
                 <div className="bracket-column-subtitle">{t('crownedFromFinal')}</div>
               </div>
               <div className="bracket-column-body">
-                <div 
-                  className="bracket-cell" 
+                <div
+                  className="bracket-cell"
+                  key="champion"
                   style={{ top: `${matchTops['FINAL'] !== undefined ? matchTops['FINAL'] - 42 : 0}px` }}
                 >
                   {champTeam ? (

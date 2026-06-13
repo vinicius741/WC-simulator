@@ -14,7 +14,7 @@ function App() {
   const engine = useTournamentEngine();
 
   return (
-    <div style={{ paddingBottom: '60px' }}>
+    <div className="app-shell">
       <AppHeader />
 
       <NavTabs

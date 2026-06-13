@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 
 interface NavTabsProps {
@@ -9,9 +9,23 @@ interface NavTabsProps {
 
 const NavTabs: React.FC<NavTabsProps> = ({ activeTab, onTabChange, knockoutEnabled }) => {
   const { t } = useLanguage();
+  const navRef = useRef<HTMLElement>(null);
+
+  // The tab strip scrolls horizontally on phones; keep the active tab in view
+  // so switching tabs never leaves the selection scrolled off-screen.
+  useEffect(() => {
+    const active = navRef.current?.querySelector<HTMLElement>('.tab-btn.active');
+    active?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }, [activeTab]);
 
   return (
-    <nav className="nav-tabs">
+    <nav className="nav-tabs" ref={navRef}>
+      <button
+        className={`tab-btn ${activeTab === 'predictions' ? 'active' : ''}`}
+        onClick={() => onTabChange('predictions')}
+      >
+        {t('tabPredictions')}
+      </button>
       <button
         className={`tab-btn ${activeTab === 'groups' ? 'active' : ''}`}
         onClick={() => onTabChange('groups')}
@@ -31,12 +45,6 @@ const NavTabs: React.FC<NavTabsProps> = ({ activeTab, onTabChange, knockoutEnabl
         style={{ opacity: !knockoutEnabled ? 0.5 : 1, cursor: !knockoutEnabled ? 'not-allowed' : 'pointer' }}
       >
         {t('tabKnockout')}
-      </button>
-      <button
-        className={`tab-btn ${activeTab === 'predictions' ? 'active' : ''}`}
-        onClick={() => onTabChange('predictions')}
-      >
-        {t('tabPredictions')}
       </button>
     </nav>
   );

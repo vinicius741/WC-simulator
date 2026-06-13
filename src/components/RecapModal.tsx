@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TEAMS } from '../data/teams';
 import type { KnockoutMatch, Team } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
@@ -23,6 +23,16 @@ interface RecapModalProps {
 
 export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }: RecapModalProps) {
   const { t, language } = useLanguage();
+
+  // Lock background scroll while the modal is open (prevents iOS rubber-banding
+  // behind the overlay). Restored on unmount.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   // Map of teamId to team object for easy lookup
   const teamMap = React.useMemo<Record<string, Team>>(() => {

@@ -21,8 +21,9 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
       </p>
 
       {/* Progress / Status Header */}
-      <div 
-        style={{ 
+      <div
+        className="thirds-status-header"
+        style={{
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
