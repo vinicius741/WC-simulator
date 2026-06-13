@@ -1,0 +1,63 @@
+/* =============================================================================
+   Button primitives (.btn and its variants) — reused across every feature
+   (chrome, predictions, admin, modal). Loaded before the feature files.
+   Split from the former monolithic src/index.css.
+   ========================================================================== */
+
+.btn {
+  background: var(--bg-secondary);
+  border: 1px solid #1a1a1a;
+  color: #1a1a1a;
+  padding: 8px 18px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.btn:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.btn-primary {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #900000;
+  border-color: #900000;
+}
+
+.btn-secondary {
+  background: var(--accent-navy);
+  border-color: var(--accent-navy);
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: #060f1c;
+  border-color: #060f1c;
+}
+
+/* Destructive (delete) button — outline red, fills on hover. */
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+}
+.btn-danger:hover {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+  color: #fff;
+}
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

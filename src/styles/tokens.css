@@ -1,0 +1,34 @@
+/* =============================================================================
+   Design tokens — color palette, font stacks, and root element defaults.
+   MUST be imported first: every other stylesheet consumes these via var().
+   Split from the former monolithic src/index.css.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Georgia:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-primary: #fcfbfa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f3ef;
+  --card-bg: #ffffff;
+
+  --accent-red: #b00000;      /* Editorial Crimson Red */
+  --accent-navy: #0d1e36;     /* Telegraph Dark Navy */
+  --accent-gold: #c5a059;     /* Gold highlights */
+  --accent-gray: #71767a;     /* Neutral accent */
+  --accent-green: #2e7d32;    /* Darker, classic green */
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #7c7c7c;
+
+  --border-color: #e5e0d8;
+  --border-hover: #b00000;
+
+  --serif: 'Georgia', 'Times New Roman', serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  font-family: var(--sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}

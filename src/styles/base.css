@@ -1,0 +1,87 @@
+/* =============================================================================
+   Global reset + document defaults, plus the additive iOS/mobile defaults
+   (text-size-adjust, overscroll, tap-highlight, touch-callout, 100dvh fallback,
+   .app-shell home-indicator padding). All additive or !important, so safe to
+   load here ahead of every feature stylesheet. The layout-changing media
+   queries that accompany these live in responsive.css.
+   Split from the former monolithic src/index.css.
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  line-height: 1.5;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* ---- Global iOS typography / scroll / touch defaults (no design change) ---- */
+html {
+  -webkit-text-size-adjust: 100%;   /* stop iOS inflating text on rotation */
+  text-size-adjust: 100%;
+}
+body {
+  overscroll-behavior-y: none;      /* no whole-page bounce / pull-to-refresh */
+}
+* {
+  -webkit-tap-highlight-color: transparent;  /* kill the grey tap flash */
+}
+/* suppress the long-press callout menu on UI chrome + emoji flags only
+   (text content stays selectable) */
+img,
+.team-flag,
+.pred-flag,
+.champion-flag,
+.btn,
+.tab-btn,
+.stage-tab-btn,
+button {
+  -webkit-touch-callout: none;
+}
+
+/* Dynamic viewport height (iOS 15.4+) with 100vh fallback for older devices */
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* App shell bottom padding — clears the iPhone home indicator (was inline 60px) */
+.app-shell {
+  padding-bottom: 60px;
+  padding-bottom: calc(60px + env(safe-area-inset-bottom));
+}
+
+/* Recap modal champion emoji: scale down on small viewports (also covers Pro Max
+   landscape, which is >600px wide). Scoped to the modal so the in-bracket
+   champion card flag is untouched. Desktop clamps to 64px == the inline value. */
+.modal-content .champion-flag {
+  font-size: clamp(40px, 12vw, 64px) !important;
+}
+
+/* Momentum scrolling for horizontal overflow containers (no-op on desktop).
+   Scrollbar hiding for each container lives inside the mobile media blocks so
+   desktop keeps its native scrollbars. */
+.bracket-wrapper,
+.bracket-stage-tabs,
+.nav-tabs {
+  -webkit-overflow-scrolling: touch;
+}
