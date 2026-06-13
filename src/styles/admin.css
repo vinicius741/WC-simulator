@@ -152,6 +152,7 @@
   justify-content: space-between;
   gap: 14px;
   margin-top: 8px;
+  margin-bottom: 24px;
   padding: 16px 18px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
