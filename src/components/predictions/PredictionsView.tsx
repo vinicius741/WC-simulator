@@ -52,6 +52,16 @@ export default function PredictionsView({ inviteToken }: Props) {
         </div>
       </div>
 
+      {auth.isAdmin && (
+        <a className="admin-link-card" href={adminHref()}>
+          <span className="admin-link-card-text">
+            <span className="admin-link-card-title">{t('predAdminTitle')}</span>
+            <span className="admin-link-card-desc">{t('adminGoToDesc')}</span>
+          </span>
+          <span className="admin-link-card-arrow" aria-hidden="true">→</span>
+        </a>
+      )}
+
       {editingName && (
         <ChangeNameModal
           auth={auth}
@@ -105,16 +115,6 @@ export default function PredictionsView({ inviteToken }: Props) {
           </div>
         )}
       </section>
-
-      {auth.isAdmin && (
-        <a className="admin-link-card" href={adminHref()}>
-          <span className="admin-link-card-text">
-            <span className="admin-link-card-title">{t('predAdminTitle')}</span>
-            <span className="admin-link-card-desc">{t('adminGoToDesc')}</span>
-          </span>
-          <span className="admin-link-card-arrow" aria-hidden="true">→</span>
-        </a>
-      )}
     </div>
   );
 }
