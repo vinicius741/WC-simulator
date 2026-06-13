@@ -6,7 +6,7 @@ import InviteLogin from './InviteLogin';
 import UpcomingGameCard from './UpcomingGameCard';
 import LockedGameCard from './LockedGameCard';
 import Leaderboard from './Leaderboard';
-import AdminPanel from './AdminPanel';
+import { adminHref } from '../../utils/routes';
 
 interface Props {
   inviteToken?: string | null;
@@ -89,11 +89,13 @@ export default function PredictionsView({ inviteToken }: Props) {
       </section>
 
       {auth.isAdmin && (
-        <section className="predictions-section">
-          <h2 className="section-title">{t('predAdminTitle')}</h2>
-          <p className="section-desc">{t('predAdminDesc')}</p>
-          <AdminPanel games={data.games} onChanged={data.refresh} />
-        </section>
+        <a className="admin-link-card" href={adminHref()}>
+          <span className="admin-link-card-text">
+            <span className="admin-link-card-title">{t('predAdminTitle')}</span>
+            <span className="admin-link-card-desc">{t('adminGoToDesc')}</span>
+          </span>
+          <span className="admin-link-card-arrow" aria-hidden="true">→</span>
+        </a>
       )}
     </div>
   );

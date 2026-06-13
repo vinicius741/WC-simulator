@@ -1468,6 +1468,153 @@ body {
   color: var(--accent-gold);
 }
 
+/* ── Dedicated /admin page ─────────────────────────────────────── */
+.admin-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 0 60px;
+}
+
+.admin-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+  margin-bottom: 28px;
+}
+
+.admin-page-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-navy);
+  margin: 0;
+}
+
+.admin-back-link {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent-navy);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.admin-back-link:hover {
+  color: var(--accent-red);
+}
+
+/* Compact admin-only sign-in gate (separate from the family/admin login tabs). */
+.admin-login {
+  max-width: 420px;
+  margin: 40px auto;
+}
+.admin-login .admin-back-link {
+  display: inline-block;
+  margin-bottom: 18px;
+}
+
+/* Link card on the predictions page that opens the /admin page. */
+.admin-link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 8px;
+  padding: 16px 18px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-gold);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.admin-link-card:hover {
+  border-left-color: var(--accent-red);
+  transform: translateX(2px);
+}
+.admin-link-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.admin-link-card-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.admin-link-card-desc {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.admin-link-card-arrow {
+  font-size: 20px;
+  color: var(--accent-navy);
+  font-weight: 700;
+}
+.admin-link-card:hover .admin-link-card-arrow {
+  color: var(--accent-red);
+}
+
+/* Manage-players panel */
+.admin-players-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-player-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+.admin-player-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+  flex: 1 1 160px;
+}
+.admin-player-meta {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  flex: 1 1 120px;
+}
+.admin-player-row .btn-danger {
+  margin-left: auto;
+}
+
+/* Destructive (delete) button — outline red, fills on hover. */
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+}
+.btn-danger:hover {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+  color: #fff;
+}
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 600px) {
   .admin-grid-2,
   .admin-team-grid,

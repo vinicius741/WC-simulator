@@ -100,3 +100,10 @@ export interface InviteActionResponse {
   token?: string;
   enabled?: boolean;
 }
+
+export interface AdminDeletePlayerResponse {
+  ok: boolean;
+  player_name: string;
+  deleted_predictions: number;
+  deleted_sessions: number;
+}

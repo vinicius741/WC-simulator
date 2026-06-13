@@ -8,10 +8,20 @@ import AppHeader from './components/AppHeader';
 import NavTabs from './components/NavTabs';
 import ControlsBar from './components/ControlsBar';
 import PredictionsView from './components/predictions/PredictionsView';
+import AdminPage from './components/predictions/AdminPage';
 import { useTournamentEngine } from './hooks/useTournamentEngine';
 import { readInviteToken } from './utils/inviteRoute';
+import { isAdminRoute } from './utils/routes';
 
 function App() {
+  // The admin tools live on a dedicated /admin page, fully separate from the
+  // family app shell. The root .htaccess falls /admin back to index.html, and
+  // the cookie session carries over, so no client-side router is needed.
+  if (isAdminRoute()) return <AdminPage />;
+  return <SimulatorApp />;
+}
+
+function SimulatorApp() {
   const engine = useTournamentEngine();
   const { setActiveTab } = engine;
 

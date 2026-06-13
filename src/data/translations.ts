@@ -108,6 +108,21 @@ export const TRANSLATIONS = {
     predAdminShareRegenerateConfirm: "Regenerate the link? The current link will stop working immediately.",
     predAdminShareSaved: "Updated.",
 
+    // Dedicated /admin page + delete-player
+    adminPageTitle: "Admin tools",
+    adminBackToApp: "Back to app",
+    adminGoToBtn: "Open admin",
+    adminGoToDesc: "Manage results, games, players, passwords and the invite link.",
+    adminLoginTitle: "Admin sign in",
+    adminLoginDesc: "Enter the admin password to manage the family pool.",
+    adminPlayersTitle: "Manage players",
+    adminPlayersDesc: "Remove a player and all their picks from the pool. They can re-join later with the same name.",
+    adminPlayersNone: "No players have made picks yet.",
+    adminPlayerPicks: "{n} picks · {pts} pts",
+    adminPlayerDelete: "Delete",
+    adminDeleteConfirm: "Delete {name}? This permanently removes their {n} picks and signs them out.",
+    adminPlayerDeleted: "{name} was removed ({n} picks deleted).",
+
     // Controls
     btnSimulateAllGroups: "Simulate All Groups",
     btnResetRankings: "Reset Rankings",
@@ -339,6 +354,21 @@ export const TRANSLATIONS = {
     predAdminShareNone: "Nenhum link criado ainda.",
     predAdminShareRegenerateConfirm: "Regerar o link? O link atual vai parar de funcionar imediatamente.",
     predAdminShareSaved: "Atualizado.",
+
+    // Página /admin dedicada + excluir jogador
+    adminPageTitle: "Painel do administrador",
+    adminBackToApp: "Voltar ao app",
+    adminGoToBtn: "Abrir painel",
+    adminGoToDesc: "Gerencie resultados, jogos, jogadores, senhas e o link de convite.",
+    adminLoginTitle: "Entrar como administrador",
+    adminLoginDesc: "Digite a senha de administrador para gerenciar o bolão da família.",
+    adminPlayersTitle: "Gerenciar jogadores",
+    adminPlayersDesc: "Remove um jogador e todos os seus palpites do bolão. Ele pode entrar de novo depois com o mesmo nome.",
+    adminPlayersNone: "Nenhum jogador deu palpites ainda.",
+    adminPlayerPicks: "{n} palpites · {pts} pts",
+    adminPlayerDelete: "Excluir",
+    adminDeleteConfirm: "Excluir {name}? Isso remove permanentemente os {n} palpites e encerra a sessão.",
+    adminPlayerDeleted: "{name} foi removido ({n} palpites excluídos).",
 
     // Controls
     btnSimulateAllGroups: "Simular Todos os Grupos",
