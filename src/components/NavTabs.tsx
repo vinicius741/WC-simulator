@@ -32,6 +32,12 @@ const NavTabs: React.FC<NavTabsProps> = ({ activeTab, onTabChange, knockoutEnabl
       >
         {t('tabKnockout')}
       </button>
+      <button
+        className={`tab-btn ${activeTab === 'predictions' ? 'active' : ''}`}
+        onClick={() => onTabChange('predictions')}
+      >
+        {t('tabPredictions')}
+      </button>
     </nav>
   );
 };

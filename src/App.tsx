@@ -7,6 +7,7 @@ import RecapModal from './components/RecapModal';
 import AppHeader from './components/AppHeader';
 import NavTabs from './components/NavTabs';
 import ControlsBar from './components/ControlsBar';
+import PredictionsView from './components/predictions/PredictionsView';
 import { useTournamentEngine } from './hooks/useTournamentEngine';
 
 function App() {
@@ -22,16 +23,18 @@ function App() {
         knockoutEnabled={engine.allGroupsCompleted}
       />
 
-      <ControlsBar
-        activeTab={engine.activeTab}
-        allGroupsCompleted={engine.allGroupsCompleted}
-        selectedCount={engine.selectedCurrentThirds.size}
-        champion={engine.champion}
-        onSimulateAllGroups={engine.handleSimulateAllGroups}
-        onSimulateKnockouts={engine.handleSimulateAllKnockouts}
-        onReset={engine.handleReset}
-        onShowRecap={() => engine.setShowRecap(true)}
-      />
+      {engine.activeTab !== 'predictions' && (
+        <ControlsBar
+          activeTab={engine.activeTab}
+          allGroupsCompleted={engine.allGroupsCompleted}
+          selectedCount={engine.selectedCurrentThirds.size}
+          champion={engine.champion}
+          onSimulateAllGroups={engine.handleSimulateAllGroups}
+          onSimulateKnockouts={engine.handleSimulateAllKnockouts}
+          onReset={engine.handleReset}
+          onShowRecap={() => engine.setShowRecap(true)}
+        />
+      )}
 
       <main>
         {engine.activeTab === 'groups' && (
@@ -65,6 +68,8 @@ function App() {
             champion={engine.champion}
           />
         )}
+
+        {engine.activeTab === 'predictions' && <PredictionsView />}
       </main>
 
       {engine.showRecap && engine.champion && (
