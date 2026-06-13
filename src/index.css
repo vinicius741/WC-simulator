@@ -1421,6 +1421,53 @@ body {
   gap: 12px;
 }
 
+/* ── Family invite link (admin share panel + name-only join) ─────────── */
+.admin-share-field {
+  margin-top: 14px;
+}
+
+.admin-share-url {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  word-break: break-all;
+}
+
+.admin-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.admin-share-status {
+  margin: 10px 0 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+/* "Use the family password instead" link on the invite join screen */
+.predictions-invite-fallback {
+  display: block;
+  margin: 18px auto 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--accent-navy);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.predictions-invite-fallback:hover {
+  color: var(--accent-gold);
+}
+
 @media (max-width: 600px) {
   .admin-grid-2,
   .admin-team-grid,

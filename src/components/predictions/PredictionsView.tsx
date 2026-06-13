@@ -2,12 +2,17 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { usePredictionsAuth } from '../../hooks/usePredictionsAuth';
 import { usePredictions } from '../../hooks/usePredictions';
 import PredictionsLogin from './PredictionsLogin';
+import InviteLogin from './InviteLogin';
 import UpcomingGameCard from './UpcomingGameCard';
 import LockedGameCard from './LockedGameCard';
 import Leaderboard from './Leaderboard';
 import AdminPanel from './AdminPanel';
 
-export default function PredictionsView() {
+interface Props {
+  inviteToken?: string | null;
+}
+
+export default function PredictionsView({ inviteToken }: Props) {
   const { t } = useLanguage();
   const auth = usePredictionsAuth();
   const data = usePredictions(auth.authenticated);
@@ -17,7 +22,9 @@ export default function PredictionsView() {
   }
 
   if (!auth.authenticated) {
-    return <PredictionsLogin auth={auth} />;
+    // An invite link takes the visitor straight to a name-only join form;
+    // otherwise show the usual password login.
+    return inviteToken ? <InviteLogin auth={auth} token={inviteToken} /> : <PredictionsLogin auth={auth} />;
   }
 
   const upcoming = data.games.filter((g) => !g.started && g.is_open);

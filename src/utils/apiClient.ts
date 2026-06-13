@@ -1,4 +1,11 @@
-import type { LeaderboardRow, MeResponse, PredictionGame } from '../types';
+import type {
+  InviteActionResponse,
+  InviteLoginResponse,
+  InviteStatusResponse,
+  LeaderboardRow,
+  MeResponse,
+  PredictionGame,
+} from '../types';
 import { MOCK_GAMES, MOCK_LEADERBOARD } from './predictionsMock';
 
 /**
@@ -74,6 +81,17 @@ export const api = {
     await request('admin/login.php', { method: 'POST', body: JSON.stringify({ password }) });
   },
 
+  async inviteLogin(token: string, playerName: string): Promise<void> {
+    if (USE_MOCK) {
+      await wait(200);
+      return;
+    }
+    await request<InviteLoginResponse>('invite_login.php', {
+      method: 'POST',
+      body: JSON.stringify({ token, player_name: playerName }),
+    });
+  },
+
   async logout(): Promise<void> {
     if (USE_MOCK) return;
     await request('logout.php', { method: 'POST' });
@@ -145,6 +163,25 @@ export const api = {
     await request('admin/password.php', {
       method: 'POST',
       body: JSON.stringify({ type, new_password: newPassword }),
+    });
+  },
+
+  async adminInviteStatus(): Promise<InviteStatusResponse> {
+    if (USE_MOCK) {
+      await wait(150);
+      return { enabled: true, has_token: false, token: null };
+    }
+    return request<InviteStatusResponse>('admin/invite.php');
+  },
+
+  async adminInviteAction(action: 'generate' | 'disable' | 'enable'): Promise<InviteActionResponse> {
+    if (USE_MOCK) {
+      await wait(150);
+      return action === 'generate' ? { ok: true, token: 'mock-invite-token' } : { ok: true };
+    }
+    return request<InviteActionResponse>('admin/invite.php', {
+      method: 'POST',
+      body: JSON.stringify({ action }),
     });
   },
 };

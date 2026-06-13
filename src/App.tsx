@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { GROUPS } from './data/constants';
 import GroupCard from './components/GroupCard';
 import ThirdPlaceStandings from './components/ThirdPlaceStandings';
@@ -9,9 +9,18 @@ import NavTabs from './components/NavTabs';
 import ControlsBar from './components/ControlsBar';
 import PredictionsView from './components/predictions/PredictionsView';
 import { useTournamentEngine } from './hooks/useTournamentEngine';
+import { readInviteToken } from './utils/inviteRoute';
 
 function App() {
   const engine = useTournamentEngine();
+  const { setActiveTab } = engine;
+
+  // A `/invite/<token>` link deep-links straight into the Predictions tab and a
+  // name-only join form. Read once on mount (also strips the token from the URL).
+  const inviteToken = useMemo(() => readInviteToken(), []);
+  useEffect(() => {
+    if (inviteToken) setActiveTab('predictions');
+  }, [inviteToken, setActiveTab]);
 
   return (
     <div className="app-shell">
@@ -69,7 +78,7 @@ function App() {
           />
         )}
 
-        {engine.activeTab === 'predictions' && <PredictionsView />}
+        {engine.activeTab === 'predictions' && <PredictionsView inviteToken={inviteToken} />}
       </main>
 
       {engine.showRecap && engine.champion && (

@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { api, ApiError } from '../../utils/apiClient';
+import { buildInviteUrl } from '../../utils/inviteRoute';
 import type { PredictionGame } from '../../types';
 
 interface Props {
@@ -13,6 +14,7 @@ export default function AdminPanel({ games, onChanged }: Props) {
     <div className="admin-panel">
       <ResultEntry games={games} onChanged={onChanged} />
       <AddGame onChanged={onChanged} />
+      <ShareLink />
       <ChangePassword />
     </div>
   );
@@ -289,6 +291,125 @@ function ChangePassword() {
           {busy ? t('predSaving') : t('predAdminChangePwBtn')}
         </button>
       </form>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 4. Generate / manage the passwordless family invite link           */
+/* ------------------------------------------------------------------ */
+function ShareLink() {
+  const { t } = useLanguage();
+  const [token, setToken] = useState<string | null>(null);
+  const [enabled, setEnabled] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .adminInviteStatus()
+      .then((status) => {
+        if (!active) return;
+        setToken(status.token);
+        setEnabled(status.enabled);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const url = token ? buildInviteUrl(token) : null;
+
+  async function copy() {
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setErr(t('predAdminShareCopyFailed'));
+      setTimeout(() => setErr(null), 3000);
+    }
+  }
+
+  async function generate(regenerate: boolean) {
+    if (regenerate && !window.confirm(t('predAdminShareRegenerateConfirm'))) return;
+    setBusy(true);
+    setMsg(null);
+    setErr(null);
+    try {
+      const res = await api.adminInviteAction('generate');
+      setToken(res.token ?? null);
+      setEnabled(true);
+      setMsg(t('predAdminShareSaved'));
+    } catch (e2) {
+      setErr(e2 instanceof ApiError ? e2.message : t('predSaveError'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggle() {
+    setBusy(true);
+    setMsg(null);
+    setErr(null);
+    try {
+      const res = await api.adminInviteAction(enabled ? 'disable' : 'enable');
+      setEnabled(res.enabled ?? !enabled);
+      setMsg(t('predAdminShareSaved'));
+    } catch (e2) {
+      setErr(e2 instanceof ApiError ? e2.message : t('predSaveError'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="admin-subpanel">
+      <h3 className="admin-subpanel-title">{t('predAdminShareTitle')}</h3>
+      <p className="section-desc">{t('predAdminShareDesc')}</p>
+
+      {loading ? (
+        <p className="predictions-empty">{t('predLoading')}</p>
+      ) : url ? (
+        <>
+          <label className="predictions-field admin-share-field">
+            <span>{t('predAdminShareUrl')}</span>
+            <input className="admin-share-url" value={url} readOnly onFocus={(e) => e.target.select()} />
+          </label>
+          <div className="admin-share-actions">
+            <button type="button" className="btn" onClick={copy}>
+              {copied ? t('predAdminShareCopied') : t('predAdminShareCopy')}
+            </button>
+            <button type="button" className="btn" onClick={() => generate(true)} disabled={busy}>
+              {t('predAdminShareRegenerate')}
+            </button>
+            <button type="button" className="btn" onClick={toggle} disabled={busy}>
+              {enabled ? t('predAdminShareDisable') : t('predAdminShareEnable')}
+            </button>
+          </div>
+          <p className="admin-share-status">
+            {enabled ? t('predAdminShareEnabled') : t('predAdminShareDisabled')}
+          </p>
+        </>
+      ) : (
+        <div className="admin-share-actions">
+          <button type="button" className="btn btn-primary" onClick={() => generate(false)} disabled={busy}>
+            {busy ? t('predSaving') : t('predAdminShareGenerate')}
+          </button>
+        </div>
+      )}
+
+      {msg && <div className="predictions-success">{msg}</div>}
+      {err && <div className="predictions-error">{err}</div>}
     </div>
   );
 }

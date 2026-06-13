@@ -9,6 +9,7 @@ export interface PredictionsAuth {
   rememberedName: string;
   loading: boolean;
   login: (password: string, playerName: string) => Promise<void>;
+  inviteLogin: (token: string, playerName: string) => Promise<void>;
   adminLogin: (password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -57,6 +58,15 @@ export function usePredictionsAuth(): PredictionsAuth {
     [setRememberedName],
   );
 
+  const inviteLogin = useCallback(
+    async (token: string, playerName: string) => {
+      await api.inviteLogin(token, playerName);
+      setRememberedName(playerName);
+      setState({ authenticated: true, isAdmin: false, playerName, loading: false });
+    },
+    [setRememberedName],
+  );
+
   const adminLogin = useCallback(async (password: string) => {
     await api.adminLogin(password);
     setState((s) => ({ ...s, authenticated: true, isAdmin: true, loading: false }));
@@ -74,6 +84,7 @@ export function usePredictionsAuth(): PredictionsAuth {
     rememberedName,
     loading: state.loading,
     login,
+    inviteLogin,
     adminLogin,
     logout,
   };

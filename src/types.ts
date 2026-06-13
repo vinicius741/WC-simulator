@@ -83,3 +83,20 @@ export interface MeResponse {
   is_admin: boolean;
   player_name: string | null;
 }
+
+export interface InviteLoginResponse {
+  ok: boolean;
+  player_name: string;
+}
+
+export interface InviteStatusResponse {
+  enabled: boolean;
+  has_token: boolean;
+  token: string | null;
+}
+
+export interface InviteActionResponse {
+  ok: boolean;
+  token?: string;
+  enabled?: boolean;
+}

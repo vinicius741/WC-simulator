@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Brazilian green field -->
+  <rect width="1200" height="630" fill="#009C3B"/>
+  <!-- Yellow frame -->
+  <rect x="40" y="40" width="1120" height="550" fill="none" stroke="#FFDF00" stroke-width="2"/>
+
+  <!-- Kicker -->
+  <text x="600" y="205" text-anchor="middle"
+        font-family="Helvetica, Arial, sans-serif" font-size="34" letter-spacing="9"
+        fill="#FFFFFF">COPA DO MUNDO 2026</text>
+
+  <!-- Title -->
+  <text x="600" y="340" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="118" font-weight="bold"
+        fill="#FFDF00">Bolão da Família</text>
+
+  <!-- Yellow underline -->
+  <rect x="540" y="378" width="120" height="5" fill="#FFDF00"/>
+
+  <!-- Tagline -->
+  <text x="600" y="452" text-anchor="middle"
+        font-family="Helvetica, Arial, sans-serif" font-size="42"
+        fill="#FFFFFF">Dê seus palpites e dispute com a família</text>
+</svg>
