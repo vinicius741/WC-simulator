@@ -220,9 +220,9 @@ export const TRANSLATIONS = {
     tabThirdPlace: "Seleção de Terceiros Lugares",
     tabKnockout: "Chaveamento do Mata-mata",
     tabKnockoutTooltip: "Selecione exatamente 8 terceiros colocados para desbloquear o chaveamento",
-    tabPredictions: "Palpites",
+    tabPredictions: "Bolão",
 
-    // Aba de Palpites
+    // Aba de Bolão
     predLoading: "Carregando…",
     predAdmin: "Administrador",
     predLogout: "Sair",
@@ -236,7 +236,7 @@ export const TRANSLATIONS = {
     predNoLocked: "Nenhum jogo começou ainda.",
     predAdminTitle: "Administrador",
     predAdminDesc: "Lance os resultados reais para pontuar os palpites, adicione jogos e gerencie as senhas.",
-    predLoginTitle: "Palpites da Família",
+    predLoginTitle: "Bolão da Família",
     predLoginDesc: "Digite a senha da família para dar os seus palpites.",
     predFamily: "Família",
     predYourName: "Seu nome",
