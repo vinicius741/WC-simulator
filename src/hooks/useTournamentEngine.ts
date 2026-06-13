@@ -52,7 +52,9 @@ export interface TournamentEngineAPI {
 }
 
 export function useTournamentEngine(): TournamentEngineAPI {
-  const [activeTab, setActiveTab] = useState<string>('groups');
+  // Predictions is the primary tab (it's listed first in NavTabs), so the app
+  // lands there on a fresh load instead of the group rankings.
+  const [activeTab, setActiveTab] = useState<string>('predictions');
   const [groupTeams, setGroupTeams] = useLocalStorage<GroupTeamsMap>('wc2026_group_teams_v2', getInitialGroupTeams());
   const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage<string[]>('wc2026_selected_thirds_v2', []);
   const [knockoutMatches, setKnockoutMatches] = useLocalStorage<KnockoutMatch[]>('wc2026_knockout_matches_v2', getInitialKnockoutMatches());
