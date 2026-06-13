@@ -131,7 +131,8 @@ export const TRANSLATIONS = {
     eng: "England",
     cro: "Croatia",
     gha: "Ghana",
-    pan: "Panama"
+    pan: "Panama",
+    swe: "Sweden"
   },
   'pt-BR': {
     // Header
@@ -265,6 +266,7 @@ export const TRANSLATIONS = {
     eng: "Inglaterra",
     cro: "Croácia",
     gha: "Gana",
-    pan: "Panamá"
+    pan: "Panamá",
+    swe: "Suécia"
   }
 };

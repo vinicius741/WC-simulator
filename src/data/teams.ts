@@ -34,7 +34,7 @@ export const TEAMS: Team[] = [
   // Group F
   { id: 'ned', name: 'Netherlands', code: 'NED', flag: '🇳🇱', group: 'F', rating: 88 },
   { id: 'jpn', name: 'Japan', code: 'JPN', flag: '🇯🇵', group: 'F', rating: 83 },
-  { id: 'pol', name: 'Poland', code: 'POL', flag: '🇵🇱', group: 'F', rating: 81 },
+  { id: 'swe', name: 'Sweden', code: 'SWE', flag: '🇸🇪', group: 'F', rating: 80 },
   { id: 'tun', name: 'Tunisia', code: 'TUN', flag: '🇹🇳', group: 'F', rating: 76 },
 
   // Group G
