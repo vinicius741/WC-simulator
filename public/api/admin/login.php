@@ -1,6 +1,6 @@
 <?php
 define('APP_RUNNING', true);
-require __DIR__ . '/bootstrap.php';
+require __DIR__ . '/../bootstrap.php';
 require_method('POST');
 
 $body     = read_json_body();
