@@ -1021,11 +1021,28 @@ body {
 
 .predictions-session-bar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 12px;
   margin-bottom: 25px;
+}
+
+.predictions-session-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Equal-width action buttons so short labels ("Sair"/"Log out") match the
+   longer "Alterar Nome"/"Change name". The floor is sized to fit the longer
+   label; both buttons render at it, so they're identical. */
+.predictions-session-actions .btn {
+  min-width: 160px;
+  white-space: nowrap;
 }
 
 .predictions-session-name {

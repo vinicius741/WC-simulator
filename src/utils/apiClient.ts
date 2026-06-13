@@ -98,6 +98,17 @@ export const api = {
     await request('logout.php', { method: 'POST' });
   },
 
+  async changeName(newName: string): Promise<void> {
+    if (USE_MOCK) {
+      await wait(150);
+      return;
+    }
+    await request('change_name.php', {
+      method: 'POST',
+      body: JSON.stringify({ new_name: newName }),
+    });
+  },
+
   async getGames(): Promise<PredictionGame[]> {
     if (USE_MOCK) {
       await wait(150);

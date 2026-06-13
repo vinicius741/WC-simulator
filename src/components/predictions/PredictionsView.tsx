@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { usePredictionsAuth } from '../../hooks/usePredictionsAuth';
 import { usePredictions } from '../../hooks/usePredictions';
@@ -7,6 +8,7 @@ import UpcomingGameCard from './UpcomingGameCard';
 import LockedGameCard from './LockedGameCard';
 import Leaderboard from './Leaderboard';
 import { adminHref } from '../../utils/routes';
+import ChangeNameModal from './ChangeNameModal';
 
 interface Props {
   inviteToken?: string | null;
@@ -16,6 +18,7 @@ export default function PredictionsView({ inviteToken }: Props) {
   const { t } = useLanguage();
   const auth = usePredictionsAuth();
   const data = usePredictions(auth.authenticated);
+  const [editingName, setEditingName] = useState(false);
 
   if (auth.loading) {
     return <div className="predictions-loading">{t('predLoading')}</div>;
@@ -37,10 +40,25 @@ export default function PredictionsView({ inviteToken }: Props) {
         <span className="predictions-session-name">
           {t('predSignedInAs', { name: displayName })}
         </span>
-        <button className="btn" onClick={auth.logout}>
-          {t('predLogout')}
-        </button>
+        <div className="predictions-session-actions">
+          {!auth.isAdmin && (
+            <button className="btn" onClick={() => setEditingName(true)}>
+              {t('predChangeName')}
+            </button>
+          )}
+          <button className="btn" onClick={auth.logout}>
+            {t('predLogout')}
+          </button>
+        </div>
       </div>
+
+      {editingName && (
+        <ChangeNameModal
+          auth={auth}
+          onClose={() => setEditingName(false)}
+          onSaved={data.refresh}
+        />
+      )}
 
       {data.error && (
         <div className="predictions-error">
