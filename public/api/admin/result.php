@@ -32,25 +32,8 @@ if (!$chk->fetchColumn()) {
 }
 
 // Re-score every prediction for this game (idempotent — safe to re-run on correction).
-$exact  = (int) (get_config($pdo, 'points_exact')  ?? 3);
-$result = (int) (get_config($pdo, 'points_result') ?? 1);
-
-$score = $pdo->prepare(
-    'UPDATE predictions
-        SET points = CASE
-            WHEN predicted_home = :h AND predicted_away = :a THEN :ex
-            WHEN SIGN(predicted_home - predicted_away) = SIGN(:h2 - :a2) THEN :rs
-            ELSE 0
-        END
-      WHERE game_id = :id'
-);
-$score->execute([
-    ':h'  => $home, ':a'  => $away,
-    ':ex' => $exact,
-    ':h2' => $home, ':a2' => $away,
-    ':rs' => $result,
-    ':id' => $gameId,
-]);
+require __DIR__ . '/scoring.php';
+rescore_game($pdo, $gameId, $home, $away);
 
 $countStmt = $pdo->prepare('SELECT COUNT(*) FROM predictions WHERE game_id = :id');
 $countStmt->execute([':id' => $gameId]);
