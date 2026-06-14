@@ -104,6 +104,36 @@ passwords are set. You can delete `api/setup.php` from the server afterwards.
   - **Add a game** (e.g. a knockout match once teams are known).
   - **Change password** for family or admin.
 
+## Automatic results (daily cron)
+
+Finished results no longer need to be typed by hand. `api/admin/sync_results.php` pulls
+finished WC2026 games from FIFA's official JSON feed once a day, matches them to the seeded
+`games` rows by team code, fills any missing result, and re-scores predictions (same 3/1/0
+rule). It only fills games whose result is still empty — a result you enter by hand is never
+silently overwritten (set `config.sync_force_overwrite=1` to let it correct a divergence).
+
+- **Audit log:** the script self-creates a `sync_log` table on first run, so importing
+  `db/sync_log.sql` is **optional** (it just documents the shape). To import it explicitly:
+  ```bash
+  ssh hostinger "mysql -u u915492341_wcpred -p'$DBPASS' u915492341_wcpred" < db/sync_log.sql
+  ```
+- **Schedule it (one-time, in hPanel):** hPanel → **Advanced → Cron Jobs**, add:
+  ```
+  0 12 * * * /opt/alt/php83/usr/bin/php /home/u915492341/domains/viniciusmoreira.link/public_html/wc-sim/api/admin/sync_results.php >> /home/u915492341/domains/viniciusmoreira.link/wc-sim-sync.log 2>&1
+  ```
+  (12:00 UTC catches all the previous day's games; bump to 2×/day on heavy matchdays.)
+- **Run manually / test:** from the `/admin` page (a **Sync now** button), or over SSH:
+  ```bash
+  # dry-run — fetches & prints the plan, writes nothing:
+  ssh hostinger '/opt/alt/php83/usr/bin/php ~/domains/viniciusmoreira.link/public_html/wc-sim/api/admin/sync_results.php --dry-run'
+  # real run:
+  ssh hostinger '/opt/alt/php83/usr/bin/php ~/domains/viniciusmoreira.link/public_html/wc-sim/api/admin/sync_results.php'
+  ```
+- **Source:** FIFA by default (`config.sync_source=fifa`); ESPN is a built-in fallback
+  (`config.sync_source=espn`). Both need no API key and return FIFA team codes directly.
+- **Optional external trigger:** to let a GitHub Action fire the sync, set a random
+  `config.cron_token`, then `POST /api/admin/sync_results.php` with header `X-Cron-Token`.
+
 ## Notes & gotchas
 
 - **Group F = Sweden.** The real tournament has Sweden (not Poland) with Netherlands,

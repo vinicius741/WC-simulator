@@ -6,6 +6,8 @@ import type {
   LeaderboardRow,
   MeResponse,
   PredictionGame,
+  SyncNowResponse,
+  SyncStatusResponse,
 } from '../types';
 import { MOCK_GAMES, MOCK_LEADERBOARD } from './predictionsMock';
 
@@ -206,5 +208,34 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ action: 'delete', player_name: playerName }),
     });
+  },
+
+  async adminSyncStatus(): Promise<SyncStatusResponse> {
+    if (USE_MOCK) {
+      await wait(150);
+      return { source: 'fifa', force_overwrite: false, last_sync_at: null, last_summary: null, recent_log: [] };
+    }
+    return request<SyncStatusResponse>('admin/sync_results.php');
+  },
+
+  async adminSyncNow(): Promise<SyncNowResponse> {
+    if (USE_MOCK) {
+      await wait(300);
+      return {
+        run_id: 'mock',
+        dry_run: false,
+        source: 'fifa',
+        fetched: 104,
+        finished: 4,
+        filled: 0,
+        already_set: 4,
+        corrected: 0,
+        unmatched: 0,
+        skipped: 0,
+        errors: 0,
+        actions: [],
+      };
+    }
+    return request<SyncNowResponse>('admin/sync_results.php', { method: 'POST' });
   },
 };

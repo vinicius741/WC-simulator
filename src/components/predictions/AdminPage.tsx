@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { usePredictionsAuth, type PredictionsAuth } from '../../hooks/usePredictionsAuth';
 import { usePredictions } from '../../hooks/usePredictions';
 import { api, ApiError } from '../../utils/apiClient';
 import { appHref } from '../../utils/routes';
-import type { LeaderboardRow } from '../../types';
+import type { LeaderboardRow, SyncStatusResponse } from '../../types';
 import AdminPanel from './AdminPanel';
 
 /**
@@ -48,6 +48,7 @@ export default function AdminPage() {
         </button>
       </header>
 
+      <AutoSync />
       <AdminPanel games={data.games} onChanged={data.refresh} />
       <DeletePlayer rows={data.leaderboard} loading={data.loading} onChanged={data.refresh} />
     </div>
@@ -176,6 +177,112 @@ function DeletePlayer({
             ))}
           </ul>
         )}
+
+        {msg && <div className="predictions-success">{msg}</div>}
+        {err && <div className="predictions-error">{err}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Auto-sync — shows the last FIFA results pull and a "Sync now"       */
+/* button so you can score finished games immediately instead of       */
+/* waiting for the daily cron.                                         */
+/* ------------------------------------------------------------------ */
+function AutoSync() {
+  const { t } = useLanguage();
+  const [status, setStatus] = useState<SyncStatusResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setStatus(await api.adminSyncStatus());
+    } catch {
+      /* non-fatal — the panel just shows the "never" state */
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function runNow() {
+    setBusy(true);
+    setMsg(null);
+    setErr(null);
+    try {
+      const r = await api.adminSyncNow();
+      setMsg(
+        t('adminSyncSummary', {
+          filled: r.filled,
+          already: r.already_set,
+          corrected: r.corrected,
+          unmatched: r.unmatched,
+        }),
+      );
+      await load();
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : t('adminSyncError'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const last = status?.last_summary ?? null;
+  const lastRun = status?.last_sync_at
+    ? new Date(status.last_sync_at.replace(' ', 'T') + 'Z').toLocaleString()
+    : t('adminSyncNever');
+
+  return (
+    <div className="admin-panel admin-sync">
+      <div className="admin-subpanel">
+        <h3 className="admin-subpanel-title">{t('adminSyncTitle')}</h3>
+        <p className="section-desc">{t('adminSyncDesc')}</p>
+
+        <dl className="admin-sync-meta">
+          <div>
+            <dt>{t('adminSyncSource')}</dt>
+            <dd>{status ? status.source.toUpperCase() : '—'}</dd>
+          </div>
+          <div>
+            <dt>{t('adminSyncLastRun')}</dt>
+            <dd>{loading ? t('predLoading') : lastRun}</dd>
+          </div>
+        </dl>
+
+        {last && (
+          <p className="admin-sync-summary">
+            {t('adminSyncSummary', {
+              filled: last.filled ?? 0,
+              already: last.already_set ?? 0,
+              corrected: last.corrected ?? 0,
+              unmatched: last.unmatched ?? 0,
+            })}
+          </p>
+        )}
+
+        {status && status.recent_log.length > 0 ? (
+          <ul className="admin-sync-log">
+            {status.recent_log.slice(0, 6).map((row, i) => (
+              <li key={i} className={`sync-action sync-action-${row.action}`}>
+                <span className="sync-action-tag">{row.action}</span>
+                <span className="sync-action-detail">{row.detail}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          !loading && <p className="predictions-empty">{t('adminSyncNoLog')}</p>
+        )}
+
+        <button type="button" className="btn btn-primary" onClick={runNow} disabled={busy}>
+          {busy ? t('adminSyncRunning') : t('adminSyncNow')}
+        </button>
 
         {msg && <div className="predictions-success">{msg}</div>}
         {err && <div className="predictions-error">{err}</div>}

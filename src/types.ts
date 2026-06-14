@@ -107,3 +107,48 @@ export interface AdminDeletePlayerResponse {
   deleted_predictions: number;
   deleted_sessions: number;
 }
+
+/* ---- Auto-sync (results pulled from FIFA) ---- */
+
+export interface SyncLogEntry {
+  created_at: string; // 'YYYY-MM-DD HH:MM:SS' UTC
+  external_id: string | null;
+  action: string; // filled | already_set | corrected | unmatched | skipped | error
+  detail: string | null;
+}
+
+export interface SyncRunSummary {
+  source?: string;
+  fetched?: number;
+  finished?: number;
+  filled?: number;
+  already_set?: number;
+  corrected?: number;
+  unmatched?: number;
+  skipped?: number;
+  errors?: number;
+  at?: string;
+}
+
+export interface SyncStatusResponse {
+  source: string;
+  force_overwrite: boolean;
+  last_sync_at: string | null;
+  last_summary: SyncRunSummary | null;
+  recent_log: SyncLogEntry[];
+}
+
+export interface SyncNowResponse {
+  run_id: string;
+  dry_run: boolean;
+  source: string;
+  fetched: number;
+  finished: number;
+  filled: number;
+  already_set: number;
+  corrected: number;
+  unmatched: number;
+  skipped: number;
+  errors: number;
+  actions: string[];
+}

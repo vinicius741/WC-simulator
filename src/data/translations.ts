@@ -130,6 +130,18 @@ export const TRANSLATIONS = {
     adminDeleteConfirm: "Delete {name}? This permanently removes their {n} picks and signs them out.",
     adminPlayerDeleted: "{name} was removed ({n} picks deleted).",
 
+    // Auto-sync (daily FIFA results pull)
+    adminSyncTitle: "Auto-sync results",
+    adminSyncDesc: "Finished games are pulled from FIFA automatically (daily via cron). Run it now to score the latest results.",
+    adminSyncSource: "Source",
+    adminSyncLastRun: "Last run",
+    adminSyncNever: "Never",
+    adminSyncNow: "Sync now",
+    adminSyncRunning: "Syncing…",
+    adminSyncSummary: "Filled {filled} · already set {already} · corrected {corrected} · unmatched {unmatched}",
+    adminSyncNoLog: "No syncs yet.",
+    adminSyncError: "Sync failed. Try again or run it over SSH.",
+
     // Controls
     btnSimulateAllGroups: "Simulate All Groups",
     btnResetRankings: "Reset Rankings",
@@ -383,6 +395,18 @@ export const TRANSLATIONS = {
     adminPlayerDelete: "Excluir",
     adminDeleteConfirm: "Excluir {name}? Isso remove permanentemente os {n} palpites e encerra a sessão.",
     adminPlayerDeleted: "{name} foi removido ({n} palpites excluídos).",
+
+    // Auto-sync (busca diária de resultados da FIFA)
+    adminSyncTitle: "Sincronizar resultados",
+    adminSyncDesc: "Os jogos finalizados são buscados da FIFA automaticamente (diariamente via cron). Rode agora para pontuar os resultados mais recentes.",
+    adminSyncSource: "Fonte",
+    adminSyncLastRun: "Última execução",
+    adminSyncNever: "Nunca",
+    adminSyncNow: "Sincronizar agora",
+    adminSyncRunning: "Sincronizando…",
+    adminSyncSummary: "Preenchidos {filled} · já lançados {already} · corrigidos {corrected} · sem correspondência {unmatched}",
+    adminSyncNoLog: "Nenhuma sincronização ainda.",
+    adminSyncError: "Falha na sincronização. Tente novamente ou rode via SSH.",
 
     // Controls
     btnSimulateAllGroups: "Simular Todos os Grupos",
