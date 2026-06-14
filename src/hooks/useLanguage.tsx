@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { TRANSLATIONS } from '../data/translations';
 
 export type Language = 'en' | 'pt-BR';
@@ -30,8 +30,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const t = (key: string, replacements?: Record<string, string | number>): string => {
-    const dict = TRANSLATIONS[language];
-    let text = (dict as any)[key] || (TRANSLATIONS['en'] as any)[key] || key;
+    const dict = TRANSLATIONS[language] as Record<string, string>;
+    const fallback = TRANSLATIONS['en'] as Record<string, string>;
+    let text = dict[key] || fallback[key] || key;
 
     if (replacements) {
       Object.entries(replacements).forEach(([k, v]) => {
@@ -49,6 +50,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
+// This module mixes a component (LanguageProvider), a hook (useLanguage), and a
+// shared type (Language) by design — fast-refresh scoping doesn't apply to a
+// context module, so the react-refresh rule is intentionally disabled here.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {

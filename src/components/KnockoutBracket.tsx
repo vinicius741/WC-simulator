@@ -49,7 +49,7 @@ export function KnockoutBracket({
   champion
 }: KnockoutBracketProps) {
   const [activeStageFilter, setActiveStageFilter] = useState<string>('ALL');
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   // Map of teamId to team object for easy lookup
   const teamMap = React.useMemo<Record<string, Team>>(() => {
@@ -124,7 +124,7 @@ export function KnockoutBracket({
     // Sort R32 visually so feeders of R16 matches are adjacent
     s.R32.matches.sort((a, b) => R32_VISUAL_ORDER.indexOf(a.id) - R32_VISUAL_ORDER.indexOf(b.id));
     return s;
-  }, [knockoutMatches, language]);
+  }, [knockoutMatches, t]);
 
   const handlePenaltyToggle = (matchId: string, side: 'home' | 'away', e: React.MouseEvent) => {
     e.stopPropagation();
@@ -232,7 +232,7 @@ export function KnockoutBracket({
       tops['PLAYOFF_3RD'] = tops['FINAL'] + SLOT + 16;
     }
     return tops;
-  }, [knockoutMatches, stages, SLOT, language]);
+  }, [knockoutMatches, stages, SLOT]);
 
   const renderConnectors = (stageKey: string) => {
     if (activeStageFilter !== 'ALL') return null;

@@ -22,7 +22,7 @@ interface RecapModalProps {
 }
 
 export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }: RecapModalProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   // Lock background scroll while the modal is open (prevents iOS rubber-banding
   // behind the overlay). Restored on unmount.
@@ -41,11 +41,13 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
     return map;
   }, []);
 
-  const champion = teamMap[championId];
-  if (!champion) return null;
-
-  // Gather champion's matches
+  // Gather champion's matches. Champion is resolved inside the memo so this
+  // hook always runs unconditionally — the early return must come *after* all
+  // hooks (react-hooks/rules-of-hooks).
   const recap = React.useMemo<RecapItem[]>(() => {
+    const champion = teamMap[championId];
+    if (!champion) return [];
+
     const list: RecapItem[] = [];
 
     // 1. Group stage recap (since there are no match scores)
@@ -79,7 +81,7 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
         const myScore = isHome ? match.homeScore : match.awayScore;
         const oppScore = isHome ? match.awayScore : match.homeScore;
 
-        let scoreStr = '';
+        let scoreStr: string;
         const isWin = match.winner === championId;
 
         if (myScore !== null && oppScore !== null) {
@@ -110,7 +112,10 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
     });
 
     return list;
-  }, [championId, groupTeams, knockoutMatches, teamMap, language]);
+  }, [championId, groupTeams, knockoutMatches, teamMap, t]);
+
+  const champion = teamMap[championId];
+  if (!champion) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>

@@ -98,7 +98,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
           const isDraggedOver = idx === dragOverIdx;
 
           // Determine border styling during drag operations
-          let borderStyle = isTop2 ? '3px solid var(--accent-green)' : is3rd ? '3px solid var(--accent-navy)' : '3px solid var(--border-color)';
+          const borderStyle = isTop2 ? '3px solid var(--accent-green)' : is3rd ? '3px solid var(--accent-navy)' : '3px solid var(--border-color)';
 
           // Determine drop indicator line (top or bottom border)
           let dropIndicatorStyle: 'top' | 'bottom' | 'none' = 'none';

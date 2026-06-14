@@ -69,8 +69,6 @@ export function useTournamentEngine(): TournamentEngineAPI {
     return map;
   }, []);
 
-  const selectedThirds = useMemo(() => new Set(selectedThirdsArray), [selectedThirdsArray]);
-
   const thirdPlaceTeams = useMemo(() => {
     return getThirdPlaceTeamsFromGroups(groupTeams);
   }, [groupTeams]);
@@ -179,6 +177,10 @@ export function useTournamentEngine(): TournamentEngineAPI {
     }
 
     setKnockoutMatches(updatedKO);
+    // Deps are intentionally minimal: this effect re-syncs the R32 bracket only
+    // when group rankings or third-place selections change. It deliberately
+    // reads current champion/knockoutMatches values, so exhaustive-deps is off.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupTeams, selectedThirdsArray]);
 
   // ── Knockout Helpers ───────────────────────────────────────────────────
@@ -343,7 +345,7 @@ export function useTournamentEngine(): TournamentEngineAPI {
             const awayRating = teamMap[m.away]?.rating || 80;
             const res = simulateMatch(homeRating, awayRating);
 
-            let winTeam = '';
+            let winTeam: string;
             let penWin: 'home' | 'away' | null = null;
 
             if (res.homeScore > res.awayScore) {
