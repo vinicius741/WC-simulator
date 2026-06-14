@@ -44,3 +44,14 @@ export function teamDisplayName(
   return localized && localized !== teamId ? localized : fallback;
 }
 
+/**
+ * Maps a points value to the pill colour class shared by the locked-game reveal
+ * table and the live fate board. 3 pts → gold, 1 → navy, 0 → gray, unknown → pending.
+ */
+export function pointsClass(p: number | null): 'gold' | 'navy' | 'gray' | 'pending' {
+  if (p === null) return 'pending';
+  if (p >= 3) return 'gold';
+  if (p >= 1) return 'navy';
+  return 'gray';
+}
+

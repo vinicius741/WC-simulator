@@ -4,12 +4,13 @@ import type {
   InviteLoginResponse,
   InviteStatusResponse,
   LeaderboardRow,
+  LiveResponse,
   MeResponse,
   PredictionGame,
   SyncNowResponse,
   SyncStatusResponse,
 } from '../types';
-import { MOCK_GAMES, MOCK_LEADERBOARD } from './predictionsMock';
+import { MOCK_GAMES, MOCK_LEADERBOARD, MOCK_LIVE } from './predictionsMock';
 
 /**
  * Set VITE_PRED_MOCK=true in a local `.env.local` file to drive the UI with
@@ -127,6 +128,14 @@ export const api = {
     }
     const data = await request<{ leaderboard: LeaderboardRow[] }>('leaderboard.php');
     return data.leaderboard;
+  },
+
+  async getLive(): Promise<LiveResponse> {
+    if (USE_MOCK) {
+      await wait(150);
+      return MOCK_LIVE;
+    }
+    return request<LiveResponse>('live.php');
   },
 
   async savePrediction(

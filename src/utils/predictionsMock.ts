@@ -1,4 +1,4 @@
-import type { LeaderboardRow, PredictionGame } from '../types';
+import type { LeaderboardRow, LiveResponse, PredictionGame } from '../types';
 
 // Local-dev mock data so the Predictions UI can be developed without a backend.
 // Games are generated relative to the current time so some are upcoming and
@@ -103,6 +103,8 @@ export const MOCK_GAMES: PredictionGame[] = [
     predictions: [
       { player_name: 'You', predicted_home: 1, predicted_away: 1, points: null },
       { player_name: 'Dad', predicted_home: 2, predicted_away: 0, points: null },
+      { player_name: 'Mom', predicted_home: 2, predicted_away: 1, points: null },
+      { player_name: 'Sister', predicted_home: 1, predicted_away: 2, points: null },
     ],
   },
 ];
@@ -112,3 +114,13 @@ export const MOCK_LEADERBOARD: LeaderboardRow[] = [
   { player_name: 'Mom', total: 1, predictions: 1, games_scored: 1 },
   { player_name: 'Dad', total: 0, predictions: 2, games_scored: 1 },
 ];
+
+// A fake in-play match keyed to MOCK_GAMES id 4 (NED-JPN, started, not yet
+// final), so the Live section renders in mock mode without a real game. At
+// 2-1 in the 62nd minute this showcases every fate state: exact / result /
+// behind (Mom / Dad / You+Sister).
+export const MOCK_LIVE: LiveResponse = {
+  fetched_at: new Date().toISOString(),
+  source: 'espn',
+  live: [{ game_id: 4, home_score: 2, away_score: 1, minute: 62, phase: '2nd half' }],
+};

@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { usePredictionsAuth } from '../../hooks/usePredictionsAuth';
 import { usePredictions } from '../../hooks/usePredictions';
+import { useLiveGames } from '../../hooks/useLiveGames';
 import PredictionsLogin from './PredictionsLogin';
 import InviteLogin from './InviteLogin';
 import UpcomingGameCard from './UpcomingGameCard';
 import LockedGameCard from './LockedGameCard';
 import Leaderboard from './Leaderboard';
+import LiveGameSection from './LiveGameSection';
 import { adminHref } from '../../utils/routes';
 import ChangeNameModal from './ChangeNameModal';
 
@@ -19,6 +21,9 @@ export default function PredictionsView({ inviteToken }: Props) {
   const auth = usePredictionsAuth();
   const data = usePredictions(auth.authenticated);
   const [editingName, setEditingName] = useState(false);
+  // Live scoreboard: poll only while signed in AND a game could be in play.
+  const hasLiveWindow = data.games.some((g) => g.started && g.result_home === null);
+  const live = useLiveGames(auth.authenticated && hasLiveWindow);
 
   if (auth.loading) {
     return <div className="predictions-loading">{t('predLoading')}</div>;
@@ -78,6 +83,14 @@ export default function PredictionsView({ inviteToken }: Props) {
           </button>
         </div>
       )}
+
+      <LiveGameSection
+        games={data.games}
+        liveByGameId={live.liveByGameId}
+        currentName={auth.playerName}
+        fetchedAt={live.fetchedAt}
+        stale={live.stale}
+      />
 
       <Leaderboard rows={data.leaderboard} loading={data.loading} />
 

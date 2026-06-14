@@ -71,6 +71,22 @@ export interface PredictionGame {
   predictions: RevealedPrediction[] | null; // present only once kickoff has passed
 }
 
+/* ---- Live (in-play) scoreboard ---- */
+
+export interface LiveMatch {
+  game_id: number;
+  home_score: number;
+  away_score: number;
+  minute: number | null; // best-effort current minute; null when the source has none
+  phase: string | null; // e.g. "2nd half", "Half-time"
+}
+
+export interface LiveResponse {
+  fetched_at: string; // ISO UTC
+  source: string;
+  live: LiveMatch[];
+}
+
 export interface LeaderboardRow {
   player_name: string;
   total: number;

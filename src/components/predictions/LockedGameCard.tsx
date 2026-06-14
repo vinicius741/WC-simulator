@@ -1,17 +1,10 @@
 import { useLanguage } from '../../hooks/useLanguage';
-import { formatKickoff, teamDisplayName } from './format';
+import { formatKickoff, pointsClass, teamDisplayName } from './format';
 import type { PredictionGame, RevealedPrediction } from '../../types';
 
 interface Props {
   game: PredictionGame;
   currentName: string | null;
-}
-
-function pointsClass(p: number | null): string {
-  if (p === null) return 'pending';
-  if (p >= 3) return 'gold';
-  if (p >= 1) return 'navy';
-  return 'gray';
 }
 
 export default function LockedGameCard({ game, currentName }: Props) {
