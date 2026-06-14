@@ -1,8 +1,10 @@
 # Family Predictions — one-time Hostinger setup
 
-This feature adds a **Predictions / Palpites** tab where your family logs in with a
-shared password, predicts the exact score of real World Cup 2026 games, and sees a
-leaderboard. It needs a small **PHP + MariaDB** backend on your Hostinger account.
+This guide configures the backend for the **Family Predictions / Palpites** tab of
+the [FIFA World Cup 2026 Predictor & Simulator](../README.md). Family and friends
+log in with a shared password (or a passwordless invite link), predict the exact
+score of real World Cup 2026 games, and see a live leaderboard. It needs a small
+**PHP + MariaDB** backend on your Hostinger account.
 
 There are six one-time steps. Steps 1 must be done by you in the Hostinger panel;
 the rest can be done by you (commands below) or by Claude over SSH.
@@ -91,7 +93,8 @@ passwords are set. You can delete `api/setup.php` from the server afterwards.
    ```
 3. Open the site → **Predictions** tab → log in with the **family password + your name**.
    Predict a score, save it, log out, log in on the **Admin** toggle with the admin
-   password, and enter a result for a finished game to see points appear.
+   password, then open the **Admin tools** link to `/admin` and enter a result for a
+   finished game to see points appear.
 
 ---
 
@@ -99,10 +102,14 @@ passwords are set. You can delete `api/setup.php` from the server afterwards.
 
 - **Family:** Predictions tab → enter shared password + name → pick scores. Picks lock
   at kick-off and everyone's picks are revealed once the game starts.
-- **Admin (you):** Predictions tab → **Admin** toggle → admin password. Then:
+- **Admin (you):** Predictions tab → **Admin** toggle → admin password, then click
+  **Admin tools** to open the dedicated `/admin` page. There you can:
   - **Enter a result** for a game that has kicked off → all picks are scored instantly.
-  - **Add a game** (e.g. a knockout match once teams are known).
+  - **Add or edit a game** (e.g. a knockout match once teams are known).
   - **Change password** for family or admin.
+  - **Generate or rotate** the passwordless invite link.
+  - **Manage players** and remove someone from the pool.
+  - **Sync now** to pull the latest finished results from FIFA.
 
 ## Automatic results (daily cron)
 

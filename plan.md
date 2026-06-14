@@ -1,10 +1,19 @@
 # Technical Plan: World Cup 2026 Simulator
 
 ## 1. Architecture Overview
-This is a Single Page React Application built with Vite. It maintains three main pages/views:
-1. **Group Stage View**: Displays 12 groups, their current standing tables, and lists of matches with score inputs. Users can manually enter scores, simulate individual groups, or simulate all groups at once.
-2. **Third-Place Standings View**: Calculates the 12 third-placed teams' records, ranks them, highlights the top 8, and displays this table for transparency.
-3. **Knockout Stage View**: Renders the 32-team bracket. Displays the Round of 32, Round of 16, Quarterfinals, Semifinals, Third-Place Match, and Final. Users can click on a team to advance them, or enter scores. If the winner is changed, all subsequent dependent matches in the bracket are cleared.
+This is a Single Page React Application built with Vite. It maintains four main tabs/views:
+1. **Predictions View**: Family and friends log in with a shared password (or a passwordless `/invite/<token>` link), predict the exact score of real World Cup 2026 games, and see a live leaderboard. Admin tools live on a dedicated `/admin` page.
+2. **Group Stage View**: Displays 12 groups, their current standing tables, and lists of matches with score inputs. Users can manually enter scores, simulate individual groups, or simulate all groups at once.
+3. **Third-Place Standings View**: Calculates the 12 third-placed teams' records, ranks them, highlights the top 8, and displays this table for transparency.
+4. **Knockout Stage View**: Renders the 32-team bracket. Displays the Round of 32, Round of 16, Quarterfinals, Semifinals, Third-Place Match, and Final. Users can click on a team to advance them, or enter scores. If the winner is changed, all subsequent dependent matches in the bracket are cleared.
+
+### Backend Overview (Predictions)
+The predictions feature is backed by a small PHP + MariaDB service:
+- `public/api/*.php` — public endpoints for login, games, leaderboard, saving predictions, and session state (`me.php`).
+- `public/api/admin/*.php` — admin-only endpoints for results, game management, passwords, invite links, player management, and FIFA results sync.
+- `db/schema.sql` — database schema for `games`, `predictions`, `players`, `config`, and `sync_log`.
+- `db/seed.sql` — seed data with the 72 group-stage matches.
+- One-time setup and cron configuration are documented in `db/SETUP.md`.
 
 ### State Flow
 ```mermaid
@@ -15,6 +24,11 @@ graph TD
     --> |Identify 8 Best & Run Backtracking| BracketSlots[Round of 32 Slots Allocation]
     --> |Knockout State| BracketMatchups[Knockout Matches]
     --> |Interactive Progress| Champion[Champion Selection]
+
+    PredictionsAuth[Family / Admin Session]
+    --> |Load| PredictionGames[Games from MariaDB]
+    --> |Upsert| SavedPredictions[Player Predictions]
+    --> |Score| Leaderboard[Leaderboard]
 ```
 
 ## 2. Data Models & Constants
@@ -62,6 +76,42 @@ interface Standing {
 }
 ```
 
+### Prediction Game Object
+```typescript
+interface PredictionGame {
+  id: number;
+  external_id: string;
+  stage: string;
+  group_letter: string | null;
+  home_team_id: string | null;
+  away_team_id: string | null;
+  home_team_name: string;
+  away_team_name: string;
+  home_code: string | null;
+  away_code: string | null;
+  home_flag: string | null;
+  away_flag: string | null;
+  kickoff_utc: string;       // 'YYYY-MM-DD HH:MM:SS' in UTC
+  venue: string | null;
+  is_open: boolean;
+  started: boolean;
+  result_home: number | null;
+  result_away: number | null;
+  my_prediction: MyPrediction | null;
+  predictions: RevealedPrediction[] | null; // present only once kickoff has passed
+}
+```
+
+### Leaderboard Row Object
+```typescript
+interface LeaderboardRow {
+  player_name: string;
+  total: number;       // total points
+  predictions: number; // number of predictions made
+  games_scored: number;
+}
+```
+
 ## 3. Core Algorithms
 
 ### 1. Group Standings Calculation
@@ -94,8 +144,29 @@ For each group:
   - No group winner faces a team from their own group.
 - Once matched, populate the corresponding Round of 32 match slots.
 
+### 4. Prediction Scoring
+- For each finished game with an official result:
+  - Exact score predicted → 3 points (`points_exact`).
+  - Correct winner/draw (but not exact score) → 1 point (`points_result`).
+  - Wrong result → 0 points.
+- Points are configurable in the `config` table and applied when an admin saves a result or the auto-sync runs.
+
+### 5. Admin & Auto-Sync Workflows
+- **Admin result entry**: Admin selects a started game on `/admin`, enters the final score, and the backend updates `games.result_*` and re-scores all related predictions.
+- **Add/edit game**: Admin provides stage, teams, kick-off (local time converted to UTC), and optional metadata; the game becomes available for predictions immediately.
+- **Invite links**: Admin can generate, disable, or regenerate a passwordless `/invite/<token>` link for easy family onboarding.
+- **Player management**: Admin can remove a player and all their predictions from the pool.
+- **Passwords**: Separate shared (family) and admin passwords, set via the one-time `api/setup.php` page and rotatable in `/admin`.
+- **FIFA auto-sync**: `api/admin/sync_results.php` fetches finished WC2026 games from FIFA's JSON feed, matches them by team code, fills missing results, re-scores predictions, and logs actions. Intended to run once or twice daily via cron.
+
 ## 4. Risks & Mitigations
 - **Complexity of bracket state reset**: If a user changes a score in the group stage or early knockout stages, we must clear the downstream winner chain.
   *Mitigation*: Implement a dependency clearing function that resets the `home`/`away` and `winner` of downstream matches recursively.
 - **Large screen vs mobile size**: The bracket can be very wide.
   *Mitigation*: Implement a swipeable layout or view toggle (e.g. view Round of 32, view Round of 16, etc.) on mobile devices so it remains clean and easy to navigate.
+- **Backend dependency for predictions**: The Predictions tab requires a running PHP + MariaDB backend; without it, the tab cannot load real data.
+  *Mitigation*: Provide a `VITE_PRED_MOCK=true` environment variable so developers can run the UI with mock data without a backend.
+- **Time-based prediction locks**: The server clock decides when a game is "started" and locks predictions; incorrect server time could lock users out early.
+  *Mitigation*: Store kick-off times in UTC, display them in the user's local timezone, and document the need to verify server time in `db/SETUP.md`.
+- **Invite link abuse**: A leaked invite link could let non-family members join the pool.
+  *Mitigation*: Invite links can be disabled or regenerated from the `/admin` page at any time.
