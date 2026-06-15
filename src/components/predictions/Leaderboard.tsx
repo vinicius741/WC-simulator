@@ -24,6 +24,7 @@ export default function Leaderboard({ rows, loading }: Props) {
             <th>{t('predPlayerCol')}</th>
             <th>{t('predPointsCol')}</th>
             <th>{t('predGamesCol')}</th>
+            <th title={t('predAccuracyHint')}>{t('predAccuracyCol')}</th>
           </tr>
         </thead>
         <tbody>
@@ -33,6 +34,7 @@ export default function Leaderboard({ rows, loading }: Props) {
               <td className="pred-player-name">{r.player_name}</td>
               <td className="pred-points-total">{r.total}</td>
               <td className="pred-games-count">{r.games_scored}</td>
+              <td className="pred-margin-error">{r.margin_error}</td>
             </tr>
           ))}
         </tbody>
