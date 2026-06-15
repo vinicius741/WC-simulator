@@ -110,9 +110,10 @@ export const MOCK_GAMES: PredictionGame[] = [
 ];
 
 export const MOCK_LEADERBOARD: LeaderboardRow[] = [
-  { player_name: 'You', total: 3, predictions: 2, games_scored: 1 },
-  { player_name: 'Mom', total: 1, predictions: 1, games_scored: 1 },
-  { player_name: 'Dad', total: 0, predictions: 2, games_scored: 1 },
+  // margin_error: Spain 2-0 (margin +2) → You 2-0 (0), Mom 2-1 (1), Dad 1-1 (2).
+  { player_name: 'You', total: 3, predictions: 2, games_scored: 1, margin_error: 0 },
+  { player_name: 'Mom', total: 1, predictions: 1, games_scored: 1, margin_error: 1 },
+  { player_name: 'Dad', total: 0, predictions: 2, games_scored: 1, margin_error: 2 },
 ];
 
 // A fake in-play match keyed to MOCK_GAMES id 4 (NED-JPN, started, not yet

@@ -92,6 +92,7 @@ export interface LeaderboardRow {
   total: number;
   predictions: number;
   games_scored: number;
+  margin_error: number; // Σ |pred margin − actual margin| over scored games (lower = closer)
 }
 
 export interface MeResponse {
