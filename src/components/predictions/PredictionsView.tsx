@@ -11,6 +11,8 @@ import Leaderboard from './Leaderboard';
 import LiveGameSection from './LiveGameSection';
 import { adminHref } from '../../utils/routes';
 import ChangeNameModal from './ChangeNameModal';
+import TeamHistoryModal from './TeamHistoryModal';
+import type { PredictionGame } from '../../types';
 
 interface Props {
   inviteToken?: string | null;
@@ -21,6 +23,7 @@ export default function PredictionsView({ inviteToken }: Props) {
   const auth = usePredictionsAuth();
   const data = usePredictions(auth.authenticated);
   const [editingName, setEditingName] = useState(false);
+  const [historyGame, setHistoryGame] = useState<PredictionGame | null>(null);
   // Live scoreboard: poll only while signed in AND a game could be in play.
   const hasLiveWindow = data.games.some((g) => g.started && g.result_home === null);
   const live = useLiveGames(auth.authenticated && hasLiveWindow);
@@ -75,6 +78,14 @@ export default function PredictionsView({ inviteToken }: Props) {
         />
       )}
 
+      {historyGame && (
+        <TeamHistoryModal
+          game={historyGame}
+          games={data.games}
+          onClose={() => setHistoryGame(null)}
+        />
+      )}
+
       {data.error && (
         <div className="predictions-error">
           {data.error}{' '}
@@ -109,6 +120,7 @@ export default function PredictionsView({ inviteToken }: Props) {
                 game={g}
                 playerName={auth.playerName}
                 onSave={data.save}
+                onOpenHistory={() => setHistoryGame(g)}
               />
             ))}
           </div>

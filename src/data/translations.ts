@@ -63,6 +63,11 @@ export const TRANSLATIONS = {
     predUpdate: "Update",
     predSave: "Save",
     predResultPending: "Result pending",
+    predHistoryOpen: "View previous matches",
+    predHistoryTitle: "Team form",
+    predHistoryDesc: "Results from each team's earlier matches in this World Cup.",
+    predHistoryEmpty: "No previous result in this World Cup.",
+    predHistoryClose: "Close team form",
     // Live (in-play) scoreboard
     predLiveTitle: "Live now",
     predLiveAsItStands: "Scores and standings as they stand right now.",
@@ -348,6 +353,11 @@ export const TRANSLATIONS = {
     predUpdate: "Atualizar",
     predSave: "Salvar",
     predResultPending: "Resultado pendente",
+    predHistoryOpen: "Ver jogos anteriores",
+    predHistoryTitle: "Histórico das seleções",
+    predHistoryDesc: "Resultados dos jogos anteriores de cada seleção nesta Copa do Mundo.",
+    predHistoryEmpty: "Nenhum resultado anterior nesta Copa.",
+    predHistoryClose: "Fechar histórico das seleções",
     // Placar ao vivo (jogo em andamento)
     predLiveTitle: "Ao vivo agora",
     predLiveAsItStands: "Placar e situação como estão agora.",

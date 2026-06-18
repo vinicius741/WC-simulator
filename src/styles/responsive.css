@@ -432,6 +432,18 @@
     min-height: 44px;
     padding: 10px 4px;
   }
+  .pred-history-open {
+    min-height: 44px;
+    padding: 8px;
+  }
+  .pred-history-body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-height: none;
+    overflow: visible;
+  }
+  .pred-history-scoreline { font-size: 12px; }
   /* Locked-game reveal table: fixed layout so long names wrap, not blow out */
   .pred-reveal-table {
     font-size: 11px;

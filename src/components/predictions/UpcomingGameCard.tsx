@@ -8,11 +8,12 @@ interface Props {
   game: PredictionGame;
   playerName: string | null;
   onSave: (gameId: number, predictedHome: number, predictedAway: number, playerName: string) => Promise<void>;
+  onOpenHistory: () => void;
 }
 
 type Status = 'idle' | 'saving' | 'saved' | 'error';
 
-export default function UpcomingGameCard({ game, playerName, onSave }: Props) {
+export default function UpcomingGameCard({ game, playerName, onSave, onOpenHistory }: Props) {
   const { t, language } = useLanguage();
 
   const [home, setHome] = useState<string>(
@@ -109,6 +110,11 @@ export default function UpcomingGameCard({ game, playerName, onSave }: Props) {
           <span className="pred-team-name">{awayDisplay}</span>
         </div>
       </div>
+
+      <button type="button" className="pred-history-open" onClick={onOpenHistory}>
+        <span aria-hidden="true">◷</span>
+        {t('predHistoryOpen')}
+      </button>
 
       <div className="pred-game-actions">
         <span className="pred-status-text">

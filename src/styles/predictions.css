@@ -259,6 +259,132 @@
   gap: 10px;
 }
 
+.pred-history-open {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 2px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--accent-navy);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pred-history-open:hover,
+.pred-history-open:focus-visible {
+  border-bottom-color: currentColor;
+  outline: none;
+}
+
+/* Previous World Cup results modal */
+.pred-history-modal {
+  max-width: 720px;
+}
+
+.pred-history-subtitle {
+  margin: 6px 28px 2px;
+  color: var(--text-secondary);
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.pred-history-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  max-height: min(65vh, 560px);
+  overflow-y: auto;
+}
+
+.pred-history-team h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent-navy);
+  color: #1a1a1a;
+  font-family: var(--serif);
+  font-size: 18px;
+}
+
+.pred-history-flag {
+  font-size: 24px;
+}
+
+.pred-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pred-history-game {
+  padding: 9px 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+.pred-history-game-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+}
+
+.pred-history-game-meta time {
+  text-align: right;
+  text-transform: none;
+}
+
+.pred-history-scoreline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  color: #1a1a1a;
+  font-size: 11px;
+}
+
+.pred-history-scoreline span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pred-history-scoreline span:first-child {
+  text-align: right;
+}
+
+.pred-history-scoreline strong {
+  color: var(--accent-red);
+  font-family: var(--serif);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pred-history-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+}
+
 .pred-status-text {
   font-size: 12px;
   min-height: 16px;
