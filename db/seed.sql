@@ -3,9 +3,7 @@
 -- 2026-06-11). All kick-off times are in UTC. Re-runnable: INSERT IGNORE skips
 -- rows whose external_id already exists.
 --
--- NOTE on Group F: the real tournament has SWEDEN (not Poland). Your app's
--- src/data/teams.ts lists Poland in Group F for the bracket SIMULATOR; this
--- seed uses Sweden (team_id 'swe') to match reality. See the setup guide.
+-- Group F uses Sweden, matching the finalized tournament roster and simulator.
 
 INSERT IGNORE INTO games
   (external_id, stage, group_letter, home_team_id, away_team_id,

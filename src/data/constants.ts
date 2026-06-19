@@ -17,11 +17,11 @@ export const THIRD_PLACE_ALLOCATION_SLOTS: ThirdPlaceAllocationSlot[] = [
 // Bracket match schema from Round of 32 onwards
 export const KNOCKOUT_MATCH_SCHEMA: KnockoutMatchSchema[] = [
   // Round of 32 (Matches R32_1 to R32_16)
-  { id: 'R32_1', stage: 'R32', label: 'Match 73', home: '2A', away: '2B', nextMatchId: 'R16_1', nextSide: 'home' },
-  { id: 'R32_2', stage: 'R32', label: 'Match 74', home: '1E', away: '3rd', nextMatchId: 'R16_2', nextSide: 'home' },
-  { id: 'R32_3', stage: 'R32', label: 'Match 75', home: '1F', away: '2C', nextMatchId: 'R16_1', nextSide: 'away' },
+  { id: 'R32_1', stage: 'R32', label: 'Match 73', home: '2A', away: '2B', nextMatchId: 'R16_2', nextSide: 'home' },
+  { id: 'R32_2', stage: 'R32', label: 'Match 74', home: '1E', away: '3rd', nextMatchId: 'R16_1', nextSide: 'home' },
+  { id: 'R32_3', stage: 'R32', label: 'Match 75', home: '1F', away: '2C', nextMatchId: 'R16_2', nextSide: 'away' },
   { id: 'R32_4', stage: 'R32', label: 'Match 76', home: '1C', away: '2F', nextMatchId: 'R16_3', nextSide: 'home' },
-  { id: 'R32_5', stage: 'R32', label: 'Match 77', home: '1I', away: '3rd', nextMatchId: 'R16_2', nextSide: 'away' },
+  { id: 'R32_5', stage: 'R32', label: 'Match 77', home: '1I', away: '3rd', nextMatchId: 'R16_1', nextSide: 'away' },
   { id: 'R32_6', stage: 'R32', label: 'Match 78', home: '2E', away: '2I', nextMatchId: 'R16_3', nextSide: 'away' },
   { id: 'R32_7', stage: 'R32', label: 'Match 79', home: '1A', away: '3rd', nextMatchId: 'R16_4', nextSide: 'home' },
   { id: 'R32_8', stage: 'R32', label: 'Match 80', home: '1L', away: '3rd', nextMatchId: 'R16_4', nextSide: 'away' },
@@ -37,10 +37,10 @@ export const KNOCKOUT_MATCH_SCHEMA: KnockoutMatchSchema[] = [
   // Round of 16 (Matches R16_1 to R16_8)
   { id: 'R16_1', stage: 'R16', label: 'Match 89', home: '', away: '', nextMatchId: 'QF_1', nextSide: 'home' },
   { id: 'R16_2', stage: 'R16', label: 'Match 90', home: '', away: '', nextMatchId: 'QF_1', nextSide: 'away' },
-  { id: 'R16_3', stage: 'R16', label: 'Match 91', home: '', away: '', nextMatchId: 'QF_2', nextSide: 'home' },
-  { id: 'R16_4', stage: 'R16', label: 'Match 92', home: '', away: '', nextMatchId: 'QF_2', nextSide: 'away' },
-  { id: 'R16_5', stage: 'R16', label: 'Match 93', home: '', away: '', nextMatchId: 'QF_3', nextSide: 'home' },
-  { id: 'R16_6', stage: 'R16', label: 'Match 94', home: '', away: '', nextMatchId: 'QF_3', nextSide: 'away' },
+  { id: 'R16_3', stage: 'R16', label: 'Match 91', home: '', away: '', nextMatchId: 'QF_3', nextSide: 'home' },
+  { id: 'R16_4', stage: 'R16', label: 'Match 92', home: '', away: '', nextMatchId: 'QF_3', nextSide: 'away' },
+  { id: 'R16_5', stage: 'R16', label: 'Match 93', home: '', away: '', nextMatchId: 'QF_2', nextSide: 'home' },
+  { id: 'R16_6', stage: 'R16', label: 'Match 94', home: '', away: '', nextMatchId: 'QF_2', nextSide: 'away' },
   { id: 'R16_7', stage: 'R16', label: 'Match 95', home: '', away: '', nextMatchId: 'QF_4', nextSide: 'home' },
   { id: 'R16_8', stage: 'R16', label: 'Match 96', home: '', away: '', nextMatchId: 'QF_4', nextSide: 'away' },
 

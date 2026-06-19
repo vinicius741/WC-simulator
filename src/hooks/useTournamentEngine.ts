@@ -55,10 +55,12 @@ export function useTournamentEngine(): TournamentEngineAPI {
   // Predictions is the primary tab (it's listed first in NavTabs), so the app
   // lands there on a fresh load instead of the group rankings.
   const [activeTab, setActiveTab] = useState<string>('predictions');
-  const [groupTeams, setGroupTeams] = useLocalStorage<GroupTeamsMap>('wc2026_group_teams_v2', getInitialGroupTeams());
-  const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage<string[]>('wc2026_selected_thirds_v2', []);
-  const [knockoutMatches, setKnockoutMatches] = useLocalStorage<KnockoutMatch[]>('wc2026_knockout_matches_v2', getInitialKnockoutMatches());
-  const [champion, setChampion] = useLocalStorage<string>('wc2026_champion_v2', '');
+  // v3 resets stale pre-final-draw rosters (notably Poland in Group F) and
+  // knockout paths saved before the official bracket mapping was corrected.
+  const [groupTeams, setGroupTeams] = useLocalStorage<GroupTeamsMap>('wc2026_group_teams_v3', getInitialGroupTeams());
+  const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage<string[]>('wc2026_selected_thirds_v3', []);
+  const [knockoutMatches, setKnockoutMatches] = useLocalStorage<KnockoutMatch[]>('wc2026_knockout_matches_v3', getInitialKnockoutMatches());
+  const [champion, setChampion] = useLocalStorage<string>('wc2026_champion_v3', '');
   const [showRecap, setShowRecap] = useState<boolean>(false);
 
   // ── Derived State ──────────────────────────────────────────────────────

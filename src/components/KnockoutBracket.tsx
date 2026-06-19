@@ -4,10 +4,10 @@ import type { Team, KnockoutMatch } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
 
 const R32_VISUAL_ORDER: string[] = [
-  'R32_1',  // Match 73
-  'R32_3',  // Match 75
   'R32_2',  // Match 74
   'R32_5',  // Match 77
+  'R32_1',  // Match 73
+  'R32_3',  // Match 75
   'R32_4',  // Match 76
   'R32_6',  // Match 78
   'R32_7',  // Match 79

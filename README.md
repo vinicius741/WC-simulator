@@ -40,7 +40,7 @@ To use the predictions pool in production, deploy the built bundle to a host wit
 - **⚽ Real-Time Group Standings**: 12 groups (A to L) recalculate rankings automatically as you type scores. Adheres to official FIFA tie-breakers:
   $$\text{Points} \rightarrow \text{Goal Difference (GD)} \rightarrow \text{Goals For (GF)} \rightarrow \text{Head-to-Head} \rightarrow \text{Team Rating}$$
 - **⚡ Smart Simulation Engine**: Uses a Poisson distribution model based on historical/custom team strength ratings to generate realistic match scores (e.g. 2-1, 1-0) rather than random numbers.
-- **📊 Bipartite Backtracking Solver (Annex C)**: Evaluates the 12 third-place teams, ranks them, and runs a backtracking search in microseconds to match the top 8 qualified teams to their correct Round of 32 slots according to official regulations.
+- **📊 Official Annex C Allocation**: Uses FIFA's exact 495-option lookup table to place every possible combination of eight qualifying third-place teams in the Round of 32.
 - **🏆 Interactive Knockout Bracket**: Click on any team row to advance them immediately, or enter scorelines. Features penalty shootout support (`PK` badges) for draws.
 - **🔄 Auto-Cascading Resets**: Recursively cleanses downstream matches if you modify an earlier match score or group stage standings, keeping the bracket mathematically consistent.
 - **🏅 Path to Glory Recap**: Explodes confetti when the Champion is crowned and displays a timeline summarizing the winner's entire journey from group stage to the final.

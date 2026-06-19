@@ -1,4 +1,4 @@
-import { THIRD_PLACE_ALLOCATION_SLOTS } from '../data/constants';
+import { THIRD_PLACE_ALLOCATION_TABLE } from '../data/thirdPlaceAllocations';
 import type { Team, KnockoutMatch } from '../types';
 
 interface SimulateMatchResult {
@@ -31,43 +31,12 @@ export function simulateMatch(ratingA: number, ratingB: number): SimulateMatchRe
   };
 }
 
-// Backtracking solver to match the 8 third-place groups to the 8 group winner slots
+// FIFA Annex C prescribes one exact allocation for each of the 495 possible
+// combinations of eight qualifying third-place groups.
 export function allocateThirdPlaces(qualifiedGroups: string[]): Record<string, string> {
-  const slots = THIRD_PLACE_ALLOCATION_SLOTS;
-  const result: Record<string, string> = {};
-  const used = new Set<string>();
-
-  function backtrack(slotIndex: number): boolean {
-    if (slotIndex === slots.length) {
-      return true;
-    }
-    const slot = slots[slotIndex]!;
-    for (const groupLetter of qualifiedGroups) {
-      // Must not be used already, and must be in the slot's allowed list
-      if (!used.has(groupLetter) && slot.allowed.includes(groupLetter)) {
-        used.add(groupLetter);
-        result[slot.winner] = groupLetter;
-        if (backtrack(slotIndex + 1)) {
-          return true;
-        }
-        used.delete(groupLetter);
-        delete result[slot.winner];
-      }
-    }
-    return false;
-  }
-
-  // Run the backtrack search
-  if (backtrack(0)) {
-    return result; // e.g. { A: 'C', B: 'E', D: 'B', ... }
-  }
-
-  // Fallback: If backtracking fails, pair them directly
-  const fallback: Record<string, string> = {};
-  slots.forEach((slot, index) => {
-    fallback[slot.winner] = qualifiedGroups[index % qualifiedGroups.length]!;
-  });
-  return fallback;
+  const key = [...new Set(qualifiedGroups)].sort().join('');
+  const allocation = THIRD_PLACE_ALLOCATION_TABLE[key];
+  return allocation ? { ...allocation } : {};
 }
 
 // Clears the winner chain of knockout matches if a dependent match changes
@@ -90,6 +59,7 @@ export function clearDownstreamMatches(matchId: string, knockoutMatchesArr: Knoc
         ...updated[nextIdx]!,
         [side]: '',
         [`${side}Score`]: null,
+        penaltyWinner: null,
         winner: ''
       };
 

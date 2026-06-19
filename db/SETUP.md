@@ -143,10 +143,8 @@ silently overwritten (set `config.sync_force_overwrite=1` to let it correct a di
 
 ## Notes & gotchas
 
-- **Group F = Sweden.** The real tournament has Sweden (not Poland) with Netherlands,
-  Japan, Tunisia. Your `src/data/teams.ts` lists Poland in Group F for the *simulator*;
-  the predictions seed uses Sweden to match reality. Tell Claude if you'd like
-  `teams.ts` aligned too.
+- **Group F = Sweden.** The simulator and predictions seed both use the finalized
+  tournament group of Netherlands, Japan, Sweden and Tunisia.
 - **Times are UTC**, shown to each visitor in their own local time zone (Brazil = UTC-3).
   The anti-cheat lock uses the server clock, so verify the server time is correct if a
   game won't let you save.
