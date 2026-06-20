@@ -13,10 +13,8 @@ const fieldInputClass =
   'p-[9px_10px] border border-border rounded-sm font-sans text-sm text-text-primary bg-bg-secondary focus:outline-none focus:border-navy phone:!text-base phone:!min-h-11';
 const fieldSpanClass =
   'font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary';
-const errorBanner = 'text-[13px] mb-5 py-2.5 px-3.5';
-const errorBannerStyle = { background: 'rgba(176, 0, 0, 0.08)', borderLeft: '4px solid var(--accent-red)', color: 'var(--accent-red)' };
-const successBanner = 'text-[13px] font-semibold mb-3 py-2 px-3';
-const successBannerStyle = { background: 'rgba(46, 125, 50, 0.08)', borderLeft: '4px solid var(--accent-green)', color: 'var(--accent-green)' };
+const errorBanner = 'text-[13px] mb-5 py-2.5 px-3.5 bg-crimson/[0.08] border-l-4 border-crimson text-crimson';
+const successBanner = 'text-[13px] font-semibold mb-3 py-2 px-3 bg-accent-green/[0.08] border-l-4 border-accent-green text-accent-green';
 
 export default function AdminPanel({ games, onChanged }: Props) {
   return (
@@ -104,8 +102,8 @@ function ResultEntry({ games, onChanged }: { games: PredictionGame[]; onChanged:
             <input className={fieldInputClass} type="number" min={0} max={30} value={away} onChange={(e) => setAway(e.target.value)} inputMode="numeric" />
           </label>
         </div>
-        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
-        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
+        {msg && <div className={successBanner}>{msg}</div>}
+        {err && <div className={errorBanner}>{err}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy || !gameId || home === '' || away === ''}>
           {busy ? t('predSaving') : t('predAdminSubmitResult')}
         </button>
@@ -236,8 +234,8 @@ function AddGame({ onChanged }: { onChanged: () => Promise<void> }) {
           <input className={fieldInputClass} value={venue} onChange={(e) => setVenue(e.target.value)} />
         </label>
 
-        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
-        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
+        {msg && <div className={successBanner}>{msg}</div>}
+        {err && <div className={errorBanner}>{err}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy}>
           {busy ? t('predSaving') : t('predAdminAddGameBtn')}
         </button>
@@ -294,8 +292,8 @@ function ChangePassword() {
             <input className={fieldInputClass} type="password" value={pw} onChange={(e) => setPw(e.target.value)} />
           </label>
         </div>
-        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
-        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
+        {msg && <div className={successBanner}>{msg}</div>}
+        {err && <div className={errorBanner}>{err}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy || pw === ''}>
           {busy ? t('predSaving') : t('predAdminChangePwBtn')}
         </button>
@@ -423,8 +421,8 @@ function ShareLink() {
         </div>
       )}
 
-      {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
-      {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
+      {msg && <div className={successBanner}>{msg}</div>}
+      {err && <div className={errorBanner}>{err}</div>}
     </div>
   );
 }

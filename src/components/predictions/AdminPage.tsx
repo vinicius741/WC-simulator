@@ -7,10 +7,8 @@ import { appHref } from '../../utils/routes';
 import type { LeaderboardRow, SyncStatusResponse } from '../../types';
 import AdminPanel from './AdminPanel';
 
-const errorBanner = 'text-[13px] mb-5 py-2.5 px-3.5';
-const errorBannerStyle = { background: 'rgba(176, 0, 0, 0.08)', borderLeft: '4px solid var(--accent-red)', color: 'var(--accent-red)' };
-const successBanner = 'text-[13px] font-semibold mb-3 py-2 px-3';
-const successBannerStyle = { background: 'rgba(46, 125, 50, 0.08)', borderLeft: '4px solid var(--accent-green)', color: 'var(--accent-green)' };
+const errorBanner = 'text-[13px] mb-5 py-2.5 px-3.5 bg-crimson/[0.08] border-l-4 border-crimson text-crimson';
+const successBanner = 'text-[13px] font-semibold mb-3 py-2 px-3 bg-accent-green/[0.08] border-l-4 border-accent-green text-accent-green';
 
 /**
  * The dedicated `/admin` page — fully separate from the family predictions view.
@@ -104,7 +102,7 @@ function AdminLogin({ auth }: { auth: PredictionsAuth }) {
             autoComplete="current-password"
           />
         </label>
-        {error && <div className={errorBanner} style={errorBannerStyle}>{error}</div>}
+        {error && <div className={errorBanner}>{error}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy}>
           {busy ? t('predSigningIn') : t('predSignIn')}
         </button>
@@ -184,8 +182,8 @@ function DeletePlayer({
           </ul>
         )}
 
-        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
-        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
+        {msg && <div className={successBanner}>{msg}</div>}
+        {err && <div className={errorBanner}>{err}</div>}
       </div>
     </div>
   );
@@ -304,8 +302,8 @@ function AutoSync() {
           {busy ? t('adminSyncRunning') : t('adminSyncNow')}
         </button>
 
-        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
-        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
+        {msg && <div className={successBanner}>{msg}</div>}
+        {err && <div className={errorBanner}>{err}</div>}
       </div>
     </div>
   );

@@ -42,8 +42,8 @@ export default function TeamHistoryModal({ game, games, onClose }: Props) {
           modal-content pred-history-modal bg-bg-secondary border-t-4 border-t-crimson w-full max-w-[720px] overflow-hidden relative
           flex flex-col
           phone:!max-h-[calc(100dvh-20px-env(safe-area-inset-top)-env(safe-area-inset-bottom))]
+          shadow-[0_4px_25px_rgba(0,0,0,0.15)]
         "
-        style={{ boxShadow: '0 4px 25px rgba(0,0,0,0.15)' }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="pred-history-title"

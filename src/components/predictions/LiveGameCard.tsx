@@ -79,8 +79,7 @@ export default function LiveGameCard({ game, live, currentName }: Props) {
 
   return (
     <div
-      className="pred-game-card pred-live bg-card border border-border flex flex-col gap-3 border-t-[3px] border-t-crimson p-3.5 phone:!p-3"
-      style={{ boxShadow: '0 2px 10px rgba(176, 0, 0, 0.06)' }}
+      className="pred-game-card pred-live bg-card border border-border flex flex-col gap-3 border-t-[3px] border-t-crimson p-3.5 phone:!p-3 shadow-[0_2px_10px_rgba(176,0,0,0.06)]"
     >
       <div className="pred-live-head flex justify-between items-center gap-2 font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary border-b border-border pb-2">
         <span>

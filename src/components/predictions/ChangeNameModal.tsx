@@ -70,8 +70,8 @@ export default function ChangeNameModal({ auth, onClose, onSaved }: Props) {
           modal-content bg-bg-secondary border-t-4 border-t-crimson w-full max-w-[500px] overflow-hidden relative
           flex flex-col
           phone:!max-h-[calc(100dvh-20px-env(safe-area-inset-top)-env(safe-area-inset-bottom))]
+          shadow-[0_4px_25px_rgba(0,0,0,0.15)]
         "
-        style={{ boxShadow: '0 4px 25px rgba(0,0,0,0.15)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header p-[25px_20px_10px] text-center border-b border-border phone:!pt-[calc(env(safe-area-inset-top)+16px)] phone:!px-4 phone:!pb-2">
@@ -107,7 +107,7 @@ export default function ChangeNameModal({ auth, onClose, onSaved }: Props) {
               />
             </label>
             {err && (
-              <div className="text-[13px] mb-5 py-2.5 px-3.5" style={{ background: 'rgba(176, 0, 0, 0.08)', borderLeft: '4px solid var(--accent-red)', color: 'var(--accent-red)' }}>
+              <div className="text-[13px] mb-5 py-2.5 px-3.5 bg-crimson/[0.08] border-l-4 border-crimson text-crimson">
                 {err}
               </div>
             )}

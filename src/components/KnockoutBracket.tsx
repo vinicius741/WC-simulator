@@ -138,8 +138,7 @@ export function KnockoutBracket({
     const showScore = score !== null && score !== undefined && match.winner !== '';
     return (
       <div
-        className={`ko-team-row flex justify-between items-center py-[7px] pl-2.5 pr-2 cursor-pointer transition-all duration-150 ease-out relative text-xs border-b border-border-soft gap-1.5 last:border-b-0 ${!teamId ? 'text-text-muted not-allowed italic text-[11px]' : ''} ${isWinner ? 'text-crimson font-bold' : ''}`}
-        style={isWinner ? { background: 'rgba(176, 0, 0, 0.04)' } : undefined}
+        className={`ko-team-row flex justify-between items-center py-[7px] pl-2.5 pr-2 cursor-pointer transition-all duration-150 ease-out relative text-xs border-b border-border-soft gap-1.5 last:border-b-0 ${!teamId ? 'text-text-muted not-allowed italic text-[11px]' : ''} ${isWinner ? 'text-crimson font-bold bg-crimson/[0.04]' : ''}`}
         onClick={() => teamId && onSelectWinner(match.id, side)}
       >
         {renderTeamName(teamId || undefined, getPlaceholderText(match, side))}
@@ -182,8 +181,8 @@ export function KnockoutBracket({
           transition-[border-color,box-shadow] duration-150 ease-out
           hover:border-l-crimson
           phone:max-w-[460px] phone:mx-auto
+          shadow-[0_1px_3px_rgba(0,0,0,0.05)]
         "
-        style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
         data-match-id={match.id}
       >
         <div className="ko-match-header bg-bg-tertiary px-2 py-1 text-[9px] font-bold text-text-secondary border-b border-border flex justify-between items-center uppercase tracking-[0.4px] phone:text-[11px] phone:px-2.5 phone:py-1.5 phone:tracking-[0.3px]">
@@ -445,8 +444,8 @@ export function KnockoutBracket({
                       className="
                         bg-bg-secondary border-2 border-gold p-[25px] text-center w-[220px]
                         tablet:!w-full tablet:!max-w-[440px] tablet:!mx-auto
+                        shadow-[0_4px_12px_rgba(197,160,89,0.15)]
                       "
-                      style={{ boxShadow: '0 4px 12px rgba(197, 160, 89, 0.15)' }}
                     >
                       <h3 className="font-serif text-base text-navy uppercase mb-2.5 border-b border-gold pb-1">
                         🏆 {t('worldChampionTitle')} 🏆

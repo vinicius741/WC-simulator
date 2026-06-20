@@ -64,8 +64,7 @@ const ControlsBar: React.FC<ControlsBarProps> = ({
             </button>
             {champion && (
               <button
-                className="btn btn-primary phone:flex-1 phone:flex-auto"
-                style={{ background: 'var(--accent-gold)', borderColor: 'var(--accent-gold)', color: '#fff' }}
+                className="btn btn-primary phone:flex-1 phone:flex-auto bg-gold border-gold text-white"
                 onClick={onShowRecap}
               >
                 {t('btnPathToGlory')}

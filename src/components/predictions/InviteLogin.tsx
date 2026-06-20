@@ -65,7 +65,7 @@ export default function InviteLogin({ auth, token }: Props) {
           />
         </label>
         {error && (
-          <div className="text-[13px] mb-5 py-2.5 px-3.5" style={{ background: 'rgba(176, 0, 0, 0.08)', borderLeft: '4px solid var(--accent-red)', color: 'var(--accent-red)' }}>
+          <div className="text-[13px] mb-5 py-2.5 px-3.5 bg-crimson/[0.08] border-l-4 border-crimson text-crimson">
             {error}
           </div>
         )}
