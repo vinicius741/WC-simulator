@@ -82,15 +82,27 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
   };
 
   return (
-    <div className="group-card">
-      <div className="group-header">
-        <h3 className="group-title">{t('groupLetter', { letter: groupLetter })}</h3>
-        <button className="group-sim-btn" onClick={() => onSimulateGroup(groupLetter)}>
+    <div
+      className="
+        group-card bg-card border border-border flex flex-col
+        border-t-[3px] border-t-navy p-4 min-w-0 phone:p-3
+      "
+    >
+      <div className="flex justify-between items-center mb-3 pb-1.5 border-b border-border">
+        <h3 className="font-serif text-xl font-bold text-ink">{t('groupLetter', { letter: groupLetter })}</h3>
+        <button
+          className="
+            group-sim-btn bg-transparent border border-border text-text-secondary px-2 py-1 font-sans text-[10px] font-bold cursor-pointer uppercase tracking-[0.5px] transition-all duration-150 ease-out
+            hover:border-crimson hover:text-crimson
+            phone:text-xs phone:px-3 phone:py-2 phone:min-h-9
+          "
+          onClick={() => onSimulateGroup(groupLetter)}
+        >
           {t('btnSimulate')}
         </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="flex flex-col gap-2">
         {teams.map((team, idx) => {
           const isTop2 = idx < 2;
           const is3rd = idx === 2;
@@ -107,8 +119,8 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
           }
 
           return (
-            <div 
-              key={team.id} 
+            <div
+              key={team.id}
               draggable
               onDragStart={(e) => handleDragStart(e, idx)}
               onDragEnter={(e) => handleDragEnter(e, idx)}
@@ -116,11 +128,12 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, idx)}
               onDragEnd={handleDragEnd}
-              className="fixture-row" 
-              style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
+              className="
+                fixture-row flex justify-between items-center
+                bg-bg-tertiary border border-border text-[11px]
+                phone:!px-2.5 phone:!py-3
+              "
+              style={{
                 background: isBeingDragged ? 'rgba(0,0,0,0.05)' : isTop2 ? 'rgba(46, 125, 50, 0.03)' : is3rd ? 'rgba(13, 30, 54, 0.03)' : 'transparent',
                 borderLeft: borderStyle,
                 borderTop: dropIndicatorStyle === 'top' ? '3px solid var(--accent-red)' : 'none',
@@ -130,44 +143,47 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                 opacity: isBeingDragged ? 0.4 : 1,
                 transition: 'background 0.15s ease, border 0.15s ease',
                 position: 'relative',
-                userSelect: 'none'
+                userSelect: 'none',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '65%' }}>
+              <div className="flex items-center gap-2.5 w-[65%] min-w-0">
                 {/* Drag Handle Icon */}
-                <GripVertical 
-                  size={14} 
-                  style={{ 
-                    color: 'var(--text-muted)', 
-                    cursor: 'grab', 
+                <GripVertical
+                  size={14}
+                  style={{
+                    color: 'var(--text-muted)',
+                    cursor: 'grab',
                     flexShrink: 0,
                     pointerEvents: 'none'
-                  }} 
+                  }}
                 />
 
-                <span style={{ 
-                  fontFamily: 'var(--serif)', 
-                  fontWeight: 'bold', 
-                  fontSize: '14px',
-                  color: isTop2 ? 'var(--accent-green)' : is3rd ? 'var(--accent-navy)' : 'var(--text-muted)',
-                  width: '15px'
-                }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--serif)',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    color: isTop2 ? 'var(--accent-green)' : is3rd ? 'var(--accent-navy)' : 'var(--text-muted)',
+                    width: '15px'
+                  }}
+                >
                   {idx + 1}
                 </span>
-                
-                <span className="team-flag" style={{ fontSize: '18px' }}>{team.flag}</span>
-                <span style={{ fontWeight: 600, fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {t(team.id)} <span className="team-code" style={{ fontSize: '10px', marginLeft: '4px' }}>{team.code}</span>
+
+                <span className="team-flag text-[18px]">{team.flag}</span>
+                <span className="font-semibold text-[13px] overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
+                  {t(team.id)} <span className="team-code text-[10px] ml-1 font-bold text-ink">{team.code}</span>
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="flex items-center gap-2">
                 {/* Fallback arrows for accessibility and touch devices */}
                 <button
-                  className="group-sim-btn"
-                  style={{ 
-                    padding: '2px 6px', 
-                    fontSize: '10px', 
+                  className="
+                    group-sim-btn bg-transparent border border-border text-text-primary px-1.5 py-0.5 text-[10px] font-bold cursor-pointer uppercase tracking-[0.5px] transition-all duration-150 ease-out
+                    phone:!min-w-10 phone:!min-h-10 phone:!px-2.5 phone:!py-1.5 phone:!text-sm phone:!leading-none phone:inline-flex phone:!items-center phone:!justify-center
+                  "
+                  style={{
                     visibility: idx === 0 ? 'hidden' : 'visible',
                     borderColor: 'var(--border-color)',
                     color: 'var(--text-primary)',
@@ -182,10 +198,11 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                   ▲
                 </button>
                 <button
-                  className="group-sim-btn"
-                  style={{ 
-                    padding: '2px 6px', 
-                    fontSize: '10px', 
+                  className="
+                    group-sim-btn bg-transparent border border-border text-text-primary px-1.5 py-0.5 text-[10px] font-bold cursor-pointer uppercase tracking-[0.5px] transition-all duration-150 ease-out
+                    phone:!min-w-10 phone:!min-h-10 phone:!px-2.5 phone:!py-1.5 phone:!text-sm phone:!leading-none phone:inline-flex phone:!items-center phone:!justify-center
+                  "
+                  style={{
                     visibility: idx === 3 ? 'hidden' : 'visible',
                     borderColor: 'var(--border-color)',
                     color: 'var(--text-primary)',

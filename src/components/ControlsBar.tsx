@@ -25,35 +25,46 @@ const ControlsBar: React.FC<ControlsBarProps> = ({
   const { t } = useLanguage();
 
   return (
-    <div className="controls-bar">
-      <div className="action-group">
+    <div
+      className="
+        controls-bar flex justify-between items-center mb-[25px] border-b border-border pb-[15px] flex-wrap gap-[15px]
+        tablet:flex-col tablet:items-stretch
+        phone:gap-2.5 phone:pb-[15px]
+      "
+    >
+      <div
+        className="
+          action-group flex gap-2.5 flex-wrap
+          tablet:justify-between
+          phone:justify-stretch phone:gap-2 phone:w-full
+        "
+      >
         {activeTab === 'groups' && (
           <>
-            <button className="btn btn-primary" onClick={onSimulateAllGroups}>
+            <button className="btn btn-primary phone:flex-1 phone:flex-auto" onClick={onSimulateAllGroups}>
               {t('btnSimulateAllGroups')}
             </button>
-            <button className="btn" onClick={onReset}>
+            <button className="btn phone:flex-1 phone:flex-auto" onClick={onReset}>
               {t('btnResetRankings')}
             </button>
           </>
         )}
         {activeTab === 'third-place' && (
-          <button className="btn" onClick={onReset}>
+          <button className="btn phone:flex-1 phone:flex-auto" onClick={onReset}>
             {t('btnResetSelections')}
           </button>
         )}
         {activeTab === 'knockout' && (
           <>
-            <button className="btn btn-secondary" onClick={onSimulateKnockouts}>
+            <button className="btn btn-secondary phone:flex-1 phone:flex-auto" onClick={onSimulateKnockouts}>
               {t('btnSimulateKnockouts')}
             </button>
-            <button className="btn" onClick={onReset}>
+            <button className="btn phone:flex-1 phone:flex-auto" onClick={onReset}>
               {t('btnResetBracket')}
             </button>
             {champion && (
               <button
-                className="btn btn-primary"
-                style={{ background: 'var(--accent-gold)', borderColor: 'var(--accent-gold)', color: '#fff' }}
+                className="btn btn-primary phone:flex-1 phone:flex-auto bg-gold border-gold text-white"
                 onClick={onShowRecap}
               >
                 {t('btnPathToGlory')}
@@ -63,9 +74,11 @@ const ControlsBar: React.FC<ControlsBarProps> = ({
         )}
       </div>
 
-      <div className="group-status-info" style={{ fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
+      <div
+        className="group-status-info font-serif italic text-[13px] text-text-secondary phone:text-[13px] phone:leading-relaxed phone:text-center"
+      >
         {allGroupsCompleted ? (
-          <span style={{ color: 'var(--accent-green)', fontWeight: 'bold' }}>
+          <span className="text-accent-green font-bold">
             {t('thirdsChosenSuccess')}
           </span>
         ) : (

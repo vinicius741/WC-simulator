@@ -33,7 +33,7 @@ function SimulatorApp() {
   }, [inviteToken, setActiveTab]);
 
   return (
-    <div className="app-shell">
+    <div className="pb-[60px] pb-[calc(60px+env(safe-area-inset-bottom))]">
       <AppHeader />
 
       <NavTabs
@@ -57,7 +57,7 @@ function SimulatorApp() {
 
       <main>
         {engine.activeTab === 'groups' && (
-          <div className="groups-grid">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-5 mb-[50px] tablet:grid-cols-1 tablet:gap-[14px] tablet:mb-[30px]">
             {GROUPS.map(g => (
               <GroupCard
                 key={g}

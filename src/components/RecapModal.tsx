@@ -70,7 +70,7 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
     // 2. Knockout stage matches
     const stagesOrdered = ['R32', 'R16', 'QF', 'SF', 'FINAL'] as const;
     stagesOrdered.forEach(stageKey => {
-      const match = knockoutMatches.find(m => 
+      const match = knockoutMatches.find(m =>
         m.stage === stageKey && (m.home === championId || m.away === championId)
       );
 
@@ -118,40 +118,69 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
   if (!champion) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <button className="modal-close-btn" onClick={onClose}>×</button>
-          <h2>🏆 {t('recapModalTitle')} 🏆</h2>
-          <div style={{ marginTop: '15px' }}>
-            <span className="champion-flag" style={{ fontSize: '64px', display: 'block', margin: '8px 0' }}>
+    <div
+      className="
+        modal-overlay fixed inset-0 z-[1000] flex items-center justify-center p-[15px]
+        phone:!items-start phone:!p-[calc(env(safe-area-inset-top)+8px)_max(12px,env(safe-area-inset-right))_calc(env(safe-area-inset-bottom)+12px)_max(12px,env(safe-area-inset-left))]
+      "
+      style={{ background: 'rgba(0, 0, 0, 0.6)' }}
+      onClick={onClose}
+    >
+      <div
+        className="
+          modal-content bg-bg-secondary border-t-4 border-t-crimson w-full max-w-[500px] overflow-hidden relative
+          flex flex-col
+          phone:!max-h-[calc(100dvh-20px-env(safe-area-inset-top)-env(safe-area-inset-bottom))]
+          shadow-[0_4px_25px_rgba(0,0,0,0.15)]
+        "
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header p-[25px_20px_10px] text-center border-b border-border phone:!pt-[calc(env(safe-area-inset-top)+16px)] phone:!px-4 phone:!pb-2">
+          <button
+            className="
+              modal-close-btn absolute top-3 right-[15px] bg-transparent border-none text-text-muted text-2xl cursor-pointer
+              w-11 h-11 min-h-11 flex items-center justify-center
+              phone:!top-[calc(env(safe-area-inset-top)+6px)] phone:!right-[calc(env(safe-area-inset-right)+8px)]
+            "
+            onClick={onClose}
+          >
+            ×
+          </button>
+          <h2 className="font-serif text-2xl font-bold text-ink phone:text-xl">🏆 {t('recapModalTitle')} 🏆</h2>
+          <div className="mt-[15px]">
+            <span className="champion-flag text-[64px] block mx-auto my-2" style={{ fontSize: 'clamp(40px, 12vw, 64px)' }}>
               {champion.flag}
             </span>
-            <div className="champion-name" style={{ fontSize: '24px', color: 'var(--accent-red)' }}>
+            <div className="champion-name font-serif font-bold" style={{ fontSize: '24px', color: 'var(--accent-red)' }}>
               {t(champion.id)}
             </div>
-            <div className="champion-code" style={{ fontSize: '12px', letterSpacing: '2px', color: '#1a1a1a', opacity: 0.6 }}>
+            <div className="champion-code text-xs font-bold" style={{ letterSpacing: '2px', color: '#1a1a1a', opacity: 0.6 }}>
               {champion.code}
             </div>
           </div>
         </div>
 
-        <div className="modal-body">
-          <h4 style={{ fontFamily: 'var(--serif)', fontSize: '16px', color: '#1a1a1a', textTransform: 'uppercase', marginBottom: '12px', borderBottom: '1px dashed var(--border-color)', paddingBottom: '4px' }}>
+        <div className="modal-body p-[15px_20px_25px] phone:!overflow-y-auto phone:!overscroll-contain phone:!flex-1">
+          <h4 className="font-serif text-base text-ink uppercase mb-3 border-b border-dashed border-border pb-1">
             {t('recapPathToGlory')}
           </h4>
 
-          <div className="path-recap-list">
+          <div className="flex flex-col gap-2 max-h-[350px] overflow-y-auto phone:!max-h-none phone:!overflow-visible">
             {recap.map(item => (
-              <div className="recap-item" key={item.id}>
-                <div className="recap-stage">{item.stage}</div>
-                <div className="recap-opponent-card">
+              <div
+                key={item.id}
+                className="recap-item flex items-center bg-bg-tertiary border border-border p-2.5 px-3 justify-between phone:!p-2.5"
+              >
+                <div className="recap-stage font-bold text-[11px] text-navy uppercase w-1/4 phone:!text-[11px] phone:!leading-tight">
+                  {item.stage}
+                </div>
+                <div className="recap-opponent-card flex items-center gap-1.5 text-xs w-1/2 font-medium phone:!min-w-0 phone:!text-[13px] phone:!flex-1 phone:!basis-1/2">
                   <span className="team-flag">{item.opponentFlag}</span>
-                  <span style={{ fontWeight: 600 }} title={item.opponentName}>
+                  <span className="font-semibold min-w-0" title={item.opponentName}>
                     {item.opponentName}
                   </span>
                 </div>
-                <div className={`recap-score ${item.isWin ? 'win' : ''}`}>
+                <div className={`recap-score font-bold text-xs text-black w-1/4 text-right phone:!text-sm ${item.isWin ? '!text-crimson' : ''}`}>
                   {item.scoreText}
                 </div>
               </div>
@@ -164,4 +193,3 @@ export function RecapModal({ championId, groupTeams, knockoutMatches, onClose }:
 }
 
 export default RecapModal;
-

@@ -7,6 +7,9 @@ import { appHref } from '../../utils/routes';
 import type { LeaderboardRow, SyncStatusResponse } from '../../types';
 import AdminPanel from './AdminPanel';
 
+const errorBanner = 'text-[13px] mb-5 py-2.5 px-3.5 bg-crimson/[0.08] border-l-4 border-crimson text-crimson';
+const successBanner = 'text-[13px] font-semibold mb-3 py-2 px-3 bg-accent-green/[0.08] border-l-4 border-accent-green text-accent-green';
+
 /**
  * The dedicated `/admin` page — fully separate from the family predictions view.
  *
@@ -22,27 +25,27 @@ export default function AdminPage() {
 
   if (auth.loading) {
     return (
-      <div className="admin-page">
-        <div className="predictions-loading">{t('predLoading')}</div>
+      <div className="max-w-[760px] mx-auto py-6 pb-[60px]">
+        <div className="font-serif italic text-text-muted py-3">{t('predLoading')}</div>
       </div>
     );
   }
 
   if (!auth.isAdmin) {
     return (
-      <div className="admin-page">
+      <div className="max-w-[760px] mx-auto py-6 pb-[60px]">
         <AdminLogin auth={auth} />
       </div>
     );
   }
 
   return (
-    <div className="admin-page">
-      <header className="admin-page-header">
-        <a className="admin-back-link" href={appHref()}>
+    <div className="max-w-[760px] mx-auto py-6 pb-[60px]">
+      <header className="admin-page-header flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3.5 mb-7">
+        <a className="font-sans text-[13px] font-bold uppercase tracking-[0.5px] text-navy no-underline whitespace-nowrap hover:text-crimson" href={appHref()}>
           ← {t('adminBackToApp')}
         </a>
-        <h1 className="admin-page-title">{t('adminPageTitle')}</h1>
+        <h1 className="font-serif text-[22px] font-bold text-navy m-0">{t('adminPageTitle')}</h1>
         <button className="btn" onClick={auth.logout}>
           {t('predLogout')}
         </button>
@@ -82,23 +85,24 @@ function AdminLogin({ auth }: { auth: PredictionsAuth }) {
   }
 
   return (
-    <div className="admin-login">
-      <a className="admin-back-link" href={appHref()}>
+    <div className="max-w-[420px] mx-auto my-10">
+      <a className="admin-back-link inline-block mb-[18px] font-sans text-[13px] font-bold uppercase tracking-[0.5px] text-navy no-underline whitespace-nowrap hover:text-crimson" href={appHref()}>
         ← {t('adminBackToApp')}
       </a>
       <h2 className="section-title">{t('adminLoginTitle')}</h2>
       <p className="section-desc">{t('adminLoginDesc')}</p>
-      <form className="predictions-login-form" onSubmit={submit}>
-        <label className="predictions-field">
-          <span>{t('predAdminPassword')}</span>
+      <form className="flex flex-col gap-3.5" onSubmit={submit}>
+        <label className="flex flex-col gap-[5px]">
+          <span className="font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary">{t('predAdminPassword')}</span>
           <input
             type="password"
+            className="p-[9px_10px] border border-border rounded-sm font-sans text-sm text-text-primary bg-bg-secondary focus:outline-none focus:border-navy phone:!text-base phone:!min-h-11"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
           />
         </label>
-        {error && <div className="predictions-error">{error}</div>}
+        {error && <div className={errorBanner}>{error}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy}>
           {busy ? t('predSigningIn') : t('predSignIn')}
         </button>
@@ -148,26 +152,26 @@ function DeletePlayer({
   }
 
   return (
-    <div className="admin-panel admin-players">
-      <div className="admin-subpanel">
-        <h3 className="admin-subpanel-title">{t('adminPlayersTitle')}</h3>
+    <div className="flex flex-col gap-6">
+      <div className="bg-bg-tertiary border border-border border-l-4 border-l-gold p-4 px-[18px]">
+        <h3 className="font-serif text-base font-bold text-navy uppercase tracking-[0.5px] mb-1">{t('adminPlayersTitle')}</h3>
         <p className="section-desc">{t('adminPlayersDesc')}</p>
 
         {loading && sorted.length === 0 ? (
-          <p className="predictions-empty">{t('predLoading')}</p>
+          <p className="font-serif italic text-text-muted py-3">{t('predLoading')}</p>
         ) : sorted.length === 0 ? (
-          <p className="predictions-empty">{t('adminPlayersNone')}</p>
+          <p className="font-serif italic text-text-muted py-3">{t('adminPlayersNone')}</p>
         ) : (
-          <ul className="admin-players-list">
+          <ul className="admin-players-list list-none m-0 mt-3.5 p-0 flex flex-col gap-2">
             {sorted.map((row) => (
-              <li key={row.player_name} className="admin-player-row">
-                <span className="admin-player-name">{row.player_name}</span>
-                <span className="admin-player-meta">
+              <li key={row.player_name} className="admin-player-row flex flex-wrap items-center gap-2.5 p-2.5 px-3 bg-bg-secondary border border-border">
+                <span className="font-serif font-bold text-[15px] text-text-primary basis-[160px] grow shrink-0">{row.player_name}</span>
+                <span className="font-sans text-[12.5px] text-text-secondary basis-[120px] grow shrink-0">
                   {t('adminPlayerPicks', { n: row.predictions, pts: row.total })}
                 </span>
                 <button
                   type="button"
-                  className="btn btn-danger"
+                  className="btn btn-danger ml-auto"
                   onClick={() => remove(row)}
                   disabled={busyName !== null}
                 >
@@ -178,8 +182,8 @@ function DeletePlayer({
           </ul>
         )}
 
-        {msg && <div className="predictions-success">{msg}</div>}
-        {err && <div className="predictions-error">{err}</div>}
+        {msg && <div className={successBanner}>{msg}</div>}
+        {err && <div className={errorBanner}>{err}</div>}
       </div>
     </div>
   );
@@ -190,6 +194,15 @@ function DeletePlayer({
 /* button so you can score finished games immediately instead of       */
 /* waiting for the daily cron.                                         */
 /* ------------------------------------------------------------------ */
+const SYNC_TAG_STYLE: Record<string, { background: string; color: string }> = {
+  filled: { background: 'var(--accent-green)', color: '#fff' },
+  corrected: { background: 'var(--accent-green)', color: '#fff' },
+  unmatched: { background: 'var(--accent-red)', color: '#fff' },
+  error: { background: 'var(--accent-red)', color: '#fff' },
+  skipped: { background: 'var(--accent-red)', color: '#fff' },
+  already_set: { background: 'var(--accent-gray)', color: '#fff' },
+};
+
 function AutoSync() {
   const { t } = useLanguage();
   const [status, setStatus] = useState<SyncStatusResponse | null>(null);
@@ -240,24 +253,24 @@ function AutoSync() {
     : t('adminSyncNever');
 
   return (
-    <div className="admin-panel admin-sync">
-      <div className="admin-subpanel">
-        <h3 className="admin-subpanel-title">{t('adminSyncTitle')}</h3>
+    <div className="admin-sync flex flex-col gap-6 mb-6">
+      <div className="bg-bg-tertiary border border-border border-l-4 border-l-gold p-4 px-[18px]">
+        <h3 className="font-serif text-base font-bold text-navy uppercase tracking-[0.5px] mb-1">{t('adminSyncTitle')}</h3>
         <p className="section-desc">{t('adminSyncDesc')}</p>
 
-        <dl className="admin-sync-meta">
+        <dl className="admin-sync-meta flex flex-wrap gap-5 mt-3 mb-1">
           <div>
-            <dt>{t('adminSyncSource')}</dt>
-            <dd>{status ? status.source.toUpperCase() : '—'}</dd>
+            <dt className="font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary mb-0.5">{t('adminSyncSource')}</dt>
+            <dd className="m-0 font-serif font-bold text-sm text-text-primary">{status ? status.source.toUpperCase() : '—'}</dd>
           </div>
           <div>
-            <dt>{t('adminSyncLastRun')}</dt>
-            <dd>{loading ? t('predLoading') : lastRun}</dd>
+            <dt className="font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary mb-0.5">{t('adminSyncLastRun')}</dt>
+            <dd className="m-0 font-serif font-bold text-sm text-text-primary">{loading ? t('predLoading') : lastRun}</dd>
           </div>
         </dl>
 
         {last && (
-          <p className="admin-sync-summary">
+          <p className="admin-sync-summary mt-2 m-0 font-sans text-[13px] text-text-secondary">
             {t('adminSyncSummary', {
               filled: last.filled ?? 0,
               already: last.already_set ?? 0,
@@ -268,24 +281,29 @@ function AutoSync() {
         )}
 
         {status && status.recent_log.length > 0 ? (
-          <ul className="admin-sync-log">
+          <ul className="admin-sync-log list-none m-3 p-0 flex flex-col gap-1.5">
             {status.recent_log.slice(0, 6).map((row, i) => (
-              <li key={i} className={`sync-action sync-action-${row.action}`}>
-                <span className="sync-action-tag">{row.action}</span>
-                <span className="sync-action-detail">{row.detail}</span>
+              <li key={i} className="sync-action flex items-baseline gap-2 font-sans text-[12.5px]">
+                <span
+                  className="sync-action-tag font-bold text-[10.5px] uppercase tracking-[0.5px] px-1.5 py-0.5 rounded-sm whitespace-nowrap"
+                  style={SYNC_TAG_STYLE[row.action] ?? { background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+                >
+                  {row.action}
+                </span>
+                <span className="sync-action-detail text-text-secondary break-words">{row.detail}</span>
               </li>
             ))}
           </ul>
         ) : (
-          !loading && <p className="predictions-empty">{t('adminSyncNoLog')}</p>
+          !loading && <p className="font-serif italic text-text-muted py-3">{t('adminSyncNoLog')}</p>
         )}
 
-        <button type="button" className="btn btn-primary" onClick={runNow} disabled={busy}>
+        <button type="button" className="btn btn-primary mt-1" onClick={runNow} disabled={busy}>
           {busy ? t('adminSyncRunning') : t('adminSyncNow')}
         </button>
 
-        {msg && <div className="predictions-success">{msg}</div>}
-        {err && <div className="predictions-error">{err}</div>}
+        {msg && <div className={successBanner}>{msg}</div>}
+        {err && <div className={errorBanner}>{err}</div>}
       </div>
     </div>
   );

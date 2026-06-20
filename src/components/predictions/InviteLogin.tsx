@@ -46,15 +46,16 @@ export default function InviteLogin({ auth, token }: Props) {
   }
 
   return (
-    <div className="predictions-login">
+    <div className="max-w-[420px] mx-auto">
       <h2 className="section-title">{t('predInviteTitle')}</h2>
       <p className="section-desc">{t('predInviteDesc')}</p>
 
-      <form className="predictions-login-form" onSubmit={submit}>
-        <label className="predictions-field">
-          <span>{t('predInviteName')}</span>
+      <form className="flex flex-col gap-3.5" onSubmit={submit}>
+        <label className="flex flex-col gap-[5px]">
+          <span className="font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary">{t('predInviteName')}</span>
           <input
             type="text"
+            className="p-[9px_10px] border border-border rounded-sm font-sans text-sm text-text-primary bg-bg-secondary focus:outline-none focus:border-navy phone:!text-base phone:!min-h-11"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={40}
@@ -63,13 +64,21 @@ export default function InviteLogin({ auth, token }: Props) {
             autoFocus
           />
         </label>
-        {error && <div className="predictions-error">{error}</div>}
+        {error && (
+          <div className="text-[13px] mb-5 py-2.5 px-3.5 bg-crimson/[0.08] border-l-4 border-crimson text-crimson">
+            {error}
+          </div>
+        )}
         <button type="submit" className="btn btn-primary" disabled={busy}>
           {busy ? t('predInviteJoining') : t('predInviteJoin')}
         </button>
       </form>
 
-      <button type="button" className="predictions-invite-fallback" onClick={() => setUsePassword(true)}>
+      <button
+        type="button"
+        className="block mx-auto mt-[18px] p-0 border-none bg-none font-sans text-[13px] text-navy underline cursor-pointer hover:text-gold"
+        onClick={() => setUsePassword(true)}
+      >
         {t('predInviteUsePassword')}
       </button>
     </div>
