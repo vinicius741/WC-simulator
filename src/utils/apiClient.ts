@@ -4,6 +4,7 @@ import type {
   InviteLoginResponse,
   InviteStatusResponse,
   LeaderboardRow,
+  LeaderboardScope,
   LiveResponse,
   MeResponse,
   PredictionGame,
@@ -121,12 +122,12 @@ export const api = {
     return data.games;
   },
 
-  async getLeaderboard(): Promise<LeaderboardRow[]> {
+  async getLeaderboard(scope: LeaderboardScope = 'overall'): Promise<LeaderboardRow[]> {
     if (USE_MOCK) {
       await wait(150);
-      return MOCK_LEADERBOARD;
+      return MOCK_LEADERBOARD[scope] ?? MOCK_LEADERBOARD.overall;
     }
-    const data = await request<{ leaderboard: LeaderboardRow[] }>('leaderboard.php');
+    const data = await request<{ leaderboard: LeaderboardRow[] }>(`leaderboard.php?scope=${scope}`);
     return data.leaderboard;
   },
 

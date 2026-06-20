@@ -47,7 +47,7 @@
     overflow-x: auto;
   }
 
-  /* Leaderboard fills the full page width on phones/tablets. Its 4 narrow
+  /* Leaderboard fills the full page width on phones/tablets. Its 6 narrow
      columns fit without scrolling, so keep it a real table — `display: block`
      (above) would otherwise shrink the anonymous inner table to content width
      and strand it on the left of the page with empty space on the right. */
@@ -57,12 +57,16 @@
     width: 100%;
   }
   .pred-leaderboard-table th:nth-child(1),
-  .pred-leaderboard-table td:nth-child(1) { width: 12%; } /* rank */
+  .pred-leaderboard-table td:nth-child(1) { width: 9%; }  /* rank */
   .pred-leaderboard-table th:nth-child(3),
-  .pred-leaderboard-table td:nth-child(3) { width: 18%; } /* points */
+  .pred-leaderboard-table td:nth-child(3) { width: 14%; } /* points */
   .pred-leaderboard-table th:nth-child(4),
-  .pred-leaderboard-table td:nth-child(4) { width: 18%; } /* games played */
-  /* name (col 2) takes the remaining ~52%; fixed layout lets ellipsis work */
+  .pred-leaderboard-table td:nth-child(4) { width: 13%; } /* games played */
+  .pred-leaderboard-table th:nth-child(5),
+  .pred-leaderboard-table td:nth-child(5) { width: 16%; } /* pts/game */
+  .pred-leaderboard-table th:nth-child(6),
+  .pred-leaderboard-table td:nth-child(6) { width: 14%; } /* accuracy */
+  /* name (col 2) takes the remaining ~34%; fixed layout lets ellipsis work */
   .pred-leaderboard-table .pred-player-name {
     overflow: hidden;
     text-overflow: ellipsis;

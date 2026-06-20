@@ -103,7 +103,12 @@ export default function PredictionsView({ inviteToken }: Props) {
         stale={live.stale}
       />
 
-      <Leaderboard rows={data.leaderboard} loading={data.loading} />
+      <Leaderboard
+        rows={data.leaderboard}
+        scope={data.scope}
+        onScopeChange={data.setScope}
+        loading={data.loading}
+      />
 
       <section className="predictions-section">
         <h2 className="section-title">{t('predUpcomingTitle')}</h2>

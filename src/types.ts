@@ -87,11 +87,14 @@ export interface LiveResponse {
   live: LiveMatch[];
 }
 
+export type LeaderboardScope = 'overall' | 'week' | 'efficiency';
+
 export interface LeaderboardRow {
   player_name: string;
   total: number;
   predictions: number;
   games_scored: number;
+  points_per_game: number; // total ÷ games_scored (2 dp) — measures skill per game
   margin_error: number; // Σ |pred margin − actual margin| over scored games (lower = closer)
 }
 

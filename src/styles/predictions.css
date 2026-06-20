@@ -508,6 +508,69 @@
   font-size: 15px;
 }
 
+/* Headline number is the per-game average on the Efficiency board; it gets the
+   same serif emphasis as the points total so the "main" column reads cleanly. */
+.pred-leaderboard-table .pred-ppg {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--accent-navy);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Header row: title/desc on the left, the Overall/This Week/Efficiency scope
+   toggle on the right. Stacks on narrow screens (see responsive.css). */
+.pred-leaderboard-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.pred-leaderboard-header .section-desc {
+  margin-bottom: 0;
+}
+
+/* Segmented scope toggle — three flat buttons that read as a single control.
+   Active button inverts to navy, matching the app's secondary accent. */
+.pred-scope-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pred-scope-btn {
+  background: var(--bg-secondary);
+  border: none;
+  border-right: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pred-scope-btn:last-child {
+  border-right: none;
+}
+
+.pred-scope-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.pred-scope-btn.active {
+  background: var(--accent-navy);
+  color: #fff;
+}
+
 /* "Use the family password instead" link on the invite join screen */
 .predictions-invite-fallback {
   display: block;

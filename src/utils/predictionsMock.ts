@@ -1,4 +1,4 @@
-import type { LeaderboardRow, LiveResponse, PredictionGame } from '../types';
+import type { LeaderboardRow, LeaderboardScope, LiveResponse, PredictionGame } from '../types';
 
 // Local-dev mock data so the Predictions UI can be developed without a backend.
 // Games are generated relative to the current time so some are upcoming and
@@ -109,12 +109,32 @@ export const MOCK_GAMES: PredictionGame[] = [
   },
 ];
 
-export const MOCK_LEADERBOARD: LeaderboardRow[] = [
-  // margin_error: Spain 2-0 (margin +2) → You 2-0 (0), Mom 2-1 (1), Dad 1-1 (2).
-  { player_name: 'You', total: 3, predictions: 2, games_scored: 1, margin_error: 0 },
-  { player_name: 'Mom', total: 1, predictions: 1, games_scored: 1, margin_error: 1 },
-  { player_name: 'Dad', total: 0, predictions: 2, games_scored: 1, margin_error: 2 },
-];
+// Mock leaderboards keyed by scope, so the Overall/This Week/Efficiency toggle
+// is fully exercisable in mock mode (VITE_PRED_MOCK=true) without a backend.
+//   overall     → cumulative totals (who joined early still leads here).
+//   week        → this ISO week only — a fresh, winnable race every week.
+//   efficiency  → points-per-game average; Dad is excluded (only 1 game < min 3),
+//                 so the board proves the cherry-picker guard works.
+export const MOCK_LEADERBOARD: Record<LeaderboardScope, LeaderboardRow[]> = {
+  overall: [
+    // margin_error: Spain 2-0 (margin +2) → You 2-0 (0), Mom 2-1 (1), Dad 1-1 (2).
+    { player_name: 'You', total: 3, predictions: 2, games_scored: 1, points_per_game: 3.0, margin_error: 0 },
+    { player_name: 'Mom', total: 1, predictions: 1, games_scored: 1, points_per_game: 1.0, margin_error: 1 },
+    { player_name: 'Dad', total: 0, predictions: 2, games_scored: 1, points_per_game: 0.0, margin_error: 2 },
+  ],
+  week: [
+    // Same scored game but framed as the weekly race: closeness breaks the tie.
+    { player_name: 'You', total: 3, predictions: 2, games_scored: 1, points_per_game: 3.0, margin_error: 0 },
+    { player_name: 'Mom', total: 1, predictions: 1, games_scored: 1, points_per_game: 1.0, margin_error: 1 },
+    { player_name: 'Dad', total: 0, predictions: 2, games_scored: 1, points_per_game: 0.0, margin_error: 2 },
+  ],
+  efficiency: [
+    // Ranked by points/game; Dad (0.0 from 1 game) falls below the min-games
+    // threshold and is omitted.
+    { player_name: 'You', total: 3, predictions: 2, games_scored: 1, points_per_game: 3.0, margin_error: 0 },
+    { player_name: 'Mom', total: 1, predictions: 1, games_scored: 1, points_per_game: 1.0, margin_error: 1 },
+  ],
+};
 
 // A fake in-play match keyed to MOCK_GAMES id 4 (NED-JPN, started, not yet
 // final), so the Live section renders in mock mode without a real game. At
