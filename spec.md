@@ -99,7 +99,7 @@ The app also includes a **Family Predictions / Bolão** mode backed by a small P
 
 ## 4. Non-Functional Requirements
 - **Performance**: Standings calculation, third-place ranking, and bracket matching must occur in `< 5ms`.
-- **Theme**: Sport-focused cyberpunk dark theme (neon colors, glassmorphism, responsive cards).
+- **Theme**: Editorial light theme — crimson/navy/gold accents on a cream paper background, Georgia serif headings over Inter body text. Built with Tailwind CSS v4 (utilities inline + design tokens in `@theme`), with hand-written component primitives retained in `src/index.css`.
 - **Persistence**: Simulator state (groups, standings, matches, bracket) must be saved to `localStorage` on any change. Predictions data lives in MariaDB on the server.
 - **Responsive**: Layout must look spectacular on desktop, tablet, and mobile.
 - **Backend**: Predictions require PHP 8.0+ and MariaDB/MySQL. Session authentication uses same-origin HttpOnly cookies.

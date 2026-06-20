@@ -19,7 +19,7 @@
   - [x] Sub-task C: Build custom hook for `localStorage` persistence.
 
 - [x] **Task 4: User Interface - Design Tokens & Group Stage View**
-  - [x] Sub-task A: Update `src/index.css` with dark sport cyberpunk styling (CSS variables, neon glow effects, card layouts).
+  - [x] Sub-task A: Establish the design-token layer and group-stage styling (now the editorial crimson/navy/gold palette exposed as Tailwind `@theme` tokens in `src/index.css`).
   - [x] Sub-task B: Create group page component displaying the 12 groups in a grid.
   - [x] Sub-task C: Add score input fields with automatic standings updates and group simulation buttons.
 
@@ -48,3 +48,12 @@
   - [x] Sub-task H: Implement `/invite/<token>` deep-link routing and passwordless invite login.
   - [x] Sub-task I: Implement FIFA results auto-sync (`api/admin/sync_results.php`) with cron scheduling and audit logging.
   - [x] Sub-task J: Document one-time backend setup in `db/SETUP.md` and align project docs (README, spec, plan) with the new feature.
+
+- [x] **Task 9: Tailwind v4 Migration**
+  - [x] Sub-task A: Add the `@tailwindcss/vite` plugin and `tailwindcss` v4 dependency; import `tailwindcss` from `src/index.css`.
+  - [x] Sub-task B: Map the brand palette (crimson/navy/gold) and font stacks into an `@theme` block, generating utilities (`bg-crimson`, `text-navy`, `font-serif`) and mirroring the legacy `--accent-*` custom properties for any inline `var()` usage.
+  - [x] Sub-task C: Re-express every component's styling with Tailwind utilities, keeping only non-utility primitives (`.btn`, `.tab-btn`, bracket connectors, keyframe animations) in `@layer components`.
+  - [x] Sub-task D: Recreate the former responsive tiers as the `phone:` (≤600px) and `tablet:` (≤1024px) custom variants.
+  - [x] Sub-task E: Delete the per-feature `src/styles/*.css` files and make `src/index.css` the single CSS entry, imported once by `src/main.tsx` (no `<link>` in `index.html`).
+  - [x] Sub-task F: Add a Vitest suite (`src/tailwindMigration.test.ts`) guarding the migration: legacy stylesheets stay deleted, no source re-imports them, `index.css` pulls in Tailwind and exposes the brand tokens, and `main.tsx` is its sole importer.
+  - [x] Sub-task G: Update project docs (README, spec, plan, constitution, tasks) to describe the Tailwind v4 layer and the editorial theme instead of the former vanilla-CSS / dark-cyberpunk framing.

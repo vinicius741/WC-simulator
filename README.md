@@ -4,7 +4,7 @@ An interactive, high-fidelity Single Page React application to predict, simulate
 
 It now includes a **Family Predictions / Bolão** mode: family and friends can log in with a shared password, predict the exact score of real World Cup 2026 games, and compete on a live leaderboard. Predictions are scored automatically as real results come in (via FIFA auto-sync or manual admin entry).
 
-Built with a sport-themed dark cyberpunk interface, real-time standings calculations, automated third-place pairing math (using a backtracking matching solver), custom canvas-confetti celebration, and a small PHP + MariaDB backend for the predictions pool.
+Built with an editorial light interface (crimson/navy/gold on cream paper, Georgia serif headings, Inter body text), powered by **Tailwind CSS v4**, with real-time standings calculations, automated third-place pairing math (using a backtracking matching solver), custom canvas-confetti celebration, and a small PHP + MariaDB backend for the predictions pool.
 
 ---
 
@@ -75,7 +75,7 @@ To use the predictions pool in production, deploy the built bundle to a host wit
 ├── src/
 │   ├── main.tsx          # Entry point
 │   ├── App.tsx           # Main coordinator / state controller
-│   ├── index.css         # Styling system & responsive flex/grid layouts
+│   ├── index.css         # Tailwind v4 entry + @theme design tokens + hand-written component layer
 │   ├── data/
 │   │   ├── teams.ts      # List of 48 teams, flags, and strength ratings
 │   │   ├── constants.ts  # R32 bracket schema and Annex C allowed lists

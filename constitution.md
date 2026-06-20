@@ -3,7 +3,7 @@
 ## 1. Technical Stack
 - Language: TypeScript (ES6+) for the frontend; PHP 8.0+ for the predictions backend.
 - UI Framework: React 19 (Vite)
-- CSS: Vanilla CSS with custom properties (CSS variables) for modern theme tokens, flexbox/grid layout, and smooth animations.
+- CSS: Tailwind CSS v4 (via the `@tailwindcss/vite` plugin) as the styling layer, driven by design tokens defined in an `@theme` block. Hand-written component primitives that Tailwind utilities can't express (`.btn`, `.tab-btn`, bracket connectors, keyframe animations) live alongside the tokens in `src/index.css` under `@layer components`. Brand tokens are mapped to both CSS custom properties and generated utilities (`bg-navy`, `text-crimson`, `font-serif`).
 - Icons: Lucide React for modern, vector iconography.
 - Backend: PHP + MariaDB/MySQL for the Family Predictions / Bolão feature.
 - Data Sources: Embedded team lists/rankings for the simulator; FIFA official JSON feed for automatic results sync in predictions.
@@ -27,10 +27,12 @@
 - CSS classes: kebab-case (e.g., `bracket-card`, `team-row`, `predictions-container`).
 
 ## 4. Design & Style Invariants
-- High-end dark theme with sport accents (deep indigo/slate background, neon green, electric violet, gold).
-- Pure CSS styling (no Tailwind CSS, for maximum styling flexibility and to keep CSS isolated in `index.css` and dedicated CSS files).
+- Editorial light theme with sport accents: cream paper background (`#fcfbfa`), **editorial crimson** (`#b00000`), **telegraph navy** (`#0d1e36`), and **gold** (`#c5a059`), with Georgia serif headings and Inter body text.
+- Styling is **Tailwind CSS v4** (loaded via `@tailwindcss/vite`). Components style inline with Tailwind utilities; the brand palette is exposed as generated utilities (`bg-crimson`, `text-navy`, `border-gold`, `font-serif`, …) backed by `@theme` design tokens.
+- Styling that Tailwind utilities can't express — shared primitives (`.btn`, `.tab-btn`), bracket connectors, and keyframe animations — is kept as hand-written CSS in `@layer components` of `src/index.css`, which is the **single** CSS entry point (imported once by `src/main.tsx`). There are no per-feature stylesheets; the old `src/styles/` directory has been removed and a Vitest test guards against its return.
+- Custom responsive variants `phone:` (≤600px) and `tablet:` (≤1024px) mirror the former responsive tiers.
 - Transitions and micro-animations on all interactive items (hover effects, card scaling, active state changes).
-- Responsive layouts using CSS Flexbox and Grid.
+- Responsive layouts using CSS Flexbox and Grid (composed through Tailwind utilities).
 - Confetti celebration upon crowning a champion.
 
 ## 5. Security & Accessibility Mandates
