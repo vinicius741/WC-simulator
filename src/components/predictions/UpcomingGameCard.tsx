@@ -62,29 +62,29 @@ export default function UpcomingGameCard({ game, playerName, onSave, onOpenHisto
   }
 
   return (
-    <div className="pred-game-card">
-      <div className="pred-game-meta">
-        <span className="pred-game-group">
+    <div className="pred-game-card bg-card border border-border flex flex-col gap-3 border-t-[3px] border-t-navy p-3.5 phone:!p-3">
+      <div className="pred-game-meta flex justify-between items-baseline gap-2 font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary border-b border-border pb-2 phone:!flex-wrap phone:!row-gap-1">
+        <span>
           {game.group_letter ? t('groupLetter', { letter: game.group_letter }) : t('predMatch')}
         </span>
-        <span className="pred-game-kickoff">
+        <span className="text-right font-semibold tracking-normal normal-case phone:!block phone:!w-full phone:!text-right">
           {formatKickoff(game.kickoff_utc, language)}
           {rel && (
-            <span className={`pred-rel pred-rel-${rel.dir}`}>
+            <span className={`text-[10px] phone:!block phone:!w-full phone:!text-right ${rel.dir === 'future' ? 'text-accent-green' : 'text-accent-gray'}`}>
               {' '}· {rel.dir === 'future' ? t('predStartsIn', { x: rel.text }) : t('predStartedAgo', { x: rel.text })}
             </span>
           )}
         </span>
       </div>
 
-      <div className="pred-game-match">
-        <div className="pred-team">
-          <span className="pred-flag">{game.home_flag ?? ''}</span>
-          <span className="pred-team-name">{homeDisplay}</span>
+      <div className="pred-game-match flex items-center justify-between gap-2.5 phone:!gap-1.5">
+        <div className="pred-team flex items-center gap-2 flex-1 min-w-0 justify-end phone:!justify-end">
+          <span className="pred-team-name font-serif font-bold text-sm text-ink overflow-hidden text-ellipsis whitespace-nowrap phone:!text-xs phone:!whitespace-normal phone:!leading-tight">{homeDisplay}</span>
+          <span className="pred-flag text-[22px] flex-shrink-0 phone:!text-[18px]">{game.home_flag ?? ''}</span>
         </div>
-        <div className="pred-score-inputs">
+        <div className="pred-score-inputs flex items-center gap-2 flex-shrink-0">
           <input
-            className="pred-score-input"
+            className="pred-score-input w-12 text-center font-sans font-bold text-base p-[7px_4px] border border-border rounded-sm bg-bg-secondary text-ink tabular-nums focus:outline-none focus:border-crimson phone:!w-[52px] phone:!min-h-11 phone:!p-[10px_4px]"
             type="number"
             min={0}
             max={30}
@@ -93,9 +93,9 @@ export default function UpcomingGameCard({ game, playerName, onSave, onOpenHisto
             inputMode="numeric"
             aria-label={homeDisplay}
           />
-          <span className="pred-score-sep">–</span>
+          <span className="pred-score-sep text-text-muted font-bold">–</span>
           <input
-            className="pred-score-input"
+            className="pred-score-input w-12 text-center font-sans font-bold text-base p-[7px_4px] border border-border rounded-sm bg-bg-secondary text-ink tabular-nums focus:outline-none focus:border-crimson phone:!w-[52px] phone:!min-h-11 phone:!p-[10px_4px]"
             type="number"
             min={0}
             max={30}
@@ -105,22 +105,26 @@ export default function UpcomingGameCard({ game, playerName, onSave, onOpenHisto
             aria-label={awayDisplay}
           />
         </div>
-        <div className="pred-team">
-          <span className="pred-flag">{game.away_flag ?? ''}</span>
-          <span className="pred-team-name">{awayDisplay}</span>
+        <div className="pred-team flex items-center gap-2 flex-1 min-w-0 justify-start phone:!justify-start">
+          <span className="pred-flag text-[22px] flex-shrink-0 phone:!text-[18px]">{game.away_flag ?? ''}</span>
+          <span className="pred-team-name font-serif font-bold text-sm text-ink overflow-hidden text-ellipsis whitespace-nowrap phone:!text-xs phone:!whitespace-normal phone:!leading-tight">{awayDisplay}</span>
         </div>
       </div>
 
-      <button type="button" className="pred-history-open" onClick={onOpenHistory}>
+      <button
+        type="button"
+        className="pred-history-open self-center inline-flex items-center gap-1.5 p-[3px_2px] border-0 border-b border-transparent bg-transparent text-navy font-sans text-xs font-bold cursor-pointer hover:border-current focus:border-current focus:outline-none phone:!min-h-11 phone:!p-2"
+        onClick={onOpenHistory}
+      >
         <span aria-hidden="true">◷</span>
         {t('predHistoryOpen')}
       </button>
 
-      <div className="pred-game-actions">
-        <span className="pred-status-text">
-          {hasPick && status !== 'saved' && <span className="pred-saved-tag">{t('predPickSaved')}</span>}
-          {status === 'saved' && <span className="pred-inline-ok">✓ {t('predSaved')}</span>}
-          {err && <span className="pred-inline-error">{err}</span>}
+      <div className="pred-game-actions flex justify-between items-center gap-2.5">
+        <span className="text-xs min-h-4">
+          {hasPick && status !== 'saved' && <span className="font-serif italic text-navy">{t('predPickSaved')}</span>}
+          {status === 'saved' && <span className="text-accent-green font-semibold">✓ {t('predSaved')}</span>}
+          {err && <span className="text-crimson font-semibold">{err}</span>}
         </span>
         <button
           className="btn btn-primary"

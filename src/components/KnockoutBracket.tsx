@@ -71,14 +71,14 @@ export function KnockoutBracket({
   // Helper to render team name/flag or placeholder
   const renderTeamName = (teamId: string | undefined, placeholderText: string) => {
     if (!teamId) {
-      return <span className="ko-team-placeholder">{placeholderText}</span>;
+      return <span className="text-[11px] text-text-muted italic">{placeholderText}</span>;
     }
     const team = teamMap[teamId];
     const displayTeamName = team ? t(team.id) : teamId;
     return (
-      <div className="ko-team-info">
-        <span className="team-flag">{team?.flag}</span>
-        <span className="team-name" title={displayTeamName}>{displayTeamName}</span>
+      <div className="flex items-center gap-1.5 font-medium overflow-hidden text-ellipsis whitespace-nowrap flex-1 min-w-0">
+        <span className="team-flag text-sm">{team?.flag}</span>
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap" title={displayTeamName}>{displayTeamName}</span>
       </div>
     );
   };
@@ -138,15 +138,20 @@ export function KnockoutBracket({
     const showScore = score !== null && score !== undefined && match.winner !== '';
     return (
       <div
-        className={`ko-team-row ${!teamId ? 'placeholder' : ''} ${isWinner ? 'winner' : ''}`}
+        className={`ko-team-row flex justify-between items-center py-[7px] pl-2.5 pr-2 cursor-pointer transition-all duration-150 ease-out relative text-xs border-b border-border-soft gap-1.5 last:border-b-0 ${!teamId ? 'text-text-muted not-allowed italic text-[11px]' : ''} ${isWinner ? 'text-crimson font-bold' : ''}`}
+        style={isWinner ? { background: 'rgba(176, 0, 0, 0.04)' } : undefined}
         onClick={() => teamId && onSelectWinner(match.id, side)}
       >
         {renderTeamName(teamId || undefined, getPlaceholderText(match, side))}
-        <div className="ko-team-meta">
-          {showScore && <span className="ko-team-score">{score}</span>}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {showScore && (
+            <span className={`font-bold text-xs text-ink min-w-[14px] text-center tabular-nums ${isWinner ? '!text-crimson' : ''}`}>
+              {score}
+            </span>
+          )}
           {teamId && isWinner && (
             <button
-              className={`penalty-btn ${match.penaltyWinner === side ? 'active' : ''}`}
+              className={`bg-bg-tertiary border border-border text-text-secondary text-[8px] font-bold px-[5px] py-0.5 rounded-sm cursor-pointer flex-shrink-0 uppercase transition-all duration-150 ease-out hover:border-crimson hover:text-crimson ${match.penaltyWinner === side ? '!bg-crimson !text-white !border-crimson' : ''} phone:!min-w-11 phone:!min-h-11 phone:!text-[11px] phone:!px-2.5 phone:!py-1.5`}
               onClick={(e) => handlePenaltyToggle(match.id, side, e)}
               title={t('pkTooltip')}
             >
@@ -170,12 +175,24 @@ export function KnockoutBracket({
 
   const renderMatchCard = (match: KnockoutMatch) => {
     return (
-      <div className="ko-match-card" data-match-id={match.id} key={match.id}>
-        <div className="ko-match-header">
-          <span className="ko-match-label">{getMatchLabel(match.label)}</span>
-          <span className="ko-match-stage-tag">{stageShortLabel(match.stage)}</span>
+      <div
+        key={match.id}
+        className="
+          ko-match-card bg-card border border-border w-full relative border-l-[3px] border-l-navy
+          transition-[border-color,box-shadow] duration-150 ease-out
+          hover:border-l-crimson
+          phone:max-w-[460px] phone:mx-auto
+        "
+        style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+        data-match-id={match.id}
+      >
+        <div className="ko-match-header bg-bg-tertiary px-2 py-1 text-[9px] font-bold text-text-secondary border-b border-border flex justify-between items-center uppercase tracking-[0.4px] phone:text-[11px] phone:px-2.5 phone:py-1.5 phone:tracking-[0.3px]">
+          <span className="font-bold text-ink">{getMatchLabel(match.label)}</span>
+          <span className="bg-navy text-white px-[5px] text-[8px] tracking-[0.5px] rounded-sm phone:text-[10px] phone:px-1.5 phone:py-0.5">
+            {stageShortLabel(match.stage)}
+          </span>
         </div>
-        <div className="ko-match-teams">
+        <div className="flex flex-col">
           {renderTeamRow(match, 'home')}
           {renderTeamRow(match, 'away')}
         </div>
@@ -259,11 +276,11 @@ export function KnockoutBracket({
       return (
         <React.Fragment key={`conn-${target.id}`}>
           <div
-            className="bracket-connector-vertical"
+            className="bracket-connector-vertical tablet:!hidden"
             style={{ top: `${upperCenter}px`, height: `${lowerCenter - upperCenter}px` }}
           />
           <div
-            className="bracket-connector-stub"
+            className="bracket-connector-stub tablet:!hidden"
             style={{ top: `${targetCenter - 0.5}px`, left: '-18px', width: '18px' }}
           />
         </React.Fragment>
@@ -276,12 +293,33 @@ export function KnockoutBracket({
     if (activeStageFilter !== 'ALL' && activeStageFilter !== stageKey) return null;
 
     return (
-      <div className="bracket-column" key={stageKey} data-stage={stageKey}>
-        <div className="bracket-column-header">
-          <div className="bracket-column-title">{stage.label}</div>
-          <div className="bracket-column-subtitle">{stage.subtitle}</div>
+      <div
+        key={stageKey}
+        data-stage={stageKey}
+        className="
+          bracket-column flex flex-col flex-1 min-w-[220px] relative
+          tablet:!flex-1 tablet:basis-full tablet:w-full
+        "
+      >
+        <div className="text-center px-0 pb-2.5 mb-2.5 border-b-2 border-navy">
+          <div className="font-serif text-[15px] font-bold text-ink uppercase tracking-[1px] leading-tight">
+            {stage.label}
+          </div>
+          <div className="text-[10px] text-text-muted font-semibold uppercase tracking-[0.5px] mt-[3px]">
+            {stage.subtitle}
+          </div>
         </div>
-        <div className="bracket-column-body">
+        <div
+          className="
+            bracket-column-body block relative h-[1860px]
+            tablet:!h-auto tablet:!flex tablet:!flex-col tablet:!gap-3
+          "
+          style={{
+            ['--match-height' as string]: '96px',
+            ['--match-gap' as string]: '12px',
+            ['--slot' as string]: 'calc(var(--match-height) + var(--match-gap))',
+          }}
+        >
           {renderConnectors(stageKey)}
           {stage.matches.map((m) => {
             // 3rd-place card is rendered separately, below the Final
@@ -290,9 +328,9 @@ export function KnockoutBracket({
             if (top === undefined) return null;
             return (
               <div
-                className="bracket-cell"
                 key={m.id}
-                style={{ top: `${top}px` }}
+                className="bracket-cell absolute left-0 right-0 top-0 flex items-center z-[2] tablet:!static tablet:!h-auto"
+                style={{ top: `${top}px`, height: 'var(--match-height)' }}
               >
                 {renderMatchCard(m)}
               </div>
@@ -305,9 +343,9 @@ export function KnockoutBracket({
             if (top === undefined) return null;
             return (
               <div
-                className="bracket-cell"
                 key={tpm.id}
-                style={{ top: `${top}px` }}
+                className="bracket-cell absolute left-0 right-0 top-0 flex items-center z-[2] tablet:!static tablet:!h-auto"
+                style={{ top: `${top}px`, height: 'var(--match-height)' }}
               >
                 {renderMatchCard(tpm)}
               </div>
@@ -322,7 +360,12 @@ export function KnockoutBracket({
 
   return (
     <div>
-      <div className="info-banner">
+      <div
+        className="
+          info-banner bg-bg-tertiary border-l-4 border-l-navy text-ink px-[18px] py-3 text-[13px] mb-[25px] text-left
+          phone:!flex phone:!gap-2 phone:!items-start phone:!text-xs phone:!p-3.5
+        "
+      >
         <span>ℹ️</span>
         <span>
           {t('bracketInfoBanner')}
@@ -330,47 +373,40 @@ export function KnockoutBracket({
       </div>
 
       {/* Mobile / focused stage selector */}
-      <div className="bracket-stage-tabs">
-        <button
-          className={`stage-tab-btn ${activeStageFilter === 'ALL' ? 'active' : ''}`}
-          onClick={() => setActiveStageFilter('ALL')}
-        >
-          {t('stageAll')}
-        </button>
-        <button
-          className={`stage-tab-btn ${activeStageFilter === 'R32' ? 'active' : ''}`}
-          onClick={() => setActiveStageFilter('R32')}
-        >
-          {t('stageR32')}
-        </button>
-        <button
-          className={`stage-tab-btn ${activeStageFilter === 'R16' ? 'active' : ''}`}
-          onClick={() => setActiveStageFilter('R16')}
-        >
-          {t('stageR16')}
-        </button>
-        <button
-          className={`stage-tab-btn ${activeStageFilter === 'QF' ? 'active' : ''}`}
-          onClick={() => setActiveStageFilter('QF')}
-        >
-          {t('stageQF')}
-        </button>
-        <button
-          className={`stage-tab-btn ${activeStageFilter === 'SF' ? 'active' : ''}`}
-          onClick={() => setActiveStageFilter('SF')}
-        >
-          {t('stageSF')}
-        </button>
-        <button
-          className={`stage-tab-btn ${activeStageFilter === 'F' ? 'active' : ''}`}
-          onClick={() => setActiveStageFilter('F')}
-        >
-          {t('stageF')}
-        </button>
+      <div
+        className="
+          bracket-stage-tabs flex justify-center gap-1.5 mb-[15px] overflow-x-auto pb-[5px]
+          phone:!justify-start phone:!gap-2 phone:!pb-2 phone:[scrollbar-width:none] phone:phone-no-scrollbar
+        "
+      >
+        {(['ALL', 'R32', 'R16', 'QF', 'SF', 'F'] as const).map((key) => {
+          const label = key === 'ALL' ? t('stageAll') : key === 'R32' ? t('stageR32') : key === 'R16' ? t('stageR16') : key === 'QF' ? t('stageQF') : key === 'SF' ? t('stageSF') : t('stageF');
+          return (
+            <button
+              key={key}
+              className={`stage-tab-btn bg-bg-secondary border border-border text-text-secondary text-[11px] font-bold px-3.5 py-1.5 rounded-sm cursor-pointer whitespace-nowrap uppercase transition-all duration-150 ease-out phone:!min-h-11 phone:!px-3.5 phone:!py-2.5 ${activeStageFilter === key ? '!bg-navy !text-white !border-navy' : ''}`}
+              onClick={() => setActiveStageFilter(key)}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="bracket-wrapper">
-        <div className="bracket-grid">
+      <div
+        className="
+          bracket-wrapper overflow-x-auto px-0 pt-2.5 pb-[30px] mb-[50px] bg-bg-secondary border border-border border-t-[3px] border-t-navy
+          tablet:!overflow-x-visible tablet:!p-[10px_12px_24px]
+          phone:!p-[8px_10px_16px]
+        "
+      >
+        <div
+          className="
+            bracket-grid flex items-stretch gap-9 min-w-full p-[18px_18px_24px] relative
+            tablet:!flex-col tablet:!min-w-0 tablet:!gap-6 tablet:!p-0
+            phone:!gap-[18px]
+          "
+        >
           {renderColumn('R32')}
           {renderColumn('R16')}
           {renderColumn('QF')}
@@ -379,26 +415,53 @@ export function KnockoutBracket({
 
           {/* Champion column */}
           {(activeStageFilter === 'ALL' || activeStageFilter === 'F') && (
-            <div className="bracket-column bracket-column-champion" data-stage="CHAMP">
-              <div className="bracket-column-header">
-                <div className="bracket-column-title">{t('stageChampion')}</div>
-                <div className="bracket-column-subtitle">{t('crownedFromFinal')}</div>
+            <div
+              className="bracket-column bracket-column-champion min-w-[220px] basis-[240px] grow-0 shrink-0 tablet:basis-full tablet:w-full"
+              data-stage="CHAMP"
+            >
+              <div className="text-center px-0 pb-2.5 mb-2.5 border-b-2 border-navy">
+                <div className="font-serif text-[15px] font-bold text-ink uppercase tracking-[1px] leading-tight">
+                  {t('stageChampion')}
+                </div>
+                <div className="text-[10px] text-text-muted font-semibold uppercase tracking-[0.5px] mt-[3px]">
+                  {t('crownedFromFinal')}
+                </div>
               </div>
-              <div className="bracket-column-body">
+              <div
+                className="bracket-column-body block relative h-[1860px] tablet:!h-auto tablet:!flex tablet:!flex-col tablet:!gap-3"
+                style={{
+                  ['--match-height' as string]: '96px',
+                  ['--match-gap' as string]: '12px',
+                  ['--slot' as string]: 'calc(var(--match-height) + var(--match-gap))',
+                }}
+              >
                 <div
-                  className="bracket-cell"
+                  className="bracket-cell absolute left-0 right-0 top-0 flex items-center z-[2] tablet:!static tablet:!h-auto"
                   key="champion"
-                  style={{ top: `${matchTops['FINAL'] !== undefined ? matchTops['FINAL'] - 42 : 0}px` }}
+                  style={{ top: `${matchTops['FINAL'] !== undefined ? matchTops['FINAL'] - 42 : 0}px`, height: 'var(--match-height)' }}
                 >
                   {champTeam ? (
-                    <div className="champion-display-card">
-                      <h3>🏆 {t('worldChampionTitle')} 🏆</h3>
-                      <span className="champion-flag">{champTeam.flag}</span>
-                      <div className="champion-name">{t(champTeam.id)}</div>
-                      <div className="champion-code">{champTeam.code}</div>
+                    <div
+                      className="
+                        bg-bg-secondary border-2 border-gold p-[25px] text-center w-[220px]
+                        tablet:!w-full tablet:!max-w-[440px] tablet:!mx-auto
+                      "
+                      style={{ boxShadow: '0 4px 12px rgba(197, 160, 89, 0.15)' }}
+                    >
+                      <h3 className="font-serif text-base text-navy uppercase mb-2.5 border-b border-gold pb-1">
+                        🏆 {t('worldChampionTitle')} 🏆
+                      </h3>
+                      <span className="champion-flag text-5xl mb-2 inline-block">{champTeam.flag}</span>
+                      <div className="champion-name font-serif text-xl font-bold text-ink">{t(champTeam.id)}</div>
+                      <div className="champion-code text-[11px] text-text-secondary font-bold">{champTeam.code}</div>
                     </div>
                   ) : (
-                    <div className="champion-empty">
+                    <div
+                      className="
+                        w-[220px] h-[180px] border-2 border-dashed border-border flex flex-col items-center justify-center text-text-muted text-xs gap-2
+                        tablet:!w-full tablet:!h-auto tablet:!min-h-[150px] tablet:!p-6
+                      "
+                    >
                       <span>🏆</span>
                       <span>{t('predictTheChampion')}</span>
                     </div>

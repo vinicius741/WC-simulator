@@ -9,9 +9,18 @@ interface Props {
   onChanged: () => Promise<void>;
 }
 
+const fieldInputClass =
+  'p-[9px_10px] border border-border rounded-sm font-sans text-sm text-text-primary bg-bg-secondary focus:outline-none focus:border-navy phone:!text-base phone:!min-h-11';
+const fieldSpanClass =
+  'font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary';
+const errorBanner = 'text-[13px] mb-5 py-2.5 px-3.5';
+const errorBannerStyle = { background: 'rgba(176, 0, 0, 0.08)', borderLeft: '4px solid var(--accent-red)', color: 'var(--accent-red)' };
+const successBanner = 'text-[13px] font-semibold mb-3 py-2 px-3';
+const successBannerStyle = { background: 'rgba(46, 125, 50, 0.08)', borderLeft: '4px solid var(--accent-green)', color: 'var(--accent-green)' };
+
 export default function AdminPanel({ games, onChanged }: Props) {
   return (
-    <div className="admin-panel">
+    <div className="flex flex-col gap-6 mb-6">
       <ResultEntry games={games} onChanged={onChanged} />
       <AddGame onChanged={onChanged} />
       <ShareLink />
@@ -61,21 +70,21 @@ function ResultEntry({ games, onChanged }: { games: PredictionGame[]; onChanged:
 
   if (candidates.length === 0) {
     return (
-      <div className="admin-subpanel">
-        <h3 className="admin-subpanel-title">{t('predAdminResultTitle')}</h3>
-        <p className="predictions-empty">{t('predAdminNoStarted')}</p>
+      <div className="bg-bg-tertiary border border-border border-l-4 border-l-gold p-4 px-[18px]">
+        <h3 className="font-serif text-base font-bold text-navy uppercase tracking-[0.5px] mb-1">{t('predAdminResultTitle')}</h3>
+        <p className="font-serif italic text-text-muted py-3">{t('predAdminNoStarted')}</p>
       </div>
     );
   }
 
   return (
-    <div className="admin-subpanel">
-      <h3 className="admin-subpanel-title">{t('predAdminResultTitle')}</h3>
+    <div className="bg-bg-tertiary border border-border border-l-4 border-l-gold p-4 px-[18px]">
+      <h3 className="font-serif text-base font-bold text-navy uppercase tracking-[0.5px] mb-1">{t('predAdminResultTitle')}</h3>
       <p className="section-desc">{t('predAdminResultDesc')}</p>
-      <form className="admin-form" onSubmit={submit}>
-        <label className="predictions-field">
-          <span>{t('predAdminSelectGame')}</span>
-          <select value={gameId} onChange={(e) => setGameId(e.target.value)}>
+      <form className="flex flex-col gap-3 mt-3" onSubmit={submit}>
+        <label className="flex flex-col gap-[5px]">
+          <span className={fieldSpanClass}>{t('predAdminSelectGame')}</span>
+          <select className={fieldInputClass} value={gameId} onChange={(e) => setGameId(e.target.value)}>
             <option value="">—</option>
             {candidates.map((g) => (
               <option key={g.id} value={g.id}>
@@ -85,18 +94,18 @@ function ResultEntry({ games, onChanged }: { games: PredictionGame[]; onChanged:
             ))}
           </select>
         </label>
-        <div className="admin-score-row">
-          <label className="predictions-field">
-            <span>{t('predAdminHome')}</span>
-            <input type="number" min={0} max={30} value={home} onChange={(e) => setHome(e.target.value)} inputMode="numeric" />
+        <div className="admin-score-row grid grid-cols-2 gap-3 phone:!grid-cols-1">
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminHome')}</span>
+            <input className={fieldInputClass} type="number" min={0} max={30} value={home} onChange={(e) => setHome(e.target.value)} inputMode="numeric" />
           </label>
-          <label className="predictions-field">
-            <span>{t('predAdminAway')}</span>
-            <input type="number" min={0} max={30} value={away} onChange={(e) => setAway(e.target.value)} inputMode="numeric" />
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminAway')}</span>
+            <input className={fieldInputClass} type="number" min={0} max={30} value={away} onChange={(e) => setAway(e.target.value)} inputMode="numeric" />
           </label>
         </div>
-        {msg && <div className="predictions-success">{msg}</div>}
-        {err && <div className="predictions-error">{err}</div>}
+        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
+        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy || !gameId || home === '' || away === ''}>
           {busy ? t('predSaving') : t('predAdminSubmitResult')}
         </button>
@@ -169,18 +178,18 @@ function AddGame({ onChanged }: { onChanged: () => Promise<void> }) {
   }
 
   return (
-    <div className="admin-subpanel">
-      <h3 className="admin-subpanel-title">{t('predAdminAddGameTitle')}</h3>
+    <div className="bg-bg-tertiary border border-border border-l-4 border-l-gold p-4 px-[18px]">
+      <h3 className="font-serif text-base font-bold text-navy uppercase tracking-[0.5px] mb-1">{t('predAdminAddGameTitle')}</h3>
       <p className="section-desc">{t('predAdminAddGameDesc')}</p>
-      <form className="admin-form" onSubmit={submit}>
-        <div className="admin-grid-2">
-          <label className="predictions-field">
-            <span>{t('predAdminExternalId')}</span>
-            <input value={externalId} onChange={(e) => setExternalId(e.target.value)} placeholder="group-A-2" />
+      <form className="flex flex-col gap-3 mt-3" onSubmit={submit}>
+        <div className="admin-grid-2 grid grid-cols-2 gap-3 phone:!grid-cols-1">
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminExternalId')}</span>
+            <input className={fieldInputClass} value={externalId} onChange={(e) => setExternalId(e.target.value)} placeholder="group-A-2" />
           </label>
-          <label className="predictions-field">
-            <span>{t('predAdminStage')}</span>
-            <select value={stage} onChange={(e) => setStage(e.target.value)}>
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminStage')}</span>
+            <select className={fieldInputClass} value={stage} onChange={(e) => setStage(e.target.value)}>
               <option value="group">Group</option>
               <option value="r32">R32</option>
               <option value="r16">R16</option>
@@ -189,46 +198,46 @@ function AddGame({ onChanged }: { onChanged: () => Promise<void> }) {
               <option value="final">Final</option>
             </select>
           </label>
-          <label className="predictions-field">
-            <span>{t('predAdminGroup')}</span>
-            <input value={groupLetter} onChange={(e) => setGroupLetter(e.target.value)} maxLength={1} placeholder="C" />
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminGroup')}</span>
+            <input className={fieldInputClass} value={groupLetter} onChange={(e) => setGroupLetter(e.target.value)} maxLength={1} placeholder="C" />
           </label>
-          <label className="predictions-field">
-            <span>{t('predAdminKickoff')}</span>
-            <input type="datetime-local" value={kickoff} onChange={(e) => setKickoff(e.target.value)} />
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminKickoff')}</span>
+            <input className={fieldInputClass} type="datetime-local" value={kickoff} onChange={(e) => setKickoff(e.target.value)} />
           </label>
         </div>
 
-        <div className="admin-team-grid">
-          <div className="admin-team-col">
-            <label className="predictions-field">
-              <span>{t('predAdminHome')}</span>
-              <input value={homeName} onChange={(e) => setHomeName(e.target.value)} placeholder={t('predAdminTeamName')} />
+        <div className="admin-team-grid grid grid-cols-2 gap-4 phone:!grid-cols-1">
+          <div className="admin-team-col flex flex-col gap-2">
+            <label className="flex flex-col gap-[5px] flex-1">
+              <span className={fieldSpanClass}>{t('predAdminHome')}</span>
+              <input className={fieldInputClass} value={homeName} onChange={(e) => setHomeName(e.target.value)} placeholder={t('predAdminTeamName')} />
             </label>
-            <div className="admin-grid-2">
-              <input value={homeCode} onChange={(e) => setHomeCode(e.target.value)} maxLength={6} placeholder={t('predAdminCode')} />
-              <input value={homeFlag} onChange={(e) => setHomeFlag(e.target.value)} placeholder={t('predAdminFlag')} />
+            <div className="admin-grid-2 grid grid-cols-2 gap-3 phone:!grid-cols-1">
+              <input className={fieldInputClass} value={homeCode} onChange={(e) => setHomeCode(e.target.value)} maxLength={6} placeholder={t('predAdminCode')} />
+              <input className={fieldInputClass} value={homeFlag} onChange={(e) => setHomeFlag(e.target.value)} placeholder={t('predAdminFlag')} />
             </div>
           </div>
-          <div className="admin-team-col">
-            <label className="predictions-field">
-              <span>{t('predAdminAway')}</span>
-              <input value={awayName} onChange={(e) => setAwayName(e.target.value)} placeholder={t('predAdminTeamName')} />
+          <div className="admin-team-col flex flex-col gap-2">
+            <label className="flex flex-col gap-[5px] flex-1">
+              <span className={fieldSpanClass}>{t('predAdminAway')}</span>
+              <input className={fieldInputClass} value={awayName} onChange={(e) => setAwayName(e.target.value)} placeholder={t('predAdminTeamName')} />
             </label>
-            <div className="admin-grid-2">
-              <input value={awayCode} onChange={(e) => setAwayCode(e.target.value)} maxLength={6} placeholder={t('predAdminCode')} />
-              <input value={awayFlag} onChange={(e) => setAwayFlag(e.target.value)} placeholder={t('predAdminFlag')} />
+            <div className="admin-grid-2 grid grid-cols-2 gap-3 phone:!grid-cols-1">
+              <input className={fieldInputClass} value={awayCode} onChange={(e) => setAwayCode(e.target.value)} maxLength={6} placeholder={t('predAdminCode')} />
+              <input className={fieldInputClass} value={awayFlag} onChange={(e) => setAwayFlag(e.target.value)} placeholder={t('predAdminFlag')} />
             </div>
           </div>
         </div>
 
-        <label className="predictions-field">
-          <span>{t('predAdminVenue')}</span>
-          <input value={venue} onChange={(e) => setVenue(e.target.value)} />
+        <label className="flex flex-col gap-[5px]">
+          <span className={fieldSpanClass}>{t('predAdminVenue')}</span>
+          <input className={fieldInputClass} value={venue} onChange={(e) => setVenue(e.target.value)} />
         </label>
 
-        {msg && <div className="predictions-success">{msg}</div>}
-        {err && <div className="predictions-error">{err}</div>}
+        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
+        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy}>
           {busy ? t('predSaving') : t('predAdminAddGameBtn')}
         </button>
@@ -269,24 +278,24 @@ function ChangePassword() {
   }
 
   return (
-    <div className="admin-subpanel">
-      <h3 className="admin-subpanel-title">{t('predAdminPwTitle')}</h3>
-      <form className="admin-form" onSubmit={submit}>
-        <div className="admin-grid-2">
-          <label className="predictions-field">
-            <span>{t('predAdminPwType')}</span>
-            <select value={type} onChange={(e) => setType(e.target.value as 'shared' | 'admin')}>
+    <div className="bg-bg-tertiary border border-border border-l-4 border-l-gold p-4 px-[18px]">
+      <h3 className="font-serif text-base font-bold text-navy uppercase tracking-[0.5px] mb-1">{t('predAdminPwTitle')}</h3>
+      <form className="flex flex-col gap-3 mt-3" onSubmit={submit}>
+        <div className="admin-grid-2 grid grid-cols-2 gap-3 phone:!grid-cols-1">
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminPwType')}</span>
+            <select className={fieldInputClass} value={type} onChange={(e) => setType(e.target.value as 'shared' | 'admin')}>
               <option value="shared">{t('predAdminShared')}</option>
               <option value="admin">{t('predAdmin')}</option>
             </select>
           </label>
-          <label className="predictions-field">
-            <span>{t('predAdminNewPassword')}</span>
-            <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} />
+          <label className="flex flex-col gap-[5px]">
+            <span className={fieldSpanClass}>{t('predAdminNewPassword')}</span>
+            <input className={fieldInputClass} type="password" value={pw} onChange={(e) => setPw(e.target.value)} />
           </label>
         </div>
-        {msg && <div className="predictions-success">{msg}</div>}
-        {err && <div className="predictions-error">{err}</div>}
+        {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
+        {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
         <button type="submit" className="btn btn-primary" disabled={busy || pw === ''}>
           {busy ? t('predSaving') : t('predAdminChangePwBtn')}
         </button>
@@ -373,19 +382,25 @@ function ShareLink() {
   }
 
   return (
-    <div className="admin-subpanel">
-      <h3 className="admin-subpanel-title">{t('predAdminShareTitle')}</h3>
+    <div className="bg-bg-tertiary border border-border border-l-4 border-l-gold p-4 px-[18px]">
+      <h3 className="font-serif text-base font-bold text-navy uppercase tracking-[0.5px] mb-1">{t('predAdminShareTitle')}</h3>
       <p className="section-desc">{t('predAdminShareDesc')}</p>
 
       {loading ? (
-        <p className="predictions-empty">{t('predLoading')}</p>
+        <p className="font-serif italic text-text-muted py-3">{t('predLoading')}</p>
       ) : url ? (
         <>
-          <label className="predictions-field admin-share-field">
-            <span>{t('predAdminShareUrl')}</span>
-            <input className="admin-share-url" value={url} readOnly onFocus={(e) => e.target.select()} />
+          <label className="flex flex-col gap-[5px] mt-3.5">
+            <span className={fieldSpanClass}>{t('predAdminShareUrl')}</span>
+            <input
+              className="w-full p-[9px_10px] border border-border rounded-sm font-sans text-sm text-text-primary bg-bg-secondary focus:outline-none focus:border-navy phone:!text-base phone:!min-h-11"
+              style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', fontSize: '12.5px', wordBreak: 'break-all' }}
+              value={url}
+              readOnly
+              onFocus={(e) => e.target.select()}
+            />
           </label>
-          <div className="admin-share-actions">
+          <div className="flex flex-wrap gap-2 mt-3">
             <button type="button" className="btn" onClick={copy}>
               {copied ? t('predAdminShareCopied') : t('predAdminShareCopy')}
             </button>
@@ -396,20 +411,20 @@ function ShareLink() {
               {enabled ? t('predAdminShareDisable') : t('predAdminShareEnable')}
             </button>
           </div>
-          <p className="admin-share-status">
+          <p className="mt-2.5 m-0 font-sans text-xs font-bold uppercase tracking-[0.5px] text-text-secondary">
             {enabled ? t('predAdminShareEnabled') : t('predAdminShareDisabled')}
           </p>
         </>
       ) : (
-        <div className="admin-share-actions">
+        <div className="flex flex-wrap gap-2 mt-3">
           <button type="button" className="btn btn-primary" onClick={() => generate(false)} disabled={busy}>
             {busy ? t('predSaving') : t('predAdminShareGenerate')}
           </button>
         </div>
       )}
 
-      {msg && <div className="predictions-success">{msg}</div>}
-      {err && <div className="predictions-error">{err}</div>}
+      {msg && <div className={successBanner} style={successBannerStyle}>{msg}</div>}
+      {err && <div className={errorBanner} style={errorBannerStyle}>{err}</div>}
     </div>
   );
 }

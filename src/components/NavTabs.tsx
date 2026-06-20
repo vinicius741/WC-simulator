@@ -18,28 +18,30 @@ const NavTabs: React.FC<NavTabsProps> = ({ activeTab, onTabChange, knockoutEnabl
     active?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
   }, [activeTab]);
 
+  const tabClass = (isActive: boolean) =>
+    'tab-btn phone:min-h-11 phone:px-3.5 phone:py-3 phone:text-xs phone:tracking-[0.5px] phone:whitespace-nowrap phone:flex-shrink-0' +
+    (isActive ? ' active' : '');
+
   return (
-    <nav className="nav-tabs" ref={navRef}>
-      <button
-        className={`tab-btn ${activeTab === 'predictions' ? 'active' : ''}`}
-        onClick={() => onTabChange('predictions')}
-      >
+    <nav
+      ref={navRef}
+      className="
+        nav-tabs flex justify-center border-b border-border bg-bg-secondary mb-[25px] p-0
+        tablet:mb-[18px]
+        phone:justify-start phone:overflow-x-auto phone:[scrollbar-width:none] phone:phone-no-scrollbar
+      "
+    >
+      <button className={tabClass(activeTab === 'predictions')} onClick={() => onTabChange('predictions')}>
         {t('tabPredictions')}
       </button>
-      <button
-        className={`tab-btn ${activeTab === 'groups' ? 'active' : ''}`}
-        onClick={() => onTabChange('groups')}
-      >
+      <button className={tabClass(activeTab === 'groups')} onClick={() => onTabChange('groups')}>
         {t('tabGroups')}
       </button>
-      <button
-        className={`tab-btn ${activeTab === 'third-place' ? 'active' : ''}`}
-        onClick={() => onTabChange('third-place')}
-      >
+      <button className={tabClass(activeTab === 'third-place')} onClick={() => onTabChange('third-place')}>
         {t('tabThirdPlace')}
       </button>
       <button
-        className={`tab-btn ${activeTab === 'knockout' ? 'active' : ''} ${!knockoutEnabled ? 'disabled' : ''}`}
+        className={`${tabClass(activeTab === 'knockout')} ${!knockoutEnabled ? 'disabled' : ''}`}
         onClick={() => knockoutEnabled && onTabChange('knockout')}
         title={!knockoutEnabled ? t('tabKnockoutTooltip') : ''}
         style={{ opacity: !knockoutEnabled ? 0.5 : 1, cursor: !knockoutEnabled ? 'not-allowed' : 'pointer' }}

@@ -1,21 +1,386 @@
 /* =============================================================================
-   Stylesheet entry point.
-   Imported once from src/main.tsx. This file only aggregates the split
-   stylesheets in src/styles/ — order matters for the cascade, so do not
-   reorder these imports:
-     tokens → base → chrome/buttons (primitives) → feature files → responsive.
-   All @media queries live in responsive.css and load last so they always win
-   over base rules. See src/styles/responsive.css for the breakpoint strategy.
+   Tailwind v4 entry point + the project's hand-written design layer.
+
+   Tailwind is loaded via the @tailwindcss/vite plugin; the `@import "tailwindcss"`
+   statement below pulls in preflight (the reset), the theme, and the utility
+   generator. Everything the family-pool/bracket UI needs that Tailwind's
+   utilities can't express lives in the hand-written layers below:
+
+     @theme          — design tokens (colors, fonts). Exposes them as CSS custom
+                        properties (--color-*) AND generates Tailwind utilities
+                        (bg-navy, text-crimson, font-serif, …) so components can
+                        style with the brand palette inline.
+     @layer base     — global element defaults + the additive iOS/mobile rules
+                        (text-size-adjust, overscroll, tap-highlight, 100dvh,
+                        .app-shell home-indicator padding, momentum scroll).
+     @layer components — shared primitives reused across many components
+                        (.btn family, .tab-btn, .section-title/desc, the bracket
+                         connectors, keyframe animations). Kept as CSS because
+                        they involve pseudo-elements, nth-child, or are applied
+                        as a single class name in dozens of places.
    ========================================================================== */
 
-@import './styles/tokens.css';
-@import './styles/base.css';
-@import './styles/chrome.css';
-@import './styles/buttons.css';
-@import './styles/groups.css';
-@import './styles/third-place.css';
-@import './styles/bracket.css';
-@import './styles/modal.css';
-@import './styles/predictions.css';
-@import './styles/admin.css';
-@import './styles/responsive.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+/* -----------------------------------------------------------------------------
+   Design tokens — the brand palette + font stacks, mapped to Tailwind.
+   -------------------------------------------------------------------------- */
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+
+  --color-bg-primary: #fcfbfa;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f5f3ef;
+  --color-card: #ffffff;
+
+  --color-crimson: #b00000;      /* Editorial Crimson Red */
+  --color-crimson-dark: #900000;
+  --color-navy: #0d1e36;         /* Telegraph Dark Navy */
+  --color-navy-dark: #060f1c;
+  --color-gold: #c5a059;
+  --color-gold-dark: #8a6f2e;
+  --color-accent-gray: #71767a;
+  --color-accent-green: #2e7d32;
+
+  --color-ink: #1a1a1a;
+  --color-text-secondary: #4a4a4a;
+  --color-text-muted: #7c7c7c;
+
+  --color-border: #e5e0d8;
+  --color-border-soft: #f1f0ec;
+
+  /* Mirror the values under the original var() names too, so any inline
+     style={{ color: 'var(--accent-red)' }} still resolves. */
+  --bg-primary: #fcfbfa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f3ef;
+  --card-bg: #ffffff;
+  --accent-red: #b00000;
+  --accent-navy: #0d1e36;
+  --accent-gold: #c5a059;
+  --accent-gray: #71767a;
+  --accent-green: #2e7d32;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #7c7c7c;
+  --border-color: #e5e0d8;
+  --border-hover: #b00000;
+  --serif: 'Georgia', 'Times New Roman', serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Custom breakpoints matching the former responsive.css tiers.
+   `phone:` → ≤600px, `tablet:` → ≤1024px. */
+@custom-variant phone (@media (max-width: 600px));
+@custom-variant tablet (@media (max-width: 1024px));
+
+/* -----------------------------------------------------------------------------
+   Base layer — document defaults + iOS/mobile additive rules.
+   -------------------------------------------------------------------------- */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;  /* kill the grey tap flash */
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;   /* stop iOS inflating text on rotation */
+    text-size-adjust: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: var(--color-bg-primary);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    overscroll-behavior-y: none;      /* no whole-page bounce / pull-to-refresh */
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+
+  /* suppress the long-press callout menu on UI chrome + emoji flags only
+     (text content stays selectable) */
+  img,
+  .team-flag,
+  .pred-flag,
+  .champion-flag,
+  .btn,
+  .tab-btn,
+  .stage-tab-btn,
+  button {
+    -webkit-touch-callout: none;
+  }
+
+  /* Momentum scrolling for horizontal overflow containers (no-op on desktop).
+     Scrollbar hiding for each container is handled with utilities per-component. */
+  .bracket-wrapper,
+  .bracket-stage-tabs,
+  .nav-tabs {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Components layer — shared primitives reused across the app.
+   -------------------------------------------------------------------------- */
+@layer components {
+  /* ---- Button primitives (.btn + variants). Reused by every feature. ---- */
+  .btn {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-ink);
+    color: var(--color-ink);
+    padding: 8px 18px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+  }
+  .btn:hover {
+    background: var(--color-ink);
+    color: #fff;
+  }
+  .btn-primary {
+    background: var(--color-crimson);
+    border-color: var(--color-crimson);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--color-crimson-dark);
+    border-color: var(--color-crimson-dark);
+  }
+  .btn-secondary {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+    color: #fff;
+  }
+  .btn-secondary:hover {
+    background: var(--color-navy-dark);
+    border-color: var(--color-navy-dark);
+  }
+  /* Destructive (delete) button — outline red, fills on hover. */
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--color-crimson);
+    color: var(--color-crimson);
+  }
+  .btn-danger:hover {
+    background: var(--color-crimson);
+    border-color: var(--color-crimson);
+    color: #fff;
+  }
+  .btn-danger:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ---- Top progress nav tab buttons. ---- */
+  .tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .tab-btn:hover {
+    color: var(--color-crimson);
+  }
+  .tab-btn.active {
+    color: var(--color-crimson);
+    border-bottom-color: var(--color-crimson);
+  }
+
+  /* ---- Language switcher buttons. ---- */
+  .lang-btn {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .lang-btn:hover {
+    border-color: var(--color-crimson);
+    color: var(--color-crimson);
+  }
+  .lang-btn.active {
+    background: var(--color-crimson);
+    border-color: var(--color-crimson);
+    color: #fff;
+  }
+
+  /* ---- Shared section heading + description. ---- */
+  .section-title {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  .section-desc {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    margin-bottom: 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 10px;
+  }
+
+  /* ---- Bracket connector lines (pseudo-elements / absolutely positioned
+     divs driven by inline top/height — can't be utility classes). ---- */
+
+  /* Short horizontal stub reaching halfway across the column gap. */
+  .bracket-cell::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -18px;
+    width: 18px;
+    height: 1px;
+    background: var(--color-border);
+    pointer-events: none;
+  }
+  .bracket-column:last-child .bracket-cell::after {
+    display: none;
+  }
+  /* Vertical connector joining two feeder stubs in the gap. */
+  .bracket-connector-vertical {
+    position: absolute;
+    left: -18px;
+    width: 1px;
+    background: var(--color-border);
+    pointer-events: none;
+    z-index: 1;
+  }
+  /* Horizontal stub from the middle of the vertical connector to the target. */
+  .bracket-connector-stub {
+    position: absolute;
+    left: -18px;
+    width: 18px;
+    height: 1px;
+    background: var(--color-border);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ---- Live scoreboard animations. ---- */
+  .pred-live-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--color-crimson);
+    margin-right: 8px;
+    flex-shrink: 0;
+    animation: pred-live-pulse 1.4s ease-in-out infinite;
+  }
+
+  .pred-live-score-bump {
+    animation: pred-score-bump 0.6s ease;
+  }
+
+  /* Hide scrollbars on horizontally-scrolling phone strips (nav tabs, login
+     tabs, bracket stage tabs). Firefox uses scrollbar-width:none via the
+     inline utility; this covers the webkit/blink scrollbar. */
+  .phone-no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Leaderboard on tablet/phone: switch to fixed layout so the 6 narrow
+     columns fit without horizontal scrolling, with explicit column widths
+     (rank/points/games/ppg/accuracy fixed; name takes the rest) and ellipsis
+     on long names. Mirrors the former responsive.css block. */
+  @media (max-width: 1024px) {
+    .pred-leaderboard-table {
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+    }
+    .pred-leaderboard-table th:nth-child(1),
+    .pred-leaderboard-table td:nth-child(1) { width: 9%; }   /* rank */
+    .pred-leaderboard-table th:nth-child(3),
+    .pred-leaderboard-table td:nth-child(3) { width: 14%; }  /* points */
+    .pred-leaderboard-table th:nth-child(4),
+    .pred-leaderboard-table td:nth-child(4) { width: 13%; }  /* games played */
+    .pred-leaderboard-table th:nth-child(5),
+    .pred-leaderboard-table td:nth-child(5) { width: 16%; }  /* pts/game */
+    .pred-leaderboard-table th:nth-child(6),
+    .pred-leaderboard-table td:nth-child(6) { width: 14%; }  /* accuracy */
+    /* name (col 2) takes the remaining ~34%; fixed layout lets ellipsis work */
+    .pred-leaderboard-table .pred-player-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  /* Locked-game reveal table on phones: fixed layout so long names wrap. */
+  @media (max-width: 600px) {
+    .pred-reveal-name {
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+/* Keyframes live outside @layer (they're top-level at-rules). */
+@keyframes pred-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(176, 0, 0, 0.45);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.18);
+    box-shadow: 0 0 0 5px rgba(176, 0, 0, 0);
+  }
+}
+
+@keyframes pred-score-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.25);
+    color: var(--color-gold);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
