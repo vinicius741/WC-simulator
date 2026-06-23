@@ -64,13 +64,9 @@ CREATE TABLE IF NOT EXISTS config (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Default scoring values (tweakable later via the admin panel).
--- efficiency_min_games: minimum scored games a player needs to appear on the
--- Efficiency (points-per-game) leaderboard, so a 1-game cherry-picker can't
--- camp at a perfect average. Defaults to 3.
 INSERT INTO config (config_key, config_value) VALUES
   ('points_exact', '3'),
-  ('points_result', '1'),
-  ('efficiency_min_games', '3')
+  ('points_result', '1')
 ON DUPLICATE KEY UPDATE config_value = VALUES(config_value);
 
 -- NOTE: shared_password_hash and admin_password_hash must be inserted separately

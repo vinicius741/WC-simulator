@@ -17,9 +17,9 @@ export interface PredictionsData {
  * Loads games + leaderboard for the Predictions tab and exposes a save()
  * that upserts a prediction then refreshes both.
  *
- * The leaderboard supports three scopes (overall / week / efficiency); only the
- * leaderboard is re-fetched when the scope changes — the game list is scope-
- * independent, so we avoid a redundant round-trip.
+ * The leaderboard supports two scopes (overall / week); only the leaderboard is
+ * re-fetched when the scope changes — the game list is scope-independent, so
+ * we avoid a redundant round-trip.
  */
 export function usePredictions(enabled: boolean): PredictionsData {
   const [games, setGames] = useState<PredictionGame[]>([]);

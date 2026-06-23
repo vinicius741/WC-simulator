@@ -47,7 +47,7 @@
     overflow-x: auto;
   }
 
-  /* Leaderboard fills the full page width on phones/tablets. Its 6 narrow
+  /* Leaderboard fills the full page width on phones/tablets. Its 5 narrow
      columns fit without scrolling, so keep it a real table — `display: block`
      (above) would otherwise shrink the anonymous inner table to content width
      and strand it on the left of the page with empty space on the right. */
@@ -57,16 +57,14 @@
     width: 100%;
   }
   .pred-leaderboard-table th:nth-child(1),
-  .pred-leaderboard-table td:nth-child(1) { width: 9%; }  /* rank */
+  .pred-leaderboard-table td:nth-child(1) { width: 10%; } /* rank */
   .pred-leaderboard-table th:nth-child(3),
-  .pred-leaderboard-table td:nth-child(3) { width: 14%; } /* points */
+  .pred-leaderboard-table td:nth-child(3) { width: 16%; } /* points */
   .pred-leaderboard-table th:nth-child(4),
-  .pred-leaderboard-table td:nth-child(4) { width: 13%; } /* games played */
+  .pred-leaderboard-table td:nth-child(4) { width: 16%; } /* games played */
   .pred-leaderboard-table th:nth-child(5),
-  .pred-leaderboard-table td:nth-child(5) { width: 16%; } /* pts/game */
-  .pred-leaderboard-table th:nth-child(6),
-  .pred-leaderboard-table td:nth-child(6) { width: 14%; } /* accuracy */
-  /* name (col 2) takes the remaining ~34%; fixed layout lets ellipsis work */
+  .pred-leaderboard-table td:nth-child(5) { width: 16%; } /* accuracy */
+  /* name (col 2) takes the remaining ~42%; fixed layout lets ellipsis work */
   .pred-leaderboard-table .pred-player-name {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -463,4 +461,30 @@
   .pred-reveal-table td:nth-child(3) { width: 24%; }
   .pred-leaderboard-table th,
   .pred-leaderboard-table td { padding: 8px 6px; }
+
+  /* Leaderboard headers at phone width: the table is full-width but split into
+     5 fixed columns, so each header cell is only ~50-60px. The default header
+     style (uppercase, 12px, 0.5px tracking) makes labels like "ACCURACY" wider
+     than their column, so they wrap mid-token and pile up. Shrink the header
+     type, drop the tracking, let it wrap cleanly onto two lines if a
+     translation runs long, and give every column an explicit width (the player
+     name column takes the leftover share) so none collapse under
+     table-layout:fixed. These override the ≤1024px widths above (same
+     specificity, later in source = wins on phones). */
+  .pred-leaderboard-table th {
+    font-size: 10px;
+    letter-spacing: 0;
+    line-height: 1.25;
+    white-space: normal;
+  }
+  .pred-leaderboard-table th:nth-child(1),
+  .pred-leaderboard-table td:nth-child(1) { width: 9%; }   /* rank */
+  .pred-leaderboard-table th:nth-child(2),
+  .pred-leaderboard-table td:nth-child(2) { width: 32%; }  /* player */
+  .pred-leaderboard-table th:nth-child(3),
+  .pred-leaderboard-table td:nth-child(3) { width: 17%; }  /* points */
+  .pred-leaderboard-table th:nth-child(4),
+  .pred-leaderboard-table td:nth-child(4) { width: 17%; }  /* games */
+  .pred-leaderboard-table th:nth-child(5),
+  .pred-leaderboard-table td:nth-child(5) { width: 25%; }  /* accuracy */
 }

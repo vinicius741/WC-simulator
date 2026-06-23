@@ -10,7 +10,7 @@ interface Props {
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
-const SCOPES: LeaderboardScope[] = ['overall', 'week', 'efficiency'];
+const SCOPES: LeaderboardScope[] = ['overall', 'week'];
 
 export default function Leaderboard({ rows, scope, onScopeChange, loading }: Props) {
   const { t } = useLanguage();
@@ -20,23 +20,15 @@ export default function Leaderboard({ rows, scope, onScopeChange, loading }: Pro
   const scopeLabel: Record<LeaderboardScope, string> = {
     overall: t('predScopeOverall'),
     week: t('predScopeWeek'),
-    efficiency: t('predScopeEfficiency'),
   };
   const scopeTitle: Record<LeaderboardScope, string> = {
     overall: t('predScopeOverallTitle'),
     week: t('predScopeWeekTitle'),
-    efficiency: t('predScopeEfficiencyTitle'),
   };
   const scopeDesc: Record<LeaderboardScope, string> = {
     overall: t('predScopeOverallDesc'),
     week: t('predScopeWeekDesc'),
-    efficiency: t('predScopeEfficiencyDesc'),
   };
-
-  // Efficiency is ranked by average, so the headline number is points-per-game;
-  // the other two views still show the cumulative total as the main number, with
-  // points-per-game as a supporting column.
-  const isEfficiency = scope === 'efficiency';
 
   return (
     <section className="predictions-leaderboard">
@@ -66,7 +58,6 @@ export default function Leaderboard({ rows, scope, onScopeChange, loading }: Pro
             <th>{t('predPlayerCol')}</th>
             <th>{t('predPointsCol')}</th>
             <th>{t('predGamesCol')}</th>
-            <th title={t('predPpgHint')}>{t('predPpgCol')}</th>
             <th title={t('predAccuracyHint')}>{t('predAccuracyCol')}</th>
           </tr>
         </thead>
@@ -75,11 +66,8 @@ export default function Leaderboard({ rows, scope, onScopeChange, loading }: Pro
             <tr key={r.player_name} className={i < 3 ? 'pred-podium' : ''}>
               <td className="pred-rank">{i < 3 ? MEDALS[i] : i + 1}</td>
               <td className="pred-player-name">{r.player_name}</td>
-              <td className="pred-points-total">
-                {isEfficiency ? r.points_per_game.toFixed(2) : r.total}
-              </td>
+              <td className="pred-points-total">{r.total}</td>
               <td className="pred-games-count">{r.games_scored}</td>
-              <td className="pred-ppg">{r.points_per_game.toFixed(2)}</td>
               <td className="pred-margin-error">{r.margin_error}</td>
             </tr>
           ))}

@@ -508,18 +508,8 @@
   font-size: 15px;
 }
 
-/* Headline number is the per-game average on the Efficiency board; it gets the
-   same serif emphasis as the points total so the "main" column reads cleanly. */
-.pred-leaderboard-table .pred-ppg {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--accent-navy);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Header row: title/desc on the left, the Overall/This Week/Efficiency scope
-   toggle on the right. Stacks on narrow screens (see responsive.css). */
+/* Header row: title/desc on the left, the Overall/This Week scope toggle on
+   the right. Stacks on narrow screens (see responsive.css). */
 .pred-leaderboard-header {
   display: flex;
   flex-wrap: wrap;
