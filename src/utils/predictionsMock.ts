@@ -29,6 +29,7 @@ export const MOCK_GAMES: PredictionGame[] = [
     started: false,
     result_home: null,
     result_away: null,
+    penalty_winner: null,
     my_prediction: { predicted_home: 2, predicted_away: 1, points: null },
     predictions: null,
   },
@@ -51,6 +52,7 @@ export const MOCK_GAMES: PredictionGame[] = [
     started: false,
     result_home: null,
     result_away: null,
+    penalty_winner: null,
     my_prediction: null,
     predictions: null,
   },
@@ -73,6 +75,7 @@ export const MOCK_GAMES: PredictionGame[] = [
     started: true,
     result_home: 2,
     result_away: 0,
+    penalty_winner: null,
     my_prediction: { predicted_home: 2, predicted_away: 0, points: 3 },
     predictions: [
       { player_name: 'You', predicted_home: 2, predicted_away: 0, points: 3 },
@@ -99,6 +102,7 @@ export const MOCK_GAMES: PredictionGame[] = [
     started: true,
     result_home: null,
     result_away: null,
+    penalty_winner: null,
     my_prediction: { predicted_home: 1, predicted_away: 1, points: null },
     predictions: [
       { player_name: 'You', predicted_home: 1, predicted_away: 1, points: null },

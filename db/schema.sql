@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS games (
   venue             VARCHAR(120) NULL,
   result_home       TINYINT UNSIGNED NULL,                    -- actual final score (after extra time, NOT penalties)
   result_away       TINYINT UNSIGNED NULL,
+  penalty_winner    ENUM('home','away') NULL,                 -- shootout winner for drawn knockout games; NULL otherwise
   result_entered_at DATETIME     NULL,
   is_open           TINYINT(1)   NOT NULL DEFAULT 1,          -- admin can close a game to predictions early
   PRIMARY KEY (id),

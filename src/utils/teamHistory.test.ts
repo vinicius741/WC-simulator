@@ -22,6 +22,7 @@ function game(overrides: Partial<PredictionGame>): PredictionGame {
     started: false,
     result_home: null,
     result_away: null,
+    penalty_winner: null,
     my_prediction: null,
     predictions: null,
     ...overrides,

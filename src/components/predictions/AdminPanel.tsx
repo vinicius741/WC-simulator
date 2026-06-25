@@ -3,6 +3,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { api, ApiError } from '../../utils/apiClient';
 import { buildInviteUrl } from '../../utils/inviteRoute';
 import type { PredictionGame } from '../../types';
+import AutoFillKnockout from './AutoFillKnockout';
 
 interface Props {
   games: PredictionGame[];
@@ -12,6 +13,7 @@ interface Props {
 export default function AdminPanel({ games, onChanged }: Props) {
   return (
     <div className="admin-panel">
+      <AutoFillKnockout games={games} onChanged={onChanged} />
       <ResultEntry games={games} onChanged={onChanged} />
       <AddGame onChanged={onChanged} />
       <ShareLink />
@@ -30,9 +32,15 @@ function ResultEntry({ games, onChanged }: { games: PredictionGame[]; onChanged:
   const [gameId, setGameId] = useState<string>('');
   const [home, setHome] = useState('');
   const [away, setAway] = useState('');
+  const [penalty, setPenalty] = useState<'home' | 'away' | ''>('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  const selectedGame = useMemo(() => games.find((g) => g.id === Number(gameId)) || null, [games, gameId]);
+  const isKnockout = !!selectedGame && selectedGame.stage !== 'group';
+  const isDraw = home !== '' && away !== '' && Number(home) === Number(away);
+  const showPenalty = isKnockout && isDraw;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,13 +53,19 @@ function ResultEntry({ games, onChanged }: { games: PredictionGame[]; onChanged:
       setErr(t('predAdminInvalid'));
       return;
     }
+    // A drawn knockout game must declare a shootout winner.
+    if (isKnockout && h === a && !penalty) {
+      setErr(t('predAdminPenaltyRequired'));
+      return;
+    }
     setBusy(true);
     try {
-      await api.adminSetResult(id, h, a);
+      await api.adminSetResult(id, h, a, penalty || undefined);
       await onChanged();
       setMsg(t('predAdminResultSaved'));
       setHome('');
       setAway('');
+      setPenalty('');
     } catch (e2) {
       setErr(e2 instanceof ApiError ? e2.message : t('predSaveError'));
     } finally {
@@ -95,9 +109,19 @@ function ResultEntry({ games, onChanged }: { games: PredictionGame[]; onChanged:
             <input type="number" min={0} max={30} value={away} onChange={(e) => setAway(e.target.value)} inputMode="numeric" />
           </label>
         </div>
+        {showPenalty && (
+          <label className="predictions-field">
+            <span>{t('predAdminPenaltyWinner')}</span>
+            <select value={penalty} onChange={(e) => setPenalty(e.target.value as 'home' | 'away' | '')}>
+              <option value="">—</option>
+              <option value="home">{selectedGame?.home_team_name} ({t('predAdminPenaltyHome')})</option>
+              <option value="away">{selectedGame?.away_team_name} ({t('predAdminPenaltyAway')})</option>
+            </select>
+          </label>
+        )}
         {msg && <div className="predictions-success">{msg}</div>}
         {err && <div className="predictions-error">{err}</div>}
-        <button type="submit" className="btn btn-primary" disabled={busy || !gameId || home === '' || away === ''}>
+        <button type="submit" className="btn btn-primary" disabled={busy || !gameId || home === '' || away === '' || (showPenalty && !penalty)}>
           {busy ? t('predSaving') : t('predAdminSubmitResult')}
         </button>
       </form>

@@ -67,6 +67,7 @@ export interface PredictionGame {
   started: boolean;
   result_home: number | null;
   result_away: number | null;
+  penalty_winner: 'home' | 'away' | null; // shootout winner for drawn knockout games
   my_prediction: MyPrediction | null;
   predictions: RevealedPrediction[] | null; // present only once kickoff has passed
 }

@@ -10,7 +10,7 @@ $me = current_name();
 $games = $pdo->query(
     'SELECT id, external_id, stage, group_letter, home_team_id, away_team_id,
             home_team_name, away_team_name, home_code, away_code, home_flag, away_flag,
-            kickoff_utc, venue, result_home, result_away, is_open,
+            kickoff_utc, venue, result_home, result_away, penalty_winner, is_open,
             (kickoff_utc <= UTC_TIMESTAMP()) AS started
      FROM games
      ORDER BY kickoff_utc ASC, id ASC'
@@ -76,6 +76,7 @@ foreach ($games as $g) {
         'started'        => $started,
         'result_home'    => $g['result_home'] !== null ? (int) $g['result_home'] : null,
         'result_away'    => $g['result_away'] !== null ? (int) $g['result_away'] : null,
+        'penalty_winner' => $g['penalty_winner'] !== null ? (string) $g['penalty_winner'] : null,
         'my_prediction'  => $myPredictions[$id] ?? null,
         'predictions'    => $started ? ($revealedByGame[$id] ?? []) : null,
     ];

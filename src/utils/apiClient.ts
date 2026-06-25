@@ -160,14 +160,24 @@ export const api = {
     });
   },
 
-  async adminSetResult(gameId: number, resultHome: number, resultAway: number): Promise<void> {
+  async adminSetResult(
+    gameId: number,
+    resultHome: number,
+    resultAway: number,
+    penaltyWinner?: 'home' | 'away',
+  ): Promise<void> {
     if (USE_MOCK) {
       await wait(150);
       return;
     }
     await request('admin/result.php', {
       method: 'POST',
-      body: JSON.stringify({ game_id: gameId, result_home: resultHome, result_away: resultAway }),
+      body: JSON.stringify({
+        game_id: gameId,
+        result_home: resultHome,
+        result_away: resultAway,
+        penalty_winner: penaltyWinner,
+      }),
     });
   },
 
