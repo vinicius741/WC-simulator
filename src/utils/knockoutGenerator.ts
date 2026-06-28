@@ -54,7 +54,13 @@ function dbStageFor(schemaStage: string): string {
 export function generateRoundOf32(
   standingsByGroup: StandingsByGroup,
   qualifiedThirds: ThirdPlaceStanding[],
+  completeGroups?: Set<string> | string[],
 ): GeneratedKnockoutGame[] {
+  const completeGroupSet = completeGroups instanceof Set
+    ? completeGroups
+    : new Set(completeGroups ?? Object.keys(standingsByGroup));
+  const allGroupsComplete = completeGroupSet.size >= 12;
+
   // Which 8 third-place groups qualified, sorted — the Annex C lookup key.
   const qualifiedGroups = qualifiedThirds
     .filter((t) => t.qualified)
@@ -75,6 +81,9 @@ export function generateRoundOf32(
   const resolveSlot = (slot: string, matchId: string, side: Side): Team | null => {
     if (!slot) return null;
     if (slot === '3rd') {
+      // Annex C third-place allocation is only certain once every group's
+      // third-place comparison is settled.
+      if (!allGroupsComplete) return null;
       const slotDef = THIRD_PLACE_ALLOCATION_SLOTS.find(
         (s) => s.matchId === matchId && s.teamSide === side,
       );
@@ -86,6 +95,7 @@ export function generateRoundOf32(
     // '1E', '2A', etc. → position (1|2) + group letter.
     const num = slot.charAt(0);
     const grp = slot.substring(1);
+    if (!completeGroupSet.has(grp)) return null;
     const idx = num === '1' ? 0 : 1;
     return rankedById(grp, idx);
   };

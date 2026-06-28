@@ -5,11 +5,12 @@ import { useLanguage } from '../hooks/useLanguage';
 interface ThirdPlaceStandingsProps {
   thirdPlaceTeams: (Team & { group: string })[];
   selectedThirds: Set<string>;
+  disabledThirds: Set<string>;
   onToggleSelect: (teamId: string) => void;
   onSimulateThirds: () => void;
 }
 
-export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleSelect, onSimulateThirds }: ThirdPlaceStandingsProps) {
+export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, disabledThirds, onToggleSelect, onSimulateThirds }: ThirdPlaceStandingsProps) {
   const { t } = useLanguage();
   const selectedCount = selectedThirds.size;
 
@@ -52,7 +53,8 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px' }}>
         {thirdPlaceTeams.map(team => {
           const isSelected = selectedThirds.has(team.id);
-          const isDisabled = !isSelected && selectedCount >= 8;
+          const isEliminated = disabledThirds.has(team.id);
+          const isDisabled = isEliminated || (!isSelected && selectedCount >= 8);
 
           return (
             <div
@@ -90,7 +92,7 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
 
               <div>
                 <span className={`status-badge ${isSelected ? 'qualified' : 'eliminated'}`} style={{ cursor: 'pointer' }}>
-                  {isSelected ? t('qualifiedLabel') : t('selectLabel')}
+                  {isSelected ? t('qualifiedLabel') : isEliminated ? t('eliminatedLabel') : t('selectLabel')}
                 </span>
               </div>
             </div>
@@ -102,4 +104,3 @@ export function ThirdPlaceStandings({ thirdPlaceTeams, selectedThirds, onToggleS
 }
 
 export default ThirdPlaceStandings;
-

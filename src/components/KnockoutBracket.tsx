@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TEAMS } from '../data/teams';
+import { KNOCKOUT_MATCH_SCHEMA } from '../data/constants';
 import type { Team, KnockoutMatch } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
 
@@ -96,7 +97,8 @@ export function KnockoutBracket({
     }
 
     // Fallback for R32 group qualifiers
-    const code = side === 'home' ? match.home : match.away;
+    const schemaMatch = KNOCKOUT_MATCH_SCHEMA.find(schema => schema.id === match.id);
+    const code = (side === 'home' ? match.home : match.away) || (side === 'home' ? schemaMatch?.home : schemaMatch?.away) || '';
     if (code === '3rd') return t('placeholderBest3rd');
     if (!code) return t('placeholderTBD');
     const num = code.charAt(0);

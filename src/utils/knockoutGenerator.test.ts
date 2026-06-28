@@ -61,6 +61,28 @@ describe('generateRoundOf32 — slot resolution', () => {
     // Every game has both teams resolved.
     expect(r32.every((m) => m.home && m.away)).toBe(true);
   });
+
+  it('resolves only slots whose source groups are complete', () => {
+    const byGroup: StandingsByGroup = {};
+    for (const g of 'ABCDEFGHIJKL'.split('')) {
+      const ids = TEAMS.filter((t) => t.group === g).map((t) => t.id);
+      byGroup[g] = standingsFromOrder(g, ids);
+    }
+
+    const r32 = generateRoundOf32(byGroup, rankThirdPlaceTeams(byGroup), ['A', 'B']);
+
+    const fixedKnown = r32.find((m) => m.schemaId === 'R32_1')!;
+    expect(fixedKnown.home?.id).toBe(byGroup.A![1]!.team.id);
+    expect(fixedKnown.away?.id).toBe(byGroup.B![1]!.team.id);
+
+    const needsThirdPlaceAllocation = r32.find((m) => m.schemaId === 'R32_7')!;
+    expect(needsThirdPlaceAllocation.home?.id).toBe(byGroup.A![0]!.team.id);
+    expect(needsThirdPlaceAllocation.away).toBeNull();
+
+    const incompleteGroups = r32.find((m) => m.schemaId === 'R32_4')!;
+    expect(incompleteGroups.home).toBeNull();
+    expect(incompleteGroups.away).toBeNull();
+  });
 });
 
 describe('matchWinner / matchLoser', () => {

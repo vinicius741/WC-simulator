@@ -3,6 +3,11 @@ import confetti from 'canvas-confetti';
 import { TEAMS } from '../data/teams';
 import { GROUPS, KNOCKOUT_MATCH_SCHEMA, THIRD_PLACE_ALLOCATION_SLOTS } from '../data/constants';
 import {
+  CURRENT_GROUP_ORDERS,
+  ELIMINATED_TEAM_IDS,
+  FINALIZED_GROUPS,
+} from '../data/currentTournamentState';
+import {
   simulateMatch,
   allocateThirdPlaces,
   clearDownstreamMatches,
@@ -12,6 +17,7 @@ import useLocalStorage from './useLocalStorage';
 import {
   getInitialGroupTeams,
   getInitialKnockoutMatches,
+  getInitialSelectedThirdPlaceIds,
   getThirdPlaceTeamsFromGroups,
   getTopRatedThirdPlaceIds
 } from '../utils/initializers';
@@ -32,6 +38,8 @@ export interface TournamentEngineAPI {
   thirdPlaceTeams: (Team & { group: string })[];
   selectedCurrentThirds: Set<string>;
   allGroupsCompleted: boolean;
+  knockoutAvailable: boolean;
+  eliminatedTeamIds: Set<string>;
 
   // Group stage handlers
   handleReorderTeams: (groupLetter: string, startIndex: number, endIndex: number, position: 'before' | 'after') => void;
@@ -55,13 +63,26 @@ export function useTournamentEngine(): TournamentEngineAPI {
   // Predictions is the primary tab (it's listed first in NavTabs), so the app
   // lands there on a fresh load instead of the group rankings.
   const [activeTab, setActiveTab] = useState<string>('predictions');
-  // v3 resets stale pre-final-draw rosters (notably Poland in Group F) and
-  // knockout paths saved before the official bracket mapping was corrected.
-  const [groupTeams, setGroupTeams] = useLocalStorage<GroupTeamsMap>('wc2026_group_teams_v3', getInitialGroupTeams());
-  const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage<string[]>('wc2026_selected_thirds_v3', []);
-  const [knockoutMatches, setKnockoutMatches] = useLocalStorage<KnockoutMatch[]>('wc2026_knockout_matches_v3', getInitialKnockoutMatches());
-  const [champion, setChampion] = useLocalStorage<string>('wc2026_champion_v3', '');
+  // v5 resets stale pre-knockout simulations now that all group standings,
+  // qualified third-place teams, and eliminations are official.
+  const [groupTeams, setGroupTeams] = useLocalStorage<GroupTeamsMap>('wc2026_group_teams_v5', getInitialGroupTeams());
+  const [selectedThirdsArray, setSelectedThirdsArray] = useLocalStorage<string[]>('wc2026_selected_thirds_v5', getInitialSelectedThirdPlaceIds());
+  const [knockoutMatches, setKnockoutMatches] = useLocalStorage<KnockoutMatch[]>('wc2026_knockout_matches_v5', getInitialKnockoutMatches());
+  const [champion, setChampion] = useLocalStorage<string>('wc2026_champion_v5', '');
   const [showRecap, setShowRecap] = useState<boolean>(false);
+
+  const applyKnownGroupConstraints = (groupLetter: string, teams: Team[]): Team[] => {
+    const lockedOrder = CURRENT_GROUP_ORDERS[groupLetter];
+    if (FINALIZED_GROUPS.has(groupLetter) && lockedOrder) {
+      return lockedOrder
+        .map(id => TEAMS.find(team => team.id === id))
+        .filter((team): team is Team => !!team);
+    }
+
+    const activeTeams = teams.filter(team => !ELIMINATED_TEAM_IDS.has(team.id));
+    const eliminatedTeams = teams.filter(team => ELIMINATED_TEAM_IDS.has(team.id));
+    return [...activeTeams, ...eliminatedTeams];
+  };
 
   // ── Derived State ──────────────────────────────────────────────────────
 
@@ -84,13 +105,14 @@ export function useTournamentEngine(): TournamentEngineAPI {
   }, [selectedThirdsArray, currentThirdIds]);
 
   const allGroupsCompleted = selectedCurrentThirds.size === 8;
+  const knockoutAvailable = true;
 
   // ── Effects ────────────────────────────────────────────────────────────
 
   // Clean stale third-place selections when group rankings change
   useEffect(() => {
     setSelectedThirdsArray(prev => {
-      const next = prev.filter(id => currentThirdIds.has(id));
+      const next = prev.filter(id => currentThirdIds.has(id) && !ELIMINATED_TEAM_IDS.has(id));
       const unchanged = next.length === prev.length && next.every((id, index) => id === prev[index]);
       return unchanged ? prev : next;
     });
@@ -98,26 +120,13 @@ export function useTournamentEngine(): TournamentEngineAPI {
 
   // Sync R32 slots when group results or third-place selections change
   useEffect(() => {
-    if (selectedCurrentThirds.size !== 8) {
-      setKnockoutMatches(prev => prev.map(m => ({
-        ...m,
-        home: m.stage === 'R32' ? '' : m.home,
-        away: m.stage === 'R32' ? '' : m.away,
-        homeScore: null,
-        awayScore: null,
-        penaltyWinner: null,
-        winner: ''
-      })));
-      setChampion('');
-      return;
-    }
-
     const qualifiedThirdGroups = thirdPlaceTeams
       .filter(t => t.id && selectedCurrentThirds.has(t.id))
       .map(t => t.group)
       .sort();
 
     const allocation = allocateThirdPlaces(qualifiedThirdGroups);
+    const canAllocateThirds = selectedCurrentThirds.size === 8 && Object.keys(allocation).length === 8;
 
     let updatedKO: KnockoutMatch[] = knockoutMatches.map(m => {
       if (m.stage !== 'R32') return m;
@@ -130,7 +139,9 @@ export function useTournamentEngine(): TournamentEngineAPI {
       let newAway = '';
 
       if (origHome === '3rd') {
-        const slotDef = THIRD_PLACE_ALLOCATION_SLOTS.find(s => s.matchId === m.id && s.teamSide === 'home');
+        const slotDef = canAllocateThirds
+          ? THIRD_PLACE_ALLOCATION_SLOTS.find(s => s.matchId === m.id && s.teamSide === 'home')
+          : undefined;
         if (slotDef) {
           const allocatedGroup = allocation[slotDef.winner]!;
           newHome = groupTeams[allocatedGroup]?.[2]?.id || '';
@@ -143,7 +154,9 @@ export function useTournamentEngine(): TournamentEngineAPI {
       }
 
       if (origAway === '3rd') {
-        const slotDef = THIRD_PLACE_ALLOCATION_SLOTS.find(s => s.matchId === m.id && s.teamSide === 'away');
+        const slotDef = canAllocateThirds
+          ? THIRD_PLACE_ALLOCATION_SLOTS.find(s => s.matchId === m.id && s.teamSide === 'away')
+          : undefined;
         if (slotDef) {
           const allocatedGroup = allocation[slotDef.winner]!;
           newAway = groupTeams[allocatedGroup]?.[2]?.id || '';
@@ -251,17 +264,19 @@ export function useTournamentEngine(): TournamentEngineAPI {
 
   const handleReorderTeams = (groupLetter: string, startIndex: number, endIndex: number, position: 'before' | 'after') => {
     setGroupTeams(prev => {
+      if (FINALIZED_GROUPS.has(groupLetter)) return prev;
       const list = [...(prev[groupLetter] || [])];
       const [removed] = list.splice(startIndex, 1) as [Team];
       const adjustedEndIndex = startIndex < endIndex ? endIndex - 1 : endIndex;
       const insertIndex = position === 'after' ? adjustedEndIndex + 1 : adjustedEndIndex;
       list.splice(insertIndex, 0, removed);
-      return { ...prev, [groupLetter]: list };
+      return { ...prev, [groupLetter]: applyKnownGroupConstraints(groupLetter, list) };
     });
   };
 
   const handleMoveTeam = (groupLetter: string, index: number, direction: 'up' | 'down') => {
     setGroupTeams(prev => {
+      if (FINALIZED_GROUPS.has(groupLetter)) return prev;
       const list = [...(prev[groupLetter] || [])];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       if (targetIndex >= 0 && targetIndex < 4) {
@@ -269,22 +284,23 @@ export function useTournamentEngine(): TournamentEngineAPI {
         list[index] = list[targetIndex]!;
         list[targetIndex] = temp;
       }
-      return { ...prev, [groupLetter]: list };
+      return { ...prev, [groupLetter]: applyKnownGroupConstraints(groupLetter, list) };
     });
   };
 
   const handleSimulateGroup = (groupLetter: string) => {
     setGroupTeams(prev => {
+      if (FINALIZED_GROUPS.has(groupLetter)) return prev;
       const current = prev[groupLetter] || [];
       const ranked = simulateGroupRanking(current as Team[]);
-      return { ...prev, [groupLetter]: ranked };
+      return { ...prev, [groupLetter]: applyKnownGroupConstraints(groupLetter, ranked) };
     });
   };
 
   const handleSimulateAllGroups = () => {
     const next: GroupTeamsMap = {};
     GROUPS.forEach(g => {
-      next[g] = simulateGroupRanking(groupTeams[g] || []);
+      next[g] = applyKnownGroupConstraints(g, simulateGroupRanking(groupTeams[g] || []));
     });
     setGroupTeams(next);
     setSelectedThirdsArray(getTopRatedThirdPlaceIds(next));
@@ -294,6 +310,7 @@ export function useTournamentEngine(): TournamentEngineAPI {
 
   const handleToggleSelectThird = (teamId: string) => {
     if (!currentThirdIds.has(teamId)) return;
+    if (ELIMINATED_TEAM_IDS.has(teamId)) return;
     setSelectedThirdsArray(prev => {
       const set = new Set(prev.filter(id => currentThirdIds.has(id)));
       if (set.has(teamId)) {
@@ -382,7 +399,7 @@ export function useTournamentEngine(): TournamentEngineAPI {
 
   const handleReset = () => {
     setGroupTeams(getInitialGroupTeams());
-    setSelectedThirdsArray([]);
+    setSelectedThirdsArray(getInitialSelectedThirdPlaceIds());
     setKnockoutMatches(getInitialKnockoutMatches());
     setChampion('');
     setShowRecap(false);
@@ -403,6 +420,8 @@ export function useTournamentEngine(): TournamentEngineAPI {
     thirdPlaceTeams,
     selectedCurrentThirds,
     allGroupsCompleted,
+    knockoutAvailable,
+    eliminatedTeamIds: ELIMINATED_TEAM_IDS,
 
     // Group stage
     handleReorderTeams,

@@ -116,8 +116,8 @@ export const TRANSLATIONS = {
     predAdminPenaltyRequired: "A drawn knockout game needs a penalty-shootout winner.",
     predAdminSubmitResult: "Save result",
     autofillTitle: "Auto-fill knockout stage",
-    autofillDesc: "Generate the knockout bracket automatically from the real group-stage results, using the built-in simulator engine. Re-run a round any time to correct matchups if a result changes.",
-    autofillGroupIncomplete: "The group stage isn't complete yet — knockout games can't be generated until all 72 group matches have a result.",
+    autofillDesc: "Generate knockout games from the real results as soon as both teams are certain. Re-run any time to correct unplayed matchups if a result changes.",
+    autofillGroupIncomplete: "Some groups are still incomplete. Games whose two teams are already certain can still be generated.",
     autofillStandingsPreview: "Show group standings & qualified thirds",
     autofillQualifiedThirds: "8 best third-placed teams (qualified)",
     autofillGames: "games",
@@ -211,6 +211,7 @@ export const TRANSLATIONS = {
     bracketInfoBanner: "Click on a team to select them as the winner and advance them to the next round. Toggle the \"PK\" badge on the winner if the match went to penalties. Each match is positioned exactly between its two feeder matches so the round it belongs to is always obvious.",
     ratingLabel: "Rating",
     qualifiedLabel: "Qualified",
+    eliminatedLabel: "Eliminated",
     selectLabel: "Select",
 
     // Stages & Bracket Columns
@@ -428,8 +429,8 @@ export const TRANSLATIONS = {
     predAdminPenaltyRequired: "Um jogo de mata-mata empatado precisa do vencedor nos pênaltis.",
     predAdminSubmitResult: "Salvar resultado",
     autofillTitle: "Gerar mata-mata automaticamente",
-    autofillDesc: "Gera a chave do mata-mata automaticamente a partir dos resultados reais da fase de grupos, usando o simulador embutido. Reexecute uma fase a qualquer momento para corrigir confrontos se um resultado mudar.",
-    autofillGroupIncomplete: "A fase de grupos ainda não acabou — os jogos do mata-mata só podem ser gerados quando todas as 72 partidas dos grupos tiverem resultado.",
+    autofillDesc: "Gera jogos de mata-mata a partir dos resultados reais assim que os dois times forem certos. Reexecute a qualquer momento para corrigir jogos ainda não disputados se um resultado mudar.",
+    autofillGroupIncomplete: "Alguns grupos ainda não terminaram. Jogos que já têm os dois times certos ainda podem ser gerados.",
     autofillStandingsPreview: "Mostrar classificação e terceiros classificados",
     autofillQualifiedThirds: "8 melhores terceiros (classificados)",
     autofillGames: "jogos",
@@ -523,6 +524,7 @@ export const TRANSLATIONS = {
     bracketInfoBanner: "Clique em uma seleção para selecioná-la como vencedora e avançá-la para a próxima fase. Ative o selo \"PK\" (pênaltis) no vencedor se a partida foi decidida nos pênaltis. Cada partida está posicionada exatamente entre os seus dois jogos alimentadores para que a fase correspondente seja óbvia.",
     ratingLabel: "Força",
     qualifiedLabel: "Classificado",
+    eliminatedLabel: "Eliminado",
     selectLabel: "Selecionar",
 
     // Stages & Bracket Columns

@@ -57,7 +57,7 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
   );
 
   // Group the seeded group-stage games by letter, then compute standings.
-  const { standingsByGroup, groupComplete } = useMemo(() => {
+  const { standingsByGroup, groupComplete, groupCompleteByLetter } = useMemo(() => {
     const byGroup: Record<string, GroupResultMatch[]> = {};
     GROUPS.forEach((g) => { byGroup[g] = []; });
     games.forEach((g) => {
@@ -75,7 +75,18 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
       const teams = TEAMS.filter((tm) => tm.group === g);
       standings[g] = computeGroupStandings(byGroup[g] ?? [], teams);
     });
-    return { standingsByGroup: standings, groupComplete: isGroupStageComplete(byGroup) };
+    const completeByLetter: Record<string, boolean> = {};
+    GROUPS.forEach((g) => {
+      const played = (byGroup[g] ?? []).filter(
+        (m) => m.result_home !== null && m.result_away !== null,
+      ).length;
+      completeByLetter[g] = played >= 6;
+    });
+    return {
+      standingsByGroup: standings,
+      groupComplete: isGroupStageComplete(byGroup),
+      groupCompleteByLetter: completeByLetter,
+    };
   }, [games]);
 
   // Which round stages already exist as DB games, and which have all results in.
@@ -105,12 +116,8 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
   // The previous round must be fully decided before the next round unlocks.
   // The final and the 3rd-place play-off both depend directly on the semis.
   const canGenerate = (k: StageKey): boolean => {
-    if (k === 'R32') return groupComplete;
-    if (k === '3RD' || k === 'FINAL') return stageStatus.SF.decided >= stageStatus.SF.total;
-    const prevIdx = ROUND_ORDER.indexOf(k) - 1;
-    const prev = ROUND_ORDER[prevIdx];
-    if (!prev) return false;
-    return stageStatus[prev].decided >= stageStatus[prev].total;
+    if (k === 'R32') return Object.values(groupCompleteByLetter).some(Boolean);
+    return true;
   };
 
   const thirds = useMemo(() => rankThirdPlaceTeams(standingsByGroup), [standingsByGroup]);
@@ -129,16 +136,18 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
       if (!canGenerate(k)) {
         byRound[k] = [];
       } else if (k === 'R32') {
-        byRound[k] = generateRoundOf32(standingsByGroup, thirds);
+        const completeGroups = GROUPS.filter((g) => groupCompleteByLetter[g]);
+        byRound[k] = generateRoundOf32(standingsByGroup, thirds, completeGroups);
       } else {
         byRound[k] = generateNextRound(k, teamById, prevResults, prevLosers);
       }
     });
     return byRound;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [games, groupComplete, standingsByGroup, stageStatus, teamById, thirds]);
+  }, [games, groupCompleteByLetter, standingsByGroup, teamById, thirds]);
 
   const canUpsertGame = (game: GeneratedKnockoutGame): boolean => {
+    if (!game.home || !game.away) return false;
     const existing = existingByExternalId.get(game.externalId);
     return !existing || existing.result_home === null || existing.result_away === null;
   };
@@ -154,7 +163,7 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
     }
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generatedGamesByRound, groupComplete, stageStatus]);
+  }, [generatedGamesByRound]);
 
   const previewGames = previewRound ? generatedGamesByRound[previewRound] ?? [] : [];
 
@@ -165,6 +174,9 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
     let done = 0;
     try {
       for (const game of toUpsert) {
+        if (!canUpsertGame(game)) {
+          continue;
+        }
         // Safety: never overwrite a game that already has a result (don't wipe
         // a played/scored game). Upserting an unplayed game is safe and
         // idempotent — it just updates the team identities/seed data.
@@ -176,14 +188,14 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
           external_id: game.externalId,
           stage: game.stage,
           group_letter: null,
-          home_team_id: game.home?.id ?? null,
-          away_team_id: game.away?.id ?? null,
-          home_team_name: game.home?.name ?? 'TBD',
-          away_team_name: game.away?.name ?? 'TBD',
-          home_code: game.home?.code ?? null,
-          away_code: game.away?.code ?? null,
-          home_flag: game.home?.flag ?? null,
-          away_flag: game.away?.flag ?? null,
+          home_team_id: game.home.id,
+          away_team_id: game.away.id,
+          home_team_name: game.home.name,
+          away_team_name: game.away.name,
+          home_code: game.home.code,
+          away_code: game.away.code,
+          home_flag: game.home.flag,
+          away_flag: game.away.flag,
           kickoff_utc: game.kickoffUtc,
           venue: game.venue,
           is_open: true,
@@ -256,11 +268,11 @@ export default function AutoFillKnockout({ games, onChanged }: Props) {
       </ul>
 
       {/* Preview of the games about to be generated */}
-      {previewRound && previewGames.length > 0 && (
+      {previewRound && previewGames.filter(canUpsertGame).length > 0 && (
         <details className="autofill-details" open>
           <summary>{t('autofillPreview', { round: roundLabel(previewRound) })}</summary>
           <ul className="autofill-preview-list">
-            {previewGames.map((g) => (
+            {previewGames.filter(canUpsertGame).map((g) => (
               <li key={g.externalId}>
                 <span className="autofill-match-no">#{g.matchNo}</span>
                 <span className="autofill-teams">

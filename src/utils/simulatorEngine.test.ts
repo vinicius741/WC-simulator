@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { KNOCKOUT_MATCH_SCHEMA, THIRD_PLACE_ALLOCATION_SLOTS } from '../data/constants';
 import { TEAMS } from '../data/teams';
+import { ELIMINATED_TEAM_IDS, FINALIZED_GROUPS, LOCKED_QUALIFIED_THIRD_PLACE_IDS } from '../data/currentTournamentState';
 import { THIRD_PLACE_ALLOCATION_TABLE } from '../data/thirdPlaceAllocations';
 import type { KnockoutMatch } from '../types';
+import { getInitialGroupTeams, getInitialSelectedThirdPlaceIds, getTopRatedThirdPlaceIds } from './initializers';
 import { allocateThirdPlaces, clearDownstreamMatches } from './simulatorEngine';
 
 describe('finalized World Cup 2026 simulator data', () => {
@@ -20,6 +22,34 @@ describe('finalized World Cup 2026 simulator data', () => {
       expect(TEAMS.filter(team => team.group === group).map(team => team.id).join(' ')).toBe(ids);
     }
     expect(TEAMS.some(team => team.id === 'pol')).toBe(false);
+  });
+
+  it('starts from the current standings and locked official outcomes', () => {
+    const groups = getInitialGroupTeams();
+
+    expect(groups.B!.map(team => team.id)).toEqual(['sui', 'can', 'bih', 'qat']);
+    expect(groups.H!.map(team => team.id)).toEqual(['esp', 'cpv', 'uru', 'ksa']);
+    expect(groups.I!.map(team => team.id)).toEqual(['fra', 'nor', 'sen', 'irq']);
+    expect(groups.J!.map(team => team.id)).toEqual(['arg', 'aut', 'alg', 'jor']);
+    expect(groups.K!.map(team => team.id)).toEqual(['col', 'por', 'cod', 'uzb']);
+    expect(groups.L!.map(team => team.id)).toEqual(['eng', 'cro', 'gha', 'pan']);
+    expect(FINALIZED_GROUPS.size).toBe(12);
+    expect(FINALIZED_GROUPS.has('L')).toBe(true);
+    expect(ELIMINATED_TEAM_IDS.has('uru')).toBe(true);
+    expect(ELIMINATED_TEAM_IDS.has('uzb')).toBe(true);
+  });
+
+  it('preselects only official qualified thirds and never auto-selects eliminated thirds', () => {
+    const groups = getInitialGroupTeams();
+    const initialThirds = getInitialSelectedThirdPlaceIds();
+    const autoThirds = getTopRatedThirdPlaceIds(groups);
+
+    expect(new Set(initialThirds)).toEqual(LOCKED_QUALIFIED_THIRD_PLACE_IDS);
+    expect(initialThirds).toEqual(['bih', 'par', 'ecu', 'swe', 'sen', 'alg', 'cod', 'gha']);
+    expect(autoThirds).toEqual(expect.arrayContaining(initialThirds));
+    expect(autoThirds).toHaveLength(8);
+    expect(autoThirds).not.toContain('uru');
+    expect(autoThirds).not.toContain('uzb');
   });
 });
 

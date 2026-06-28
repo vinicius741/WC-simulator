@@ -113,12 +113,11 @@ passwords are set. You can delete `api/setup.php` from the server afterwards.
   **Admin tools** to open the dedicated `/admin` page. There you can:
   - **Enter a result** for a game that has kicked off → all picks are scored instantly.
   - **Add or edit a game** (e.g. a knockout match once teams are known).
-  - **Auto-fill the knockout stage** — once the 72 group matches have results,
-    click **Generate round** to build the Round of 32 automatically from the
-    real standings + the simulator's FIFA Annex C engine, then each later round
-    (R16 → QF → SF → Final & 3rd place) as the previous round's results land.
-    Re-running a round is safe and idempotent (it corrects matchups if a group
-    result changes, and never overwrites a played game). Drawn knockout games
+  - **Auto-fill the knockout stage** — click **Generate round** as soon as
+    games are certain. Round-of-32 games with fixed slots can be created before
+    every group is complete, and later rounds appear as their feeder games are
+    decided. Re-running a round is safe and idempotent (it corrects matchups if
+    a result changes, and never overwrites a played game). Drawn knockout games
     need a penalty-shootout winner when entering the result.
   - **Change password** for family or admin.
   - **Generate or rotate** the passwordless invite link.

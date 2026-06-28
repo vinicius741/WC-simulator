@@ -39,7 +39,7 @@ function SimulatorApp() {
       <NavTabs
         activeTab={engine.activeTab}
         onTabChange={engine.setActiveTab}
-        knockoutEnabled={engine.allGroupsCompleted}
+        knockoutEnabled={engine.knockoutAvailable}
       />
 
       {engine.activeTab !== 'predictions' && (
@@ -75,12 +75,13 @@ function SimulatorApp() {
           <ThirdPlaceStandings
             thirdPlaceTeams={engine.thirdPlaceTeams}
             selectedThirds={engine.selectedCurrentThirds}
+            disabledThirds={engine.eliminatedTeamIds}
             onToggleSelect={engine.handleToggleSelectThird}
             onSimulateThirds={engine.handleSimulateThirds}
           />
         )}
 
-        {engine.activeTab === 'knockout' && engine.allGroupsCompleted && (
+        {engine.activeTab === 'knockout' && engine.knockoutAvailable && (
           <KnockoutBracket
             knockoutMatches={engine.knockoutMatches}
             onSelectWinner={engine.handleSelectWinner}

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { GripVertical } from 'lucide-react';
 import type { Team } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
+import { FINALIZED_GROUPS } from '../data/currentTournamentState';
 
 interface GroupCardProps {
   groupLetter: string;
@@ -13,6 +14,7 @@ interface GroupCardProps {
 
 export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSimulateGroup }: GroupCardProps) {
   const { t } = useLanguage();
+  const isFinalized = FINALIZED_GROUPS.has(groupLetter);
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   // Track the drag-over position ("before" or "after" the target index) for accurate insertion
@@ -21,6 +23,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
   const dragOverCounter = useRef(0);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
+    if (isFinalized) return;
     setDraggedIdx(index);
     e.dataTransfer.effectAllowed = 'move';
     // Required for Firefox support
@@ -32,6 +35,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
+    if (isFinalized) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
 
@@ -47,6 +51,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
   };
 
   const handleDragEnter = (e: React.DragEvent, index: number) => {
+    if (isFinalized) return;
     e.preventDefault();
     dragOverCounter.current++;
     setDragOverIdx(index);
@@ -63,6 +68,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
   };
 
   const handleDrop = (e: React.DragEvent, index: number) => {
+    if (isFinalized) return;
     e.preventDefault();
     dragOverCounter.current = 0;
 
@@ -85,7 +91,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
     <div className="group-card">
       <div className="group-header">
         <h3 className="group-title">{t('groupLetter', { letter: groupLetter })}</h3>
-        <button className="group-sim-btn" onClick={() => onSimulateGroup(groupLetter)}>
+        <button className="group-sim-btn" onClick={() => onSimulateGroup(groupLetter)} disabled={isFinalized}>
           {t('btnSimulate')}
         </button>
       </div>
@@ -109,7 +115,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
           return (
             <div 
               key={team.id} 
-              draggable
+              draggable={!isFinalized}
               onDragStart={(e) => handleDragStart(e, idx)}
               onDragEnter={(e) => handleDragEnter(e, idx)}
               onDragOver={(e) => handleDragOver(e, idx)}
@@ -126,7 +132,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                 borderTop: dropIndicatorStyle === 'top' ? '3px solid var(--accent-red)' : 'none',
                 borderBottom: dropIndicatorStyle === 'bottom' ? '3px solid var(--accent-red)' : 'none',
                 padding: '10px 12px',
-                cursor: isBeingDragged ? 'grabbing' : 'grab',
+                cursor: isFinalized ? 'default' : isBeingDragged ? 'grabbing' : 'grab',
                 opacity: isBeingDragged ? 0.4 : 1,
                 transition: 'background 0.15s ease, border 0.15s ease',
                 position: 'relative',
@@ -139,7 +145,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                   size={14} 
                   style={{ 
                     color: 'var(--text-muted)', 
-                    cursor: 'grab', 
+                    cursor: isFinalized ? 'default' : 'grab', 
                     flexShrink: 0,
                     pointerEvents: 'none'
                   }} 
@@ -168,7 +174,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                   style={{ 
                     padding: '2px 6px', 
                     fontSize: '10px', 
-                    visibility: idx === 0 ? 'hidden' : 'visible',
+                    visibility: idx === 0 || isFinalized ? 'hidden' : 'visible',
                     borderColor: 'var(--border-color)',
                     color: 'var(--text-primary)',
                     cursor: 'pointer'
@@ -186,7 +192,7 @@ export function GroupCard({ groupLetter, teams, onReorderTeams, onMoveTeam, onSi
                   style={{ 
                     padding: '2px 6px', 
                     fontSize: '10px', 
-                    visibility: idx === 3 ? 'hidden' : 'visible',
+                    visibility: idx === 3 || isFinalized ? 'hidden' : 'visible',
                     borderColor: 'var(--border-color)',
                     color: 'var(--text-primary)',
                     cursor: 'pointer'
