@@ -144,6 +144,7 @@ export const api = {
     predictedHome: number,
     predictedAway: number,
     playerName: string,
+    predictedPenaltyWinner?: 'home' | 'away' | null,
   ): Promise<void> {
     if (USE_MOCK) {
       await wait(150);
@@ -155,6 +156,7 @@ export const api = {
         game_id: gameId,
         predicted_home: predictedHome,
         predicted_away: predictedAway,
+        predicted_penalty_winner: predictedPenaltyWinner ?? null,
         player_name: playerName,
       }),
     });

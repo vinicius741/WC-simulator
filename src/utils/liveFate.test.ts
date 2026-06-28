@@ -14,6 +14,7 @@ const pred = (name: string, h: number, a: number): RevealedPrediction => ({
   player_name: name,
   predicted_home: h,
   predicted_away: a,
+  predicted_penalty_winner: null,
   points: null,
 });
 

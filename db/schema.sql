@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS predictions (
   player_name    VARCHAR(40)  NOT NULL,
   predicted_home TINYINT UNSIGNED NOT NULL,
   predicted_away TINYINT UNSIGNED NOT NULL,
+  predicted_penalty_winner ENUM('home','away') NULL,          -- chosen advancing side when predicting a tied knockout score
   points         TINYINT NULL,                               -- 3/1/0, set when the actual result is entered
   created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

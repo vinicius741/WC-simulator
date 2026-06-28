@@ -252,11 +252,62 @@
   font-weight: 700;
 }
 
+.pred-penalty-pick {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  padding: 10px;
+  border: 1px dashed var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+.pred-penalty-label {
+  grid-column: 1 / -1;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.45px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pred-penalty-choice {
+  min-width: 0;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pred-penalty-choice.active {
+  border-color: var(--accent-navy);
+  background: rgba(20, 45, 80, 0.08);
+  color: var(--accent-navy);
+}
+
 .pred-game-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+}
+
+.pred-result-penalty {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
 }
 
 .pred-history-open {

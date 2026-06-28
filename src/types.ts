@@ -38,6 +38,7 @@ export type GroupTeamsMap = Record<string, Team[]>;
 export interface MyPrediction {
   predicted_home: number;
   predicted_away: number;
+  predicted_penalty_winner: 'home' | 'away' | null;
   points: number | null;
 }
 
@@ -45,6 +46,7 @@ export interface RevealedPrediction {
   player_name: string;
   predicted_home: number;
   predicted_away: number;
+  predicted_penalty_winner: 'home' | 'away' | null;
   points: number | null;
 }
 

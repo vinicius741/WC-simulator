@@ -10,7 +10,13 @@ export interface PredictionsData {
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
-  save: (gameId: number, predictedHome: number, predictedAway: number, playerName: string) => Promise<void>;
+  save: (
+    gameId: number,
+    predictedHome: number,
+    predictedAway: number,
+    playerName: string,
+    predictedPenaltyWinner?: 'home' | 'away' | null,
+  ) => Promise<void>;
 }
 
 /**
@@ -66,8 +72,14 @@ export function usePredictions(enabled: boolean): PredictionsData {
   }, [enabled, scope]);
 
   const save = useCallback(
-    async (gameId: number, predictedHome: number, predictedAway: number, playerName: string) => {
-      await api.savePrediction(gameId, predictedHome, predictedAway, playerName);
+    async (
+      gameId: number,
+      predictedHome: number,
+      predictedAway: number,
+      playerName: string,
+      predictedPenaltyWinner?: 'home' | 'away' | null,
+    ) => {
+      await api.savePrediction(gameId, predictedHome, predictedAway, playerName, predictedPenaltyWinner);
       await refresh();
     },
     [refresh],

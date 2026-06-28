@@ -13,6 +13,15 @@ export default function LockedGameCard({ game, currentName }: Props) {
   const predictions: RevealedPrediction[] = game.predictions ?? [];
   const homeDisplay = teamDisplayName(game.home_team_id, game.home_team_name, t);
   const awayDisplay = teamDisplayName(game.away_team_id, game.away_team_name, t);
+  const resultPenaltyLabel =
+    game.penalty_winner === 'home' ? homeDisplay : game.penalty_winner === 'away' ? awayDisplay : null;
+
+  const pickLabel = (p: RevealedPrediction) => {
+    const base = `${p.predicted_home} – ${p.predicted_away}`;
+    if (p.predicted_home !== p.predicted_away || !p.predicted_penalty_winner) return base;
+    const winner = p.predicted_penalty_winner === 'home' ? homeDisplay : awayDisplay;
+    return `${base} (${winner} ${t('predPenaltyShort')})`;
+  };
 
   return (
     <div className="pred-game-card pred-locked">
@@ -30,6 +39,7 @@ export default function LockedGameCard({ game, currentName }: Props) {
         </div>
         <div className="pred-result-score">
           {hasResult ? `${game.result_home} – ${game.result_away}` : t('predResultPending')}
+          {resultPenaltyLabel && <span className="pred-result-penalty">{resultPenaltyLabel} {t('predPenaltyShort')}</span>}
         </div>
         <div className="pred-team">
           <span className="pred-flag">{game.away_flag ?? ''}</span>
@@ -56,7 +66,7 @@ export default function LockedGameCard({ game, currentName }: Props) {
                     {me ? <span className="pred-you-tag"> ({t('predYou')})</span> : null}
                   </td>
                   <td className="pred-reveal-pick">
-                    {p.predicted_home} – {p.predicted_away}
+                    {pickLabel(p)}
                   </td>
                   <td>
                     <span className={`pred-points-pill ${pointsClass(p.points)}`}>

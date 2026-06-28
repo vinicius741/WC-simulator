@@ -109,6 +109,9 @@ export default function LiveGameCard({ game, live, currentName }: Props) {
               </span>
               <span className="pred-fate-pick">
                 {f.predicted_home}–{f.predicted_away}
+                {f.predicted_home === f.predicted_away && f.predicted_penalty_winner
+                  ? ` (${f.predicted_penalty_winner === 'home' ? homeDisplay : awayDisplay} ${t('predPenaltyShort')})`
+                  : ''}
               </span>
               <span className="pred-fate-status">{t(STATUS_KEY[f.status])}</span>
             </li>

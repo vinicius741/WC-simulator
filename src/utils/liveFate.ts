@@ -17,6 +17,7 @@ export interface PlayerFate {
   player_name: string;
   predicted_home: number;
   predicted_away: number;
+  predicted_penalty_winner: 'home' | 'away' | null;
   projectedPoints: 0 | 1 | 3; // what they'd earn if the match ended NOW
   status: FateStatus;
   exactStillPossible: boolean; // score can still climb to exactly their pick
@@ -84,6 +85,7 @@ export function projectLiveFate(live: LiveMatch, predictions: RevealedPrediction
       player_name: p.player_name,
       predicted_home: p.predicted_home,
       predicted_away: p.predicted_away,
+      predicted_penalty_winner: p.predicted_penalty_winner,
       projectedPoints: pts,
       status,
       exactStillPossible,

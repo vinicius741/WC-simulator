@@ -30,7 +30,7 @@ export const MOCK_GAMES: PredictionGame[] = [
     result_home: null,
     result_away: null,
     penalty_winner: null,
-    my_prediction: { predicted_home: 2, predicted_away: 1, points: null },
+    my_prediction: { predicted_home: 2, predicted_away: 1, predicted_penalty_winner: null, points: null },
     predictions: null,
   },
   {
@@ -76,11 +76,11 @@ export const MOCK_GAMES: PredictionGame[] = [
     result_home: 2,
     result_away: 0,
     penalty_winner: null,
-    my_prediction: { predicted_home: 2, predicted_away: 0, points: 3 },
+    my_prediction: { predicted_home: 2, predicted_away: 0, predicted_penalty_winner: null, points: 3 },
     predictions: [
-      { player_name: 'You', predicted_home: 2, predicted_away: 0, points: 3 },
-      { player_name: 'Dad', predicted_home: 1, predicted_away: 1, points: 0 },
-      { player_name: 'Mom', predicted_home: 2, predicted_away: 1, points: 1 },
+      { player_name: 'You', predicted_home: 2, predicted_away: 0, predicted_penalty_winner: null, points: 3 },
+      { player_name: 'Dad', predicted_home: 1, predicted_away: 1, predicted_penalty_winner: null, points: 0 },
+      { player_name: 'Mom', predicted_home: 2, predicted_away: 1, predicted_penalty_winner: null, points: 1 },
     ],
   },
   {
@@ -103,12 +103,12 @@ export const MOCK_GAMES: PredictionGame[] = [
     result_home: null,
     result_away: null,
     penalty_winner: null,
-    my_prediction: { predicted_home: 1, predicted_away: 1, points: null },
+    my_prediction: { predicted_home: 1, predicted_away: 1, predicted_penalty_winner: 'home', points: null },
     predictions: [
-      { player_name: 'You', predicted_home: 1, predicted_away: 1, points: null },
-      { player_name: 'Dad', predicted_home: 2, predicted_away: 0, points: null },
-      { player_name: 'Mom', predicted_home: 2, predicted_away: 1, points: null },
-      { player_name: 'Sister', predicted_home: 1, predicted_away: 2, points: null },
+      { player_name: 'You', predicted_home: 1, predicted_away: 1, predicted_penalty_winner: 'home', points: null },
+      { player_name: 'Dad', predicted_home: 2, predicted_away: 0, predicted_penalty_winner: null, points: null },
+      { player_name: 'Mom', predicted_home: 2, predicted_away: 1, predicted_penalty_winner: null, points: null },
+      { player_name: 'Sister', predicted_home: 1, predicted_away: 2, predicted_penalty_winner: null, points: null },
     ],
   },
 ];

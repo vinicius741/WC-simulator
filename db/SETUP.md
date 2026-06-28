@@ -61,10 +61,10 @@ Alternatively, in hPanel → **phpMyAdmin**, open the DB → **Import** → uplo
 then `seed.sql`.
 
 > **Already set up?** If you imported `schema.sql` before the knockout
-> auto-fill feature shipped, apply the one-time migration to add the
-> `penalty_winner` column (needed to advance drawn knockout games):
+> auto-fill / penalty-pick features shipped, apply these one-time migrations:
 > ```bash
 > ssh hostinger "mysql -h localhost -u u915492341_wcpred -p'$DBPASS' u915492341_wcpred" < db/migrations/001_add_penalty_winner.sql
+> ssh hostinger "mysql -h localhost -u u915492341_wcpred -p'$DBPASS' u915492341_wcpred" < db/migrations/002_add_prediction_penalty_winner.sql
 > ```
 
 ## Step 4 — Deploy

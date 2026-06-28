@@ -20,7 +20,7 @@ $games = $pdo->query(
 $myPredictions = [];
 if ($me !== null) {
     $stmt = $pdo->prepare(
-        'SELECT game_id, predicted_home, predicted_away, points
+        'SELECT game_id, predicted_home, predicted_away, predicted_penalty_winner, points
          FROM predictions WHERE player_name = :me'
     );
     $stmt->execute([':me' => $me]);
@@ -28,6 +28,7 @@ if ($me !== null) {
         $myPredictions[(int) $row['game_id']] = [
             'predicted_home' => (int) $row['predicted_home'],
             'predicted_away' => (int) $row['predicted_away'],
+            'predicted_penalty_winner' => $row['predicted_penalty_winner'] !== null ? (string) $row['predicted_penalty_winner'] : null,
             'points'         => $row['points'] !== null ? (int) $row['points'] : null,
         ];
     }
@@ -36,7 +37,7 @@ if ($me !== null) {
 // Everyone's predictions — but ONLY for games that have already kicked off (anti-cheat).
 $revealedByGame = [];
 $rows = $pdo->query(
-    "SELECT p.game_id, p.player_name, p.predicted_home, p.predicted_away, p.points
+    "SELECT p.game_id, p.player_name, p.predicted_home, p.predicted_away, p.predicted_penalty_winner, p.points
      FROM predictions p
      JOIN games g ON g.id = p.game_id
      WHERE g.kickoff_utc <= UTC_TIMESTAMP()
@@ -48,6 +49,7 @@ foreach ($rows as $row) {
         'player_name'    => (string) $row['player_name'],
         'predicted_home' => (int) $row['predicted_home'],
         'predicted_away' => (int) $row['predicted_away'],
+        'predicted_penalty_winner' => $row['predicted_penalty_winner'] !== null ? (string) $row['predicted_penalty_winner'] : null,
         'points'         => $row['points'] !== null ? (int) $row['points'] : null,
     ];
 }
