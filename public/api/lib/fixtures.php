@@ -180,7 +180,7 @@ function fetch_espn_matches(string $status): array
         // Rolling ±1 day window (ESPN date granularity is whole days).
         $dates = gmdate('Ymd', time() - 86400) . '-' . gmdate('Ymd', time() + 86400);
     } else {
-        $dates = '20260611-20260627'; // preserved historical window
+        $dates = '20260611-20260628'; // full group-stage window
     }
     $url  = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=' . $dates;
     $json = http_get_json($url);

@@ -226,7 +226,7 @@ function fetch_fifa_finished(): array
 
 function fetch_espn_finished(): array
 {
-    $url  = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260627';
+    $url  = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260628';
     $json = http_get_json($url);
 
     $out = [];
