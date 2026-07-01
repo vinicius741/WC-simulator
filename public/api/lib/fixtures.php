@@ -147,12 +147,6 @@ function fetch_fifa_matches(string $status): array
         if ((int) ($r['MatchStatus'] ?? -1) !== $want) {
             continue;
         }
-        // Finished scope: only group-stage games are seeded today; knockouts
-        // would otherwise spam the sync log. Live has no such filter so a live
-        // knockout (once seeded) still surfaces.
-        if ($status === 'finished' && empty($r['GroupName'])) {
-            continue;
-        }
         $home = $r['Home']['Abbreviation'] ?? null;
         $away = $r['Away']['Abbreviation'] ?? null;
         $hs   = $r['HomeTeamScore'] ?? null;
@@ -180,7 +174,7 @@ function fetch_espn_matches(string $status): array
         // Rolling ±1 day window (ESPN date granularity is whole days).
         $dates = gmdate('Ymd', time() - 86400) . '-' . gmdate('Ymd', time() + 86400);
     } else {
-        $dates = '20260611-20260628'; // full group-stage window
+        $dates = '20260611-20260720'; // full tournament window
     }
     $url  = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=' . $dates;
     $json = http_get_json($url);

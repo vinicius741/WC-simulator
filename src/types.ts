@@ -135,7 +135,7 @@ export interface AdminDeletePlayerResponse {
 export interface SyncLogEntry {
   created_at: string; // 'YYYY-MM-DD HH:MM:SS' UTC
   external_id: string | null;
-  action: string; // filled | already_set | corrected | unmatched | skipped | error
+  action: string; // filled | already_set | created | corrected | unmatched | skipped | error
   detail: string | null;
 }
 
@@ -145,6 +145,7 @@ export interface SyncRunSummary {
   finished?: number;
   filled?: number;
   already_set?: number;
+  created?: number;
   corrected?: number;
   unmatched?: number;
   skipped?: number;
@@ -168,6 +169,7 @@ export interface SyncNowResponse {
   finished: number;
   filled: number;
   already_set: number;
+  created: number;
   corrected: number;
   unmatched: number;
   skipped: number;

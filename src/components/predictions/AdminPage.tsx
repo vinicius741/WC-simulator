@@ -222,6 +222,7 @@ function AutoSync() {
         t('adminSyncSummary', {
           filled: r.filled,
           already: r.already_set,
+          created: r.created,
           corrected: r.corrected,
           unmatched: r.unmatched,
         }),
@@ -261,6 +262,7 @@ function AutoSync() {
             {t('adminSyncSummary', {
               filled: last.filled ?? 0,
               already: last.already_set ?? 0,
+              created: last.created ?? 0,
               corrected: last.corrected ?? 0,
               unmatched: last.unmatched ?? 0,
             })}

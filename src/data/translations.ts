@@ -185,7 +185,7 @@ export const TRANSLATIONS = {
     adminSyncNever: "Never",
     adminSyncNow: "Sync now",
     adminSyncRunning: "Syncing…",
-    adminSyncSummary: "Filled {filled} · already set {already} · corrected {corrected} · unmatched {unmatched}",
+    adminSyncSummary: "Filled {filled} · created {created} · already set {already} · corrected {corrected} · unmatched {unmatched}",
     adminSyncNoLog: "No syncs yet.",
     adminSyncError: "Sync failed. Try again or run it over SSH.",
 
@@ -498,7 +498,7 @@ export const TRANSLATIONS = {
     adminSyncNever: "Nunca",
     adminSyncNow: "Sincronizar agora",
     adminSyncRunning: "Sincronizando…",
-    adminSyncSummary: "Preenchidos {filled} · já lançados {already} · corrigidos {corrected} · sem correspondência {unmatched}",
+    adminSyncSummary: "Preenchidos {filled} · criados {created} · já lançados {already} · corrigidos {corrected} · sem correspondência {unmatched}",
     adminSyncNoLog: "Nenhuma sincronização ainda.",
     adminSyncError: "Falha na sincronização. Tente novamente ou rode via SSH.",
 

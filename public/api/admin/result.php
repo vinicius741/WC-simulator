@@ -43,10 +43,17 @@ if (!$chk->fetchColumn()) {
 
 // Re-score every prediction for this game (idempotent — safe to re-run on correction).
 require __DIR__ . '/scoring.php';
+require_once __DIR__ . '/../lib/knockout.php';
 rescore_game($pdo, $gameId, $home, $away);
+$generated = auto_fill_next_knockout_games($pdo);
 
 $countStmt = $pdo->prepare('SELECT COUNT(*) FROM predictions WHERE game_id = :id');
 $countStmt->execute([':id' => $gameId]);
 $scored = (int) $countStmt->fetchColumn();
 
-json_out(['ok' => true, 'game_id' => $gameId, 'scored_predictions' => $scored]);
+json_out([
+    'ok' => true,
+    'game_id' => $gameId,
+    'scored_predictions' => $scored,
+    'generated_knockout_games' => $generated,
+]);

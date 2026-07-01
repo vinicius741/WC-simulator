@@ -251,6 +251,7 @@ export const api = {
         finished: 4,
         filled: 0,
         already_set: 4,
+        created: 0,
         corrected: 0,
         unmatched: 0,
         skipped: 0,
