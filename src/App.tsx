@@ -1,7 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import { GROUPS } from './data/constants';
-import GroupCard from './components/GroupCard';
-import ThirdPlaceStandings from './components/ThirdPlaceStandings';
 import KnockoutBracket from './components/KnockoutBracket';
 import RecapModal from './components/RecapModal';
 import AppHeader from './components/AppHeader';
@@ -45,42 +42,18 @@ function SimulatorApp() {
       {engine.activeTab !== 'predictions' && (
         <ControlsBar
           activeTab={engine.activeTab}
-          allGroupsCompleted={engine.allGroupsCompleted}
-          selectedCount={engine.selectedCurrentThirds.size}
           champion={engine.champion}
-          onSimulateAllGroups={engine.handleSimulateAllGroups}
           onSimulateKnockouts={engine.handleSimulateAllKnockouts}
           onReset={engine.handleReset}
           onShowRecap={() => engine.setShowRecap(true)}
+          onRefreshResults={engine.refreshRealResults}
+          resultsLoading={engine.realResultsLoading}
+          resultsAt={engine.realResultsAt}
+          resultsError={engine.realResultsError}
         />
       )}
 
       <main>
-        {engine.activeTab === 'groups' && (
-          <div className="groups-grid">
-            {GROUPS.map(g => (
-              <GroupCard
-                key={g}
-                groupLetter={g}
-                teams={engine.groupTeams[g] || []}
-                onReorderTeams={engine.handleReorderTeams}
-                onMoveTeam={engine.handleMoveTeam}
-                onSimulateGroup={engine.handleSimulateGroup}
-              />
-            ))}
-          </div>
-        )}
-
-        {engine.activeTab === 'third-place' && (
-          <ThirdPlaceStandings
-            thirdPlaceTeams={engine.thirdPlaceTeams}
-            selectedThirds={engine.selectedCurrentThirds}
-            disabledThirds={engine.eliminatedTeamIds}
-            onToggleSelect={engine.handleToggleSelectThird}
-            onSimulateThirds={engine.handleSimulateThirds}
-          />
-        )}
-
         {engine.activeTab === 'knockout' && engine.knockoutAvailable && (
           <KnockoutBracket
             knockoutMatches={engine.knockoutMatches}

@@ -3,9 +3,9 @@ import { KNOCKOUT_MATCH_SCHEMA, THIRD_PLACE_ALLOCATION_SLOTS } from '../data/con
 import { TEAMS } from '../data/teams';
 import { ELIMINATED_TEAM_IDS, FINALIZED_GROUPS, LOCKED_QUALIFIED_THIRD_PLACE_IDS } from '../data/currentTournamentState';
 import { THIRD_PLACE_ALLOCATION_TABLE } from '../data/thirdPlaceAllocations';
-import type { KnockoutMatch } from '../types';
+import type { KnockoutMatch, RealKnockoutResult } from '../types';
 import { getInitialGroupTeams, getInitialSelectedThirdPlaceIds, getTopRatedThirdPlaceIds } from './initializers';
-import { allocateThirdPlaces, clearDownstreamMatches } from './simulatorEngine';
+import { allocateThirdPlaces, applyRealKnockoutResults, clearDownstreamMatches } from './simulatorEngine';
 
 describe('finalized World Cup 2026 simulator data', () => {
   it('contains the official 48-team group roster', () => {
@@ -111,5 +111,132 @@ describe('official knockout path', () => {
     expect(clearDownstreamMatches('one', matches)[1]).toMatchObject({
       home: '', homeScore: null, penaltyWinner: null, winner: ''
     });
+  });
+});
+
+// ─── applyRealKnockoutResults ────────────────────────────────────────────
+
+/** Build a fresh empty bracket (all teams/scores cleared) from the schema. */
+function emptyBracket(): KnockoutMatch[] {
+  return KNOCKOUT_MATCH_SCHEMA.map(m => ({
+    ...m,
+    home: m.home || '',
+    away: m.away || '',
+    homeScore: null,
+    awayScore: null,
+    penaltyWinner: null,
+    winner: '',
+  }));
+}
+
+const find = (matches: KnockoutMatch[], id: string) => matches.find(m => m.id === id)!;
+
+describe('applyRealKnockoutResults — folding real results into the bracket', () => {
+  it('returns the input untouched when there are no real results', () => {
+    const bracket = emptyBracket();
+    expect(applyRealKnockoutResults(bracket, [])).toBe(bracket);
+  });
+
+  it('overrides teams/score/winner for a decided R32 match and locks it', () => {
+    // R32_2 = Match 74. Schema feeds R16_1 home.
+    const results: RealKnockoutResult[] = [{
+      external_id: 'wc2026-r32-74', stage: 'r32',
+      home_team_id: 'ger', away_team_id: 'bih',
+      result_home: 2, result_away: 0, penalty_winner: null,
+    }];
+    const out = applyRealKnockoutResults(emptyBracket(), results);
+    const m = find(out, 'R32_2');
+    expect(m).toMatchObject({
+      home: 'ger', away: 'bih', homeScore: 2, awayScore: 0,
+      winner: 'ger', penaltyWinner: null, locked: true,
+    });
+  });
+
+  it('records a penalty shootout winner for a drawn, locked match', () => {
+    const results: RealKnockoutResult[] = [{
+      external_id: 'wc2026-r32-74', stage: 'r32',
+      home_team_id: 'ger', away_team_id: 'bih',
+      result_home: 1, result_away: 1, penalty_winner: 'away',
+    }];
+    const out = applyRealKnockoutResults(emptyBracket(), results);
+    const m = find(out, 'R32_2');
+    expect(m.winner).toBe('bih');          // away won the shootout
+    expect(m.penaltyWinner).toBe('away');
+    expect(m.locked).toBe(true);
+  });
+
+  it('reseeds the downstream R16 matchup from real R32 winners', () => {
+    // R16_1 (Match 89) is fed by R32_2 (home side) and R32_5 (away side).
+    // Real results decide both feeders → the R16 matchup becomes those winners.
+    const results: RealKnockoutResult[] = [
+      { external_id: 'wc2026-r32-74', stage: 'r32', home_team_id: 'ger', away_team_id: 'bih', result_home: 2, result_away: 0, penalty_winner: null },
+      { external_id: 'wc2026-r32-77', stage: 'r32', home_team_id: 'fra', away_team_id: 'sen', result_home: 3, result_away: 1, penalty_winner: null },
+    ];
+    const out = applyRealKnockoutResults(emptyBracket(), results);
+    const r16 = find(out, 'R16_1');
+    expect(r16.home).toBe('ger');   // winner of R32_2
+    expect(r16.away).toBe('fra');   // winner of R32_5
+    expect(r16.locked).toBeUndefined(); // R16 game itself hasn't been played
+  });
+
+  it('preserves an undecided R16 winner pick when its teams are unchanged', () => {
+    // Bracket already has R16_1 = GER vs FRA with the user picking GER, and the
+    // two feeder R32 results arrive consistent with that (GER and FRA advance).
+    const bracket = emptyBracket();
+    const r16 = find(bracket, 'R16_1');
+    r16.home = 'ger'; r16.away = 'fra'; r16.winner = 'ger'; r16.homeScore = 2; r16.awayScore = 1;
+
+    const results: RealKnockoutResult[] = [
+      { external_id: 'wc2026-r32-74', stage: 'r32', home_team_id: 'ger', away_team_id: 'bih', result_home: 2, result_away: 0, penalty_winner: null },
+      { external_id: 'wc2026-r32-77', stage: 'r32', home_team_id: 'fra', away_team_id: 'sen', result_home: 1, result_away: 0, penalty_winner: null },
+    ];
+    const out = applyRealKnockoutResults(bracket, results);
+    const m = find(out, 'R16_1');
+    expect(m.winner).toBe('ger');       // user pick preserved
+    expect(m.homeScore).toBe(2);        // user scores preserved
+    expect(m.locked).toBeUndefined();
+  });
+
+  it('clears a stale winner pick when the advancing team changes', () => {
+    // User had picked a FRA-vs-POR R16 with FRA winning, but the real R32 feeders
+    // send through different teams → the stale pick and scores are wiped.
+    const bracket = emptyBracket();
+    const r16 = find(bracket, 'R16_1');
+    r16.home = 'fra'; r16.away = 'por'; r16.winner = 'fra'; r16.homeScore = 1; r16.awayScore = 0;
+
+    const results: RealKnockoutResult[] = [
+      // GER (not FRA) advances from R32_2; SEN (not POR) from R32_5.
+      { external_id: 'wc2026-r32-74', stage: 'r32', home_team_id: 'ger', away_team_id: 'bih', result_home: 2, result_away: 0, penalty_winner: null },
+      { external_id: 'wc2026-r32-77', stage: 'r32', home_team_id: 'fra', away_team_id: 'sen', result_home: 0, result_away: 1, penalty_winner: null },
+    ];
+    const out = applyRealKnockoutResults(bracket, results);
+    const m = find(out, 'R16_1');
+    expect(m.home).toBe('ger');
+    expect(m.away).toBe('sen');
+    expect(m.winner).toBe('');          // stale pick cleared
+    expect(m.homeScore).toBeNull();
+    expect(m.awayScore).toBeNull();
+  });
+
+  it('reseeds the 3rd-place play-off from the semi-final losers', () => {
+    // PLAYOFF_3RD home ← SF_1 loser, away ← SF_2 loser.
+    const results: RealKnockoutResult[] = [
+      { external_id: 'wc2026-sf-101', stage: 'sf', home_team_id: 'bra', away_team_id: 'fra', result_home: 2, result_away: 1, penalty_winner: null }, // FRA loses
+      { external_id: 'wc2026-sf-102', stage: 'sf', home_team_id: 'arg', away_team_id: 'ger', result_home: 0, result_away: 1, penalty_winner: null }, // ARG loses
+    ];
+    const out = applyRealKnockoutResults(emptyBracket(), results);
+    const playoff = find(out, 'PLAYOFF_3RD');
+    expect(playoff.home).toBe('fra');   // SF_1 loser
+    expect(playoff.away).toBe('arg');   // SF_2 loser
+  });
+
+  it('is idempotent: applying the same results twice yields the same state', () => {
+    const results: RealKnockoutResult[] = [
+      { external_id: 'wc2026-r32-74', stage: 'r32', home_team_id: 'ger', away_team_id: 'bih', result_home: 2, result_away: 0, penalty_winner: null },
+      { external_id: 'wc2026-r32-77', stage: 'r32', home_team_id: 'fra', away_team_id: 'sen', result_home: 1, result_away: 0, penalty_winner: null },
+    ];
+    const once = applyRealKnockoutResults(emptyBracket(), results);
+    const twice = applyRealKnockoutResults(once, results);
+    expect(twice).toEqual(once);
   });
 });

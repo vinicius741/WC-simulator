@@ -1,27 +1,25 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useEffect, useState, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import { TEAMS } from '../data/teams';
-import { GROUPS, KNOCKOUT_MATCH_SCHEMA, THIRD_PLACE_ALLOCATION_SLOTS } from '../data/constants';
+import { KNOCKOUT_MATCH_SCHEMA, THIRD_PLACE_ALLOCATION_SLOTS } from '../data/constants';
 import {
-  CURRENT_GROUP_ORDERS,
   ELIMINATED_TEAM_IDS,
-  FINALIZED_GROUPS,
 } from '../data/currentTournamentState';
 import {
   simulateMatch,
   allocateThirdPlaces,
   clearDownstreamMatches,
-  simulateGroupRanking
+  applyRealKnockoutResults,
 } from '../utils/simulatorEngine';
+import { api } from '../utils/apiClient';
 import useLocalStorage from './useLocalStorage';
 import {
   getInitialGroupTeams,
   getInitialKnockoutMatches,
   getInitialSelectedThirdPlaceIds,
   getThirdPlaceTeamsFromGroups,
-  getTopRatedThirdPlaceIds
 } from '../utils/initializers';
-import type { Team, KnockoutMatch, GroupTeamsMap } from '../types';
+import type { Team, KnockoutMatch, GroupTeamsMap, RealKnockoutResult } from '../types';
 
 export interface TournamentEngineAPI {
   // State
@@ -41,19 +39,15 @@ export interface TournamentEngineAPI {
   knockoutAvailable: boolean;
   eliminatedTeamIds: Set<string>;
 
-  // Group stage handlers
-  handleReorderTeams: (groupLetter: string, startIndex: number, endIndex: number, position: 'before' | 'after') => void;
-  handleMoveTeam: (groupLetter: string, index: number, direction: 'up' | 'down') => void;
-  handleSimulateGroup: (groupLetter: string) => void;
-  handleSimulateAllGroups: () => void;
-
-  // Third-place handlers
-  handleToggleSelectThird: (teamId: string) => void;
-  handleSimulateThirds: () => void;
-
   // Knockout handlers
   handleSelectWinner: (matchId: string, side: 'home' | 'away', isPenalty?: boolean) => void;
   handleSimulateAllKnockouts: () => void;
+
+  // Real results (pre-fill the bracket from the predictions backend)
+  realResultsLoading: boolean;
+  realResultsError: string | null;
+  realResultsAt: string | null;
+  refreshRealResults: () => Promise<void>;
 
   // Reset
   handleReset: () => void;
@@ -70,19 +64,11 @@ export function useTournamentEngine(): TournamentEngineAPI {
   const [knockoutMatches, setKnockoutMatches] = useLocalStorage<KnockoutMatch[]>('wc2026_knockout_matches_v5', getInitialKnockoutMatches());
   const [champion, setChampion] = useLocalStorage<string>('wc2026_champion_v5', '');
   const [showRecap, setShowRecap] = useState<boolean>(false);
-
-  const applyKnownGroupConstraints = (groupLetter: string, teams: Team[]): Team[] => {
-    const lockedOrder = CURRENT_GROUP_ORDERS[groupLetter];
-    if (FINALIZED_GROUPS.has(groupLetter) && lockedOrder) {
-      return lockedOrder
-        .map(id => TEAMS.find(team => team.id === id))
-        .filter((team): team is Team => !!team);
-    }
-
-    const activeTeams = teams.filter(team => !ELIMINATED_TEAM_IDS.has(team.id));
-    const eliminatedTeams = teams.filter(team => ELIMINATED_TEAM_IDS.has(team.id));
-    return [...activeTeams, ...eliminatedTeams];
-  };
+  // Real (played) knockout results pulled from the predictions backend. Fetched
+  // on mount, when the user opens the Knockout tab, and via a manual refresh.
+  const [realResultsLoading, setRealResultsLoading] = useState(false);
+  const [realResultsError, setRealResultsError] = useState<string | null>(null);
+  const [realResultsAt, setRealResultsAt] = useState<string | null>(null);
 
   // ── Derived State ──────────────────────────────────────────────────────
 
@@ -198,6 +184,50 @@ export function useTournamentEngine(): TournamentEngineAPI {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupTeams, selectedThirdsArray]);
 
+  // ── Real Knockout Results (pre-fill the bracket) ──────────────────────
+
+  // Fold real, decided knockout results into the bracket. Idempotent, so it's
+  // safe to run on every fetch. The champion is re-derived from the (possibly
+  // newly locked) Final afterward.
+  const applyRealResults = useCallback((fetchedAt: string, results: RealKnockoutResult[]) => {
+    setKnockoutMatches(prev => {
+      const next = applyRealKnockoutResults(prev, results);
+      if (next === prev) return prev;
+      // If the real Final has been decided, that's the champion — lock it in.
+      const finalMatch = next.find(m => m.id === 'FINAL');
+      const realChampion = finalMatch?.locked ? finalMatch.winner : '';
+      if (realChampion && realChampion !== champion) setChampion(realChampion);
+      return next;
+    });
+    setRealResultsAt(fetchedAt);
+    setRealResultsError(null);
+  }, [setKnockoutMatches, setChampion, champion]);
+
+  const refreshRealResults = useCallback(async () => {
+    setRealResultsLoading(true);
+    setRealResultsError(null);
+    try {
+      const data = await api.getResults();
+      applyRealResults(data.fetched_at, data.results);
+    } catch (e) {
+      // Degrade gracefully: a fetch failure leaves the bracket manual.
+      setRealResultsError(e instanceof Error ? e.message : 'Failed to load results.');
+    } finally {
+      setRealResultsLoading(false);
+    }
+  }, [applyRealResults]);
+
+  // Fetch on mount, and again whenever the user opens the Knockout tab (so the
+  // bracket is fresh when they actually look at it).
+  useEffect(() => {
+    void refreshRealResults();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (activeTab === 'knockout') void refreshRealResults();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab === 'knockout']);
+
   // ── Knockout Helpers ───────────────────────────────────────────────────
 
   const propagateWinner = (match: KnockoutMatch, matchesList: KnockoutMatch[]): KnockoutMatch[] => {
@@ -222,18 +252,22 @@ export function useTournamentEngine(): TournamentEngineAPI {
       const nextIdx = updated.findIndex(x => x.id === match.nextMatchId);
       if (nextIdx !== -1) {
         const nextM = updated[nextIdx]!;
-        const side = match.nextSide as 'home' | 'away';
-        const prevWinner = nextM[side];
-        const newWinner = match.winner;
+        // A locked downstream match holds a real, decided result — never let a
+        // pick on its feeder overwrite its teams or clear its winner.
+        if (!nextM.locked) {
+          const side = match.nextSide as 'home' | 'away';
+          const prevWinner = nextM[side];
+          const newWinner = match.winner;
 
-        if (prevWinner !== newWinner) {
-          updated[nextIdx] = {
-            ...nextM,
-            [side]: newWinner,
-            [`${side}Score`]: null,
-            winner: ''
-          };
-          updated = clearDownstreamMatches(nextM.id, updated);
+          if (prevWinner !== newWinner) {
+            updated[nextIdx] = {
+              ...nextM,
+              [side]: newWinner,
+              [`${side}Score`]: null,
+              winner: ''
+            };
+            updated = clearDownstreamMatches(nextM.id, updated);
+          }
         }
       }
     }
@@ -242,17 +276,20 @@ export function useTournamentEngine(): TournamentEngineAPI {
       const playoffIdx = updated.findIndex(x => x.id === 'PLAYOFF_3RD');
       if (playoffIdx !== -1) {
         const playoffM = updated[playoffIdx]!;
-        const side = match.nextSide as 'home' | 'away';
-        const loser = match.winner === match.home ? match.away : match.home;
+        // Same guard: don't overwrite a real, decided 3rd-place result.
+        if (!playoffM.locked) {
+          const side = match.nextSide as 'home' | 'away';
+          const loser = match.winner === match.home ? match.away : match.home;
 
-        if (playoffM[side] !== loser) {
-          updated[playoffIdx] = {
-            ...playoffM,
-            [side]: loser || '',
-            [`${side}Score`]: null,
-            winner: ''
-          };
-          updated = clearDownstreamMatches('PLAYOFF_3RD', updated);
+          if (playoffM[side] !== loser) {
+            updated[playoffIdx] = {
+              ...playoffM,
+              [side]: loser || '',
+              [`${side}Score`]: null,
+              winner: ''
+            };
+            updated = clearDownstreamMatches('PLAYOFF_3RD', updated);
+          }
         }
       }
     }
@@ -260,75 +297,13 @@ export function useTournamentEngine(): TournamentEngineAPI {
     return updated;
   };
 
-  // ── Group Stage Handlers ──────────────────────────────────────────────
-
-  const handleReorderTeams = (groupLetter: string, startIndex: number, endIndex: number, position: 'before' | 'after') => {
-    setGroupTeams(prev => {
-      if (FINALIZED_GROUPS.has(groupLetter)) return prev;
-      const list = [...(prev[groupLetter] || [])];
-      const [removed] = list.splice(startIndex, 1) as [Team];
-      const adjustedEndIndex = startIndex < endIndex ? endIndex - 1 : endIndex;
-      const insertIndex = position === 'after' ? adjustedEndIndex + 1 : adjustedEndIndex;
-      list.splice(insertIndex, 0, removed);
-      return { ...prev, [groupLetter]: applyKnownGroupConstraints(groupLetter, list) };
-    });
-  };
-
-  const handleMoveTeam = (groupLetter: string, index: number, direction: 'up' | 'down') => {
-    setGroupTeams(prev => {
-      if (FINALIZED_GROUPS.has(groupLetter)) return prev;
-      const list = [...(prev[groupLetter] || [])];
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      if (targetIndex >= 0 && targetIndex < 4) {
-        const temp = list[index]!;
-        list[index] = list[targetIndex]!;
-        list[targetIndex] = temp;
-      }
-      return { ...prev, [groupLetter]: applyKnownGroupConstraints(groupLetter, list) };
-    });
-  };
-
-  const handleSimulateGroup = (groupLetter: string) => {
-    setGroupTeams(prev => {
-      if (FINALIZED_GROUPS.has(groupLetter)) return prev;
-      const current = prev[groupLetter] || [];
-      const ranked = simulateGroupRanking(current as Team[]);
-      return { ...prev, [groupLetter]: applyKnownGroupConstraints(groupLetter, ranked) };
-    });
-  };
-
-  const handleSimulateAllGroups = () => {
-    const next: GroupTeamsMap = {};
-    GROUPS.forEach(g => {
-      next[g] = applyKnownGroupConstraints(g, simulateGroupRanking(groupTeams[g] || []));
-    });
-    setGroupTeams(next);
-    setSelectedThirdsArray(getTopRatedThirdPlaceIds(next));
-  };
-
-  // ── Third Place Handlers ──────────────────────────────────────────────
-
-  const handleToggleSelectThird = (teamId: string) => {
-    if (!currentThirdIds.has(teamId)) return;
-    if (ELIMINATED_TEAM_IDS.has(teamId)) return;
-    setSelectedThirdsArray(prev => {
-      const set = new Set(prev.filter(id => currentThirdIds.has(id)));
-      if (set.has(teamId)) {
-        set.delete(teamId);
-      } else if (set.size < 8) {
-        set.add(teamId);
-      }
-      return Array.from(set);
-    });
-  };
-
-  const handleSimulateThirds = () => {
-    setSelectedThirdsArray(getTopRatedThirdPlaceIds(groupTeams));
-  };
-
   // ── Knockout Handlers ─────────────────────────────────────────────────
 
   const handleSelectWinner = (matchId: string, side: 'home' | 'away', isPenalty: boolean = false) => {
+    // Locked matches reflect real, decided results — ignore user picks on them.
+    const target = knockoutMatches.find(m => m.id === matchId);
+    if (target?.locked) return;
+
     let updated: KnockoutMatch[] = knockoutMatches.map(m => {
       if (m.id === matchId) {
         const winTeam = side === 'home' ? m.home : m.away;
@@ -359,6 +334,8 @@ export function useTournamentEngine(): TournamentEngineAPI {
     stages.forEach(stage => {
       updated.forEach((m, idx) => {
         if (m.stage === stage || (stage === '3RD' && m.stage === '3RD') || (stage === 'FINAL' && m.stage === 'FINAL')) {
+          // Skip matches already decided by a real result.
+          if (m.locked) return;
           if (m.home && m.away) {
             const homeRating = teamMap[m.home]?.rating || 80;
             const awayRating = teamMap[m.away]?.rating || 80;
@@ -403,6 +380,8 @@ export function useTournamentEngine(): TournamentEngineAPI {
     setKnockoutMatches(getInitialKnockoutMatches());
     setChampion('');
     setShowRecap(false);
+    // Re-apply real results so the bracket reflects reality after a reset.
+    void refreshRealResults();
   };
 
   return {
@@ -423,19 +402,15 @@ export function useTournamentEngine(): TournamentEngineAPI {
     knockoutAvailable,
     eliminatedTeamIds: ELIMINATED_TEAM_IDS,
 
-    // Group stage
-    handleReorderTeams,
-    handleMoveTeam,
-    handleSimulateGroup,
-    handleSimulateAllGroups,
-
-    // Third place
-    handleToggleSelectThird,
-    handleSimulateThirds,
-
     // Knockout
     handleSelectWinner,
     handleSimulateAllKnockouts,
+
+    // Real results
+    realResultsLoading,
+    realResultsError,
+    realResultsAt,
+    refreshRealResults,
 
     // Reset
     handleReset

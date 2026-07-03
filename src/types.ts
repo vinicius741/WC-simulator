@@ -29,6 +29,31 @@ export interface KnockoutMatch extends KnockoutMatchSchema {
   awayScore: number | null;
   penaltyWinner: 'home' | 'away' | null;
   winner: string;
+  /**
+   * True when this match reflects a real, decided result pulled from the
+   * predictions backend. Locked matches render as read-only in the bracket.
+   * Optional so older persisted localStorage state still loads.
+   */
+  locked?: boolean;
+}
+
+/**
+ * A decided knockout result from the public results.php endpoint. Joined to the
+ * bracket via `external_id` → simulator schema id (see SCHEMA_ID_TO_MATCH_NO).
+ */
+export interface RealKnockoutResult {
+  external_id: string;
+  stage: string;
+  home_team_id: string | null;
+  away_team_id: string | null;
+  result_home: number | null;
+  result_away: number | null;
+  penalty_winner: 'home' | 'away' | null;
+}
+
+export interface ResultsResponse {
+  fetched_at: string;
+  results: RealKnockoutResult[];
 }
 
 export type GroupTeamsMap = Record<string, Team[]>;

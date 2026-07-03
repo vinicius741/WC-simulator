@@ -3,7 +3,8 @@
    Imported once from src/main.tsx. This file only aggregates the split
    stylesheets in src/styles/ — order matters for the cascade, so do not
    reorder these imports:
-     tokens → base → chrome/buttons (primitives) → feature files → responsive.
+     tokens → base → chrome/buttons (primitives) → bracket → modal →
+     predictions → admin → responsive.
    All @media queries live in responsive.css and load last so they always win
    over base rules. See src/styles/responsive.css for the breakpoint strategy.
    ========================================================================== */
@@ -12,8 +13,6 @@
 @import './styles/base.css';
 @import './styles/chrome.css';
 @import './styles/buttons.css';
-@import './styles/groups.css';
-@import './styles/third-place.css';
 @import './styles/bracket.css';
 @import './styles/modal.css';
 @import './styles/predictions.css';

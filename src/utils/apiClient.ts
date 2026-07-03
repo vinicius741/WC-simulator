@@ -8,6 +8,7 @@ import type {
   LiveResponse,
   MeResponse,
   PredictionGame,
+  ResultsResponse,
   SyncNowResponse,
   SyncStatusResponse,
 } from '../types';
@@ -137,6 +138,19 @@ export const api = {
       return MOCK_LIVE;
     }
     return request<LiveResponse>('live.php');
+  },
+
+  /**
+   * Public (unauthenticated) decided-knockout-results feed, used to pre-fill the
+   * simulator bracket. In mock mode there are no real results, so the bracket
+   * stays fully manual in local dev.
+   */
+  async getResults(): Promise<ResultsResponse> {
+    if (USE_MOCK) {
+      await wait(120);
+      return { fetched_at: new Date().toISOString().slice(0, 19).replace('T', ' '), results: [] };
+    }
+    return request<ResultsResponse>('results.php');
   },
 
   async savePrediction(

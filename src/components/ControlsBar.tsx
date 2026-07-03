@@ -3,49 +3,44 @@ import { useLanguage } from '../hooks/useLanguage';
 
 interface ControlsBarProps {
   activeTab: string;
-  allGroupsCompleted: boolean;
-  selectedCount: number;
   champion: string;
-  onSimulateAllGroups: () => void;
   onSimulateKnockouts: () => void;
   onReset: () => void;
   onShowRecap: () => void;
+  onRefreshResults: () => void;
+  resultsLoading: boolean;
+  resultsAt: string | null;
+  resultsError: string | null;
 }
 
 const ControlsBar: React.FC<ControlsBarProps> = ({
   activeTab,
-  allGroupsCompleted,
-  selectedCount,
   champion,
-  onSimulateAllGroups,
   onSimulateKnockouts,
   onReset,
-  onShowRecap
+  onShowRecap,
+  onRefreshResults,
+  resultsLoading,
+  resultsAt,
+  resultsError
 }) => {
   const { t } = useLanguage();
 
   return (
     <div className="controls-bar">
       <div className="action-group">
-        {activeTab === 'groups' && (
-          <>
-            <button className="btn btn-primary" onClick={onSimulateAllGroups}>
-              {t('btnSimulateAllGroups')}
-            </button>
-            <button className="btn" onClick={onReset}>
-              {t('btnResetRankings')}
-            </button>
-          </>
-        )}
-        {activeTab === 'third-place' && (
-          <button className="btn" onClick={onReset}>
-            {t('btnResetSelections')}
-          </button>
-        )}
         {activeTab === 'knockout' && (
           <>
             <button className="btn btn-secondary" onClick={onSimulateKnockouts}>
               {t('btnSimulateKnockouts')}
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={onRefreshResults}
+              disabled={resultsLoading}
+              title={resultsAt ? t('bracketSyncedAt', { when: resultsAt as string }) : ''}
+            >
+              {resultsLoading ? t('bracketSyncing') : t('btnRefreshResults')}
             </button>
             <button className="btn" onClick={onReset}>
               {t('btnResetBracket')}
@@ -62,18 +57,15 @@ const ControlsBar: React.FC<ControlsBarProps> = ({
           </>
         )}
       </div>
-
-      <div className="group-status-info" style={{ fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-        {allGroupsCompleted ? (
-          <span style={{ color: 'var(--accent-green)', fontWeight: 'bold' }}>
-            {t('thirdsChosenSuccess')}
-          </span>
-        ) : (
-          <span>
-            {t('thirdsChosenInfo', { selected: selectedCount })}
-          </span>
-        )}
-      </div>
+      {activeTab === 'knockout' && (resultsAt || resultsError) && (
+        <div className="results-status">
+          {resultsError ? (
+            <span className="results-status-error">{t('bracketSyncFailed')}</span>
+          ) : (
+            <span className="results-status-ok">{t('bracketSyncedAt', { when: resultsAt ?? '' })}</span>
+          )}
+        </div>
+      )}
     </div>
   );
 };

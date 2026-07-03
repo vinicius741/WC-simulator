@@ -27,18 +27,6 @@ const NavTabs: React.FC<NavTabsProps> = ({ activeTab, onTabChange, knockoutEnabl
         {t('tabPredictions')}
       </button>
       <button
-        className={`tab-btn ${activeTab === 'groups' ? 'active' : ''}`}
-        onClick={() => onTabChange('groups')}
-      >
-        {t('tabGroups')}
-      </button>
-      <button
-        className={`tab-btn ${activeTab === 'third-place' ? 'active' : ''}`}
-        onClick={() => onTabChange('third-place')}
-      >
-        {t('tabThirdPlace')}
-      </button>
-      <button
         className={`tab-btn ${activeTab === 'knockout' ? 'active' : ''} ${!knockoutEnabled ? 'disabled' : ''}`}
         onClick={() => knockoutEnabled && onTabChange('knockout')}
         title={!knockoutEnabled ? t('tabKnockoutTooltip') : ''}

@@ -6,8 +6,6 @@ export const TRANSLATIONS = {
     groupLetter: "Group {letter}",
     
     // Tabs
-    tabGroups: "Group Rankings",
-    tabThirdPlace: "Third-Place Selection",
     tabKnockout: "Knockout Bracket",
     tabKnockoutTooltip: "Select exactly 8 third-place teams to unlock the bracket",
     tabPredictions: "Predictions",
@@ -190,29 +188,21 @@ export const TRANSLATIONS = {
     adminSyncError: "Sync failed. Try again or run it over SSH.",
 
     // Controls
-    btnSimulateAllGroups: "Simulate All Groups",
-    btnResetRankings: "Reset Rankings",
-    btnResetSelections: "Reset Selections",
     btnSimulateKnockouts: "Simulate Knockouts",
     btnResetBracket: "Reset Bracket",
+    btnRefreshResults: "Refresh Results",
     btnPathToGlory: "Path to Glory",
-    btnAutoSelectTop8: "Auto-Select Top 8",
     btnSimulate: "Simulate",
     btnMoveUp: "Move Up",
     btnMoveDown: "Move Down",
 
     // Status / Helpers
-    thirdsChosenSuccess: "✓ 8 Third-Place Teams Chosen! Knockout bracket unlocked.",
-    thirdsChosenInfo: "ℹ Please select exactly 8 third-place teams to unlock the knockout bracket (Currently: {selected} / 8).",
-    selectBestThirdsTitle: "Select the 8 Best Third-Place Teams",
-    selectBestThirdsDesc: "Since the World Cup 2026 format features 12 groups, only 8 of the 12 third-placed teams qualify for the Round of 32. Select the 8 teams you want to advance by clicking on their cards.",
-    thirdsSelectedSuccessBanner: "✓ Exactly 8 teams selected! The knockout bracket is unlocked.",
-    thirdsSelectedInfoBanner: "Please select exactly 8 teams to advance (Currently selected: {selected} / 8)",
-    bracketInfoBanner: "Click on a team to select them as the winner and advance them to the next round. Toggle the \"PK\" badge on the winner if the match went to penalties. Each match is positioned exactly between its two feeder matches so the round it belongs to is always obvious.",
-    ratingLabel: "Rating",
-    qualifiedLabel: "Qualified",
-    eliminatedLabel: "Eliminated",
-    selectLabel: "Select",
+    bracketInfoBanner: "Click on a team to select them as the winner and advance them to the next round. Toggle the \"PK\" badge on the winner if the match went to penalties. Games that have already been played are pre-filled with the real result and locked — the rest are yours to predict. Each match sits between its two feeder matches so the round is always obvious.",
+    bracketResultIn: "Result in",
+    bracketLockedHint: "This match has been played — the real result is locked in.",
+    bracketSyncing: "Syncing…",
+    bracketSyncedAt: "Real results synced {when} (UTC)",
+    bracketSyncFailed: "Couldn't load real results — showing your picks.",
 
     // Stages & Bracket Columns
     stageAll: "All Stages",
@@ -319,8 +309,6 @@ export const TRANSLATIONS = {
     groupLetter: "Grupo {letter}",
     
     // Tabs
-    tabGroups: "Classificação dos Grupos",
-    tabThirdPlace: "Seleção de Terceiros Lugares",
     tabKnockout: "Chaveamento do Mata-mata",
     tabKnockoutTooltip: "Selecione exatamente 8 terceiros colocados para desbloquear o chaveamento",
     tabPredictions: "Bolão",
@@ -503,29 +491,21 @@ export const TRANSLATIONS = {
     adminSyncError: "Falha na sincronização. Tente novamente ou rode via SSH.",
 
     // Controls
-    btnSimulateAllGroups: "Simular Todos os Grupos",
-    btnResetRankings: "Redefinir Classificações",
-    btnResetSelections: "Redefinir Seleções",
     btnSimulateKnockouts: "Simular Mata-mata",
     btnResetBracket: "Redefinir Chaveamento",
+    btnRefreshResults: "Atualizar Resultados",
     btnPathToGlory: "Caminho da Glória",
-    btnAutoSelectTop8: "Selecionar Top 8 Auto",
     btnSimulate: "Simular",
     btnMoveUp: "Subir",
     btnMoveDown: "Descer",
 
     // Status / Helpers
-    thirdsChosenSuccess: "✓ 8 terceiros colocados escolhidos! Chaveamento do mata-mata desbloqueado.",
-    thirdsChosenInfo: "ℹ Por favor, selecione exatamente 8 terceiros colocados para desbloquear o chaveamento (Atualmente: {selected} / 8).",
-    selectBestThirdsTitle: "Selecione os 8 Melhores Terceiros Colocados",
-    selectBestThirdsDesc: "Como o formato da Copa do Mundo de 2026 conta com 12 grupos, apenas 8 dos 12 terceiros colocados se classificam para a fase de 32 avos. Selecione as 8 seleções que você deseja que avancem clicando em seus cards.",
-    thirdsSelectedSuccessBanner: "✓ Exatamente 8 seleções selecionadas! O chaveamento do mata-mata está desbloqueado.",
-    thirdsSelectedInfoBanner: "Por favor, selecione exatamente 8 seleções para avançar (Selecionadas atualmente: {selected} / 8)",
-    bracketInfoBanner: "Clique em uma seleção para selecioná-la como vencedora e avançá-la para a próxima fase. Ative o selo \"PK\" (pênaltis) no vencedor se a partida foi decidida nos pênaltis. Cada partida está posicionada exatamente entre os seus dois jogos alimentadores para que a fase correspondente seja óbvia.",
-    ratingLabel: "Força",
-    qualifiedLabel: "Classificado",
-    eliminatedLabel: "Eliminado",
-    selectLabel: "Selecionar",
+    bracketInfoBanner: "Clique em uma seleção para escolhê-la como vencedora e avançá-la à próxima fase. Ative o selo \"PK\" no vencedor se a partida foi decidida nos pênaltis. Jogos já realizados vêm pré-preenchidos com o resultado real e bloqueados — o restante é com você. Cada partida fica entre seus dois jogos alimentadores para que a fase seja óbvia.",
+    bracketResultIn: "Resultado",
+    bracketLockedHint: "Esta partida já foi realizada — o resultado real está fixado.",
+    bracketSyncing: "Sincronizando…",
+    bracketSyncedAt: "Resultados reais sincronizados {when} (UTC)",
+    bracketSyncFailed: "Não foi possível carregar os resultados reais — mostrando seus palpites.",
 
     // Stages & Bracket Columns
     stageAll: "Todas as Fases",

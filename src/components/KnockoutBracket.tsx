@@ -138,15 +138,17 @@ export function KnockoutBracket({
     const isWinner = match.winner === teamId && teamId !== '';
     const score = side === 'home' ? match.homeScore : match.awayScore;
     const showScore = score !== null && score !== undefined && match.winner !== '';
+    const locked = match.locked === true;
     return (
       <div
-        className={`ko-team-row ${!teamId ? 'placeholder' : ''} ${isWinner ? 'winner' : ''}`}
-        onClick={() => teamId && onSelectWinner(match.id, side)}
+        className={`ko-team-row ${!teamId ? 'placeholder' : ''} ${isWinner ? 'winner' : ''} ${locked ? 'locked' : ''}`}
+        onClick={() => !locked && teamId && onSelectWinner(match.id, side)}
+        aria-disabled={locked || undefined}
       >
         {renderTeamName(teamId || undefined, getPlaceholderText(match, side))}
         <div className="ko-team-meta">
           {showScore && <span className="ko-team-score">{score}</span>}
-          {teamId && isWinner && (
+          {teamId && isWinner && !locked && (
             <button
               className={`penalty-btn ${match.penaltyWinner === side ? 'active' : ''}`}
               onClick={(e) => handlePenaltyToggle(match.id, side, e)}
@@ -154,6 +156,9 @@ export function KnockoutBracket({
             >
               PK
             </button>
+          )}
+          {teamId && isWinner && locked && match.penaltyWinner === side && (
+            <span className="ko-penalty-badge" title={t('pkTooltip')}>PK</span>
           )}
         </div>
       </div>
@@ -171,8 +176,9 @@ export function KnockoutBracket({
   };
 
   const renderMatchCard = (match: KnockoutMatch) => {
+    const locked = match.locked === true;
     return (
-      <div className="ko-match-card" data-match-id={match.id} key={match.id}>
+      <div className={`ko-match-card ${locked ? 'is-locked' : ''}`} data-match-id={match.id} key={match.id}>
         <div className="ko-match-header">
           <span className="ko-match-label">{getMatchLabel(match.label)}</span>
           <span className="ko-match-stage-tag">{stageShortLabel(match.stage)}</span>
@@ -181,6 +187,7 @@ export function KnockoutBracket({
           {renderTeamRow(match, 'home')}
           {renderTeamRow(match, 'away')}
         </div>
+        {locked && <div className="ko-match-locked-tag" title={t('bracketLockedHint')}>{t('bracketResultIn')}</div>}
       </div>
     );
   };
@@ -284,6 +291,16 @@ export function KnockoutBracket({
           <div className="bracket-column-subtitle">{stage.subtitle}</div>
         </div>
         <div className="bracket-column-body">
+          {/* Mobile-only sticky section header. Hidden on desktop via CSS
+              (.bracket-section-header { display:none }); shown only inside the
+              ≤1024px bracket reflow, where it stays pinned while the column's
+              match cards scroll under it — so the current round is always
+              identifiable in the long stacked list. Reuses stage.label +
+              stage.subtitle (which already encodes the match count). */}
+          <div className="bracket-section-header" aria-hidden="true">
+            <span className="bracket-section-title">{stage.label}</span>
+            <span className="bracket-section-subtitle">{stage.subtitle}</span>
+          </div>
           {renderConnectors(stageKey)}
           {stage.matches.map((m) => {
             // 3rd-place card is rendered separately, below the Final

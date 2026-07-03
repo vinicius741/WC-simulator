@@ -54,6 +54,11 @@ button {
   -webkit-touch-callout: none;
 }
 
+/* Emoji flag sizing shared across the bracket, recap modal, etc. */
+.team-flag {
+  font-size: 14px;
+}
+
 /* Dynamic viewport height (iOS 15.4+) with 100vh fallback for older devices */
 body {
   min-height: 100vh;

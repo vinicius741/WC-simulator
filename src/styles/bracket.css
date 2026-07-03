@@ -1,8 +1,7 @@
 /* =============================================================================
    Knockout bracket — KnockoutBracket: stage tabs, the column/grid bracket
    layout, match cards (.ko-match-* / .ko-team-*), connector lines, and the
-   champion display card. The .ko-match-card base is also consumed by
-   ThirdPlaceStandings. Split from the former monolithic src/index.css.
+   champion display card. Split from the former monolithic src/index.css.
 
    NOTE: .champion-display-card was defined twice in the original file; the
    second block fully overrode the first, so they are merged here into the
@@ -100,6 +99,17 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 3px;
+}
+
+/*
+  Mobile-only sticky section header (the in-body "Round of 16" label that stays
+  pinned while a stage's match cards scroll past). Hidden on desktop — the
+  absolute-positioned grid already labels each column via .bracket-column-header.
+  The responsive rules that actually show/stick it live in responsive.css
+  (≤1024px bracket reflow block).
+*/
+.bracket-section-header {
+  display: none;
 }
 
 /*
@@ -371,4 +381,73 @@
   color: var(--text-muted);
   font-size: 12px;
   gap: 8px;
+}
+
+/* ─── Real-result (locked) matches ────────────────────────────────────── */
+
+/* A played match: subtle border accent and no hover affordance. */
+.ko-match-card.is-locked {
+  border-color: var(--accent-gold, #c5a059);
+  background: rgba(197, 160, 89, 0.05);
+}
+.ko-match-card.is-locked:hover {
+  /* Match the non-hover look — locked cards aren't interactive. */
+  transform: none;
+}
+
+/* Locked team rows are non-interactive; show the result as final. */
+.ko-team-row.locked {
+  cursor: default;
+}
+.ko-team-row.locked:hover {
+  background: transparent;
+}
+/* The winner of a locked match is shown with the gold accent rather than the
+   red "your pick" treatment, signalling it's a real result. */
+.ko-team-row.locked.winner {
+  color: var(--accent-gold, #8a6d2f);
+  background: rgba(197, 160, 89, 0.12);
+}
+.ko-team-row.locked.winner .ko-team-score {
+  color: var(--accent-gold, #8a6d2f);
+}
+
+/* Read-only PK badge for a shootout winner in a locked match. */
+.ko-penalty-badge {
+  background: rgba(197, 160, 89, 0.18);
+  border: 1px solid var(--accent-gold, #c5a059);
+  color: var(--accent-gold, #8a6d2f);
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.ko-match-locked-tag {
+  margin-top: 6px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-gold, #8a6d2f);
+  background: rgba(197, 160, 89, 0.12);
+  border-radius: 3px;
+  text-align: center;
+}
+
+/* Real-results sync status line in the controls bar. */
+.results-status {
+  font-size: 11px;
+  color: var(--text-secondary);
+  align-self: center;
+}
+.results-status-ok {
+  color: var(--text-secondary);
+}
+.results-status-error {
+  color: var(--accent-red);
+  font-weight: 600;
 }

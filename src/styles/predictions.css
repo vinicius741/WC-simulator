@@ -823,3 +823,33 @@
 .pred-fate-almost_out .pred-fate-status {
   color: var(--text-muted);
 }
+
+/* Leaderboard — wide results table (moved from the removed third-place.css,
+   shared with any large tabular layout). */
+.large-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.large-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.large-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f1f0ec;
+  font-size: 13px;
+}
+
+.large-table tr:hover td {
+  background: #fafaf9;
+}
