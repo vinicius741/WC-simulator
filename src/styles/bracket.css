@@ -127,11 +127,11 @@
 .bracket-column-body {
   display: block;
   position: relative;
-  /* Total height = 16 R32 slots + space for the 3rd-place card below the Final.
-     (16 * 108) + 108 + 24 = 1860px. */
-  height: 1860px;
-  --match-height: 96px;
-  --match-gap: 12px;
+  /* Desktop fallback. KnockoutBracket also writes these values inline so the
+     absolute card placement and connector SVG viewBox stay in sync. */
+  height: 2336px;
+  --match-height: 120px;
+  --match-gap: 16px;
   --slot: calc(var(--match-height) + var(--match-gap));
 }
 
@@ -287,44 +287,26 @@
 }
 
 /* Connector lines between columns.
-   Each match cell has a short horizontal stub that reaches halfway
-   across the gap.  The vertical joining line and the inbound stub
-   to the target match are rendered as separate absolutely-positioned
-   divs inside the target column. */
-.bracket-cell::after {
-  content: '';
+   Rendered as a single SVG per target match so the outbound feeder stubs,
+   vertical join, and inbound target stub share one continuous drawing surface. */
+.bracket-connector {
   position: absolute;
-  top: 50%;
-  right: -18px;
-  width: 18px;
-  height: 1px;
-  background: var(--border-color);
-  pointer-events: none;
-}
-
-.bracket-column:last-child .bracket-cell::after {
-  display: none;
-}
-
-/* Vertical connector line that joins two feeder stubs in the gap */
-.bracket-connector-vertical {
-  position: absolute;
-  left: -18px;
-  width: 1px;
-  background: var(--border-color);
+  inset: 0 auto 0 -36px;
+  width: 36px;
+  height: 100%;
+  overflow: visible;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Horizontal stub from the middle of the vertical connector to the target match */
-.bracket-connector-stub {
-  position: absolute;
-  left: -18px;
-  width: 18px;
-  height: 1px;
-  background: var(--border-color);
-  pointer-events: none;
-  z-index: 1;
+.bracket-connector-path {
+  fill: none;
+  stroke: var(--border-color);
+  stroke-width: 1;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+  shape-rendering: crispEdges;
 }
 
 .bracket-column-champion {

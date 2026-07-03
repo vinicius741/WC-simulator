@@ -194,9 +194,12 @@ export function KnockoutBracket({
 
   // Compute vertical positions for every match by averaging the positions
   // of its two feeder matches from the previous round.
-  const MATCH_HEIGHT = 96;
-  const MATCH_GAP = 12;
-  const SLOT = MATCH_HEIGHT + MATCH_GAP; // 108px
+  const MATCH_HEIGHT = 120;
+  const MATCH_GAP = 16;
+  const SLOT = MATCH_HEIGHT + MATCH_GAP;
+  const BRACKET_BODY_HEIGHT = 16 * SLOT + SLOT + 24;
+  const CONNECTOR_GAP = 36;
+  const CONNECTOR_MID = CONNECTOR_GAP / 2;
 
   const matchTops = React.useMemo<Record<string, number>>(() => {
     const tops: Record<string, number> = {};
@@ -259,23 +262,31 @@ export function KnockoutBracket({
       const targetTop = matchTops[target.id];
       if (t0 === undefined || t1 === undefined || targetTop === undefined) return null;
 
-      const upperTop = Math.min(t0, t1);
-      const lowerTop = Math.max(t0, t1);
-      const upperCenter = upperTop + MATCH_HEIGHT / 2;
-      const lowerCenter = lowerTop + MATCH_HEIGHT / 2;
+      const centers = [t0 + MATCH_HEIGHT / 2, t1 + MATCH_HEIGHT / 2].sort((a, b) => a - b);
+      const upperCenter = centers[0]!;
+      const lowerCenter = centers[1]!;
       const targetCenter = targetTop + MATCH_HEIGHT / 2;
 
       return (
-        <React.Fragment key={`conn-${target.id}`}>
-          <div
-            className="bracket-connector-vertical"
-            style={{ top: `${upperCenter}px`, height: `${lowerCenter - upperCenter}px` }}
+        <svg
+          className="bracket-connector"
+          key={`conn-${target.id}`}
+          viewBox={`0 0 ${CONNECTOR_GAP} ${BRACKET_BODY_HEIGHT}`}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            className="bracket-connector-path"
+            d={[
+              `M 0 ${upperCenter}`,
+              `H ${CONNECTOR_MID}`,
+              `V ${lowerCenter}`,
+              `H 0`,
+              `M ${CONNECTOR_MID} ${targetCenter}`,
+              `H ${CONNECTOR_GAP}`
+            ].join(' ')}
           />
-          <div
-            className="bracket-connector-stub"
-            style={{ top: `${targetCenter - 0.5}px`, left: '-18px', width: '18px' }}
-          />
-        </React.Fragment>
+        </svg>
       );
     });
   };
@@ -290,7 +301,14 @@ export function KnockoutBracket({
           <div className="bracket-column-title">{stage.label}</div>
           <div className="bracket-column-subtitle">{stage.subtitle}</div>
         </div>
-        <div className="bracket-column-body">
+        <div
+          className="bracket-column-body"
+          style={{
+            '--match-height': `${MATCH_HEIGHT}px`,
+            '--match-gap': `${MATCH_GAP}px`,
+            height: `${BRACKET_BODY_HEIGHT}px`
+          } as React.CSSProperties}
+        >
           {/* Mobile-only sticky section header. Hidden on desktop via CSS
               (.bracket-section-header { display:none }); shown only inside the
               ≤1024px bracket reflow, where it stays pinned while the column's
@@ -403,7 +421,14 @@ export function KnockoutBracket({
                 <div className="bracket-column-title">{t('stageChampion')}</div>
                 <div className="bracket-column-subtitle">{t('crownedFromFinal')}</div>
               </div>
-              <div className="bracket-column-body">
+              <div
+                className="bracket-column-body"
+                style={{
+                  '--match-height': `${MATCH_HEIGHT}px`,
+                  '--match-gap': `${MATCH_GAP}px`,
+                  height: `${BRACKET_BODY_HEIGHT}px`
+                } as React.CSSProperties}
+              >
                 <div
                   className="bracket-cell"
                   key="champion"

@@ -126,9 +126,7 @@
     height: auto;
   }
   /* Connectors point sideways into nothing once columns stack — hide them */
-  .bracket-cell::after,
-  .bracket-connector-vertical,
-  .bracket-connector-stub {
+  .bracket-connector {
     display: none !important;
   }
   .champion-display-card {
